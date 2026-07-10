@@ -21,6 +21,26 @@ REPO_ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, "..", ".."))
 SRC_PATH = os.path.join(REPO_ROOT, "androguard", "skills", "main.py")
 
 
+def safe_default(v):
+    """把 click 参数 default 值转为可 JSON 序列化的形式。
+
+    click 不同版本会用 None / callable / Sentinel（如 click.UNSET）/
+    Enum / tuple 等作 default，json.dump 无法直接序列化全部类型，
+    这里统一兜底：不可序列化的转 repr 字符串。
+    """
+    if v is None:
+        return None
+    if callable(v):
+        return "<func>"
+    # click 8.2+ 引入的 Sentinel（如 click.UNSET）——非 None 非 callable，
+    # json.dump 会抛 TypeError，转字符串表示
+    try:
+        json.dumps(v)
+        return v
+    except (TypeError, ValueError):
+        return repr(v)
+
+
 def param_info(p):
     names_long = [n for n in p.opts if n.startswith("--")]
     names_short = [n for n in p.opts if n.startswith("-") and not n.startswith("--")]
@@ -30,9 +50,7 @@ def param_info(p):
         "dest": p.name,
         "type": type(p.type).__name__,
         "required": bool(p.required),
-        "default": None if p.default is None else (
-            p.default if not callable(p.default) else "<func>"
-        ),
+        "default": safe_default(p.default),
         "help": getattr(p, "help", None) or "",
         "is_flag": bool(getattr(p, "is_flag", False)),
         "multiple": bool(getattr(p, "multiple", False)),
