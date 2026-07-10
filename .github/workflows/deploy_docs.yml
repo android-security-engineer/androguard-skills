@@ -1,0 +1,109 @@
+name: Build & Deploy Docs (VitePress)
+
+# 当 website/ 或相关脚本变更时自动构建文档站并部署到 GitHub Pages。
+# 也可手动触发。
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'website/**'
+      - '.github/workflows/deploy_docs.yml'
+  workflow_dispatch:
+
+# GitHub Pages 部署所需的权限
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 同一时间只允许一个部署任务，排队中的会取消旧的
+concurrency:
+  group: 'pages'
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build VitePress site
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # lastUpdated 需要完整 git 历史
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: website/pnpm-lock.yaml
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Python (for command introspection)
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install androguard (for introspection script)
+        working-directory: website
+        run: |
+          python -m pip install --upgrade pip
+          # 安装仓库本身，使内省脚本能 import androguard.skills.main
+          pip install ../
+
+      - name: Regenerate command docs from CLI introspection
+        working-directory: website
+        run: |
+          python scripts/introspect_commands.py > scripts/commands.json
+          python scripts/gen_command_docs.py
+          echo "命令文档已重新生成"
+
+      - name: Install dependencies
+        working-directory: website
+        run: pnpm install --frozen-lockfile
+
+      - name: Configure base path for GitHub Pages
+        working-directory: website
+        # 根据仓库名动态设置 base：部署到 https://<user>.github.io/<repo>/
+        # 若是用户/组织站点 (<user>.github.io)，base 应为 '/'
+        # config.ts 默认 base 已固化为 /androguard-skills/（本仓库 repo 名），
+        # 本步骤按 GITHUB_REPOSITORY 再次覆盖，使同一份 workflow 可移植到任意仓库名。
+        run: |
+          REPO="${GITHUB_REPOSITORY##*/}"
+          if [ "$REPO" = "${GITHUB_REPOSITORY%%/*}.github.io" ]; then
+            BASE="/"
+          else
+            BASE="/${REPO}/"
+          fi
+          echo "部署 base = $BASE"
+          sed -i "s|const base = \`/androguard-skills/\`|const base = \`${BASE}\`|" docs/.vitepress/config.ts
+          grep -n "const base" docs/.vitepress/config.ts
+
+      - name: Build
+        working-directory: website
+        run: pnpm docs:build
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # 构建产物在 website/docs/.vitepress/dist
+          path: website/docs/.vitepress/dist
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
