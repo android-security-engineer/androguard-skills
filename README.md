@@ -26,6 +26,10 @@ pip install androguard
 
 The [Github Pages Documentation](http://androguard.github.io/androguard/) is the most up to date source.
 
+> 📖 **Androguard Skills 文档站**：本仓库自带的 VitePress 文档站已部署到
+> https://android-security-engineer.github.io/androguard-skills/ ——
+> 覆盖 219 个 CLI 命令、daemon 模式、19 域安全审计、代码模块参考，可只看文档站学会整个项目。
+
 Additional documentation that contains outdated information is available at [ReadTheDocs](http://androguard.readthedocs.io/en/latest/).
 
 

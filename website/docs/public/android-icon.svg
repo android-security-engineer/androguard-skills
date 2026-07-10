@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3DDC84"/>
+      <stop offset="100%" stop-color="#00A862"/>
+    </linearGradient>
+  </defs>
+  <!-- 盾牌 -->
+  <path d="M32 4 L56 12 V32 C56 48 44 56 32 60 C20 56 8 48 8 32 V12 Z" fill="url(#g)" stroke="#006B3C" stroke-width="1.5"/>
+  <!-- Android 机器人头 -->
+  <g fill="#ffffff">
+    <!-- 两根触角 -->
+    <line x1="24" y1="16" x2="20" y2="10" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+    <line x1="40" y1="16" x2="44" y2="10" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+    <!-- 头部圆顶 -->
+    <path d="M20 24 a12 12 0 0 1 24 0 Z"/>
+    <!-- 身体 -->
+    <rect x="18" y="26" width="28" height="18" rx="3"/>
+    <!-- 两眼 -->
+    <circle cx="27" cy="21" r="1.8" fill="#0A6B3C"/>
+    <circle cx="37" cy="21" r="1.8" fill="#0A6B3C"/>
+    <!-- 腿 -->
+    <line x1="24" y1="44" x2="24" y2="50" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="40" y1="44" x2="40" y2="50" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+  </g>
+  <!-- 终端提示符，象征 CLI -->
+  <text x="32" y="56" font-family="monospace" font-size="7" fill="#ffffff" text-anchor="middle" font-weight="bold">&gt;_</text>
+</svg>

@@ -1,0 +1,14 @@
+{
+  "daemon": {
+    "title": "daemon · 进程管理",
+    "icon": "⚙️",
+    "count": 3,
+    "desc": "管理 daemon 常驻进程：启动、停止、查看状态。daemon 缓存已加载的 APK/DEX/Analysis，跨命令复用，避免重复解析。",
+    "help": "Manage the daemon process",
+    "commands": [
+      {"name":"start","line":2616,"help":"Start the daemon process","params":[{"name":"--port","type":"int","default":"8899","required":false,"help":"TCP port for daemon (default: 8899)"}],"method":"DaemonServer.start()","example":"androguard-skills daemon start\nandroguard-skills daemon start --port 8900"},
+      {"name":"stop","line":2626,"help":"Stop the daemon process","params":[],"method":"DaemonClient.stop_daemon()","example":"androguard-skills daemon stop"},
+      {"name":"status","line":2639,"help":"Check daemon status","params":[],"method":"DaemonClient.status()","example":"androguard-skills daemon status"}
+    ]
+  }
+}
