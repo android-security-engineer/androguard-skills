@@ -32,7 +32,6 @@ website/
 └── scripts/                   # 文档生成脚本
     ├── introspect_commands.py # 从 click 命令树内省 → commands.json
     ├── gen_command_docs.py    # 基于 commands.json 生成命令文档页
-    ├── gen_sidebar.py         # （备用）生成侧边栏片段
     └── commands.json          # 权威命令清单（生成器产物，勿手改）
 ```
 

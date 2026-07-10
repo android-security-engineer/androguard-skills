@@ -25,3 +25,9 @@ ak_androguard.egg-info
 *.db
 *.db-*
 *DS_Store*
+
+# VitePress 文档站
+website/node_modules/
+website/docs/.vitepress/cache/
+website/scripts/introspect.err
+website/scripts/sidebar_fragment.txt
