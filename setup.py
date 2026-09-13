@@ -21,7 +21,11 @@ setup(
         "androguard.core.resources": ["public.xml"],
     },
     entry_points={
-        'console_scripts': ['androguard = androguard.cli.cli:entry_point']
+        'console_scripts': [
+            'androguard = androguard.cli.cli:entry_point',
+            'androguard-skills = androguard.skills.main:entry_point',
+            'androguard-mcp = androguard.agent.server:main',
+        ]
     },
     setup_requires=['setuptools'],
     python_requires='>=3.9',

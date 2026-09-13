@@ -1,6 +1,8 @@
 # Python API
 
 > 🐍 不想走 CLI？直接在 Python 里调用 Skills。CLI 命令与 API 方法几乎一一对应。
+>
+> 如果是 AI Agent 接入，请先看 [Agent API：无头模式与 GUI 模式](./agent-api)：它提供无需启动界面的纯 API，以及可自动化控制终端界面的 GUI API。
 
 ## 入口类
 

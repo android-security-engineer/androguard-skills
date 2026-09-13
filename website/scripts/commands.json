@@ -51,6 +51,27 @@
         ]
       },
       {
+        "name": "mcp",
+        "help": "Run as an MCP stdio server (JSON-RPC line-framed on stdin/stdout).\n\n    Suitable for use with Claude Desktop, Claude Code, and any MCP-compatible\n    client. Each request is one JSON line; each response is one JSON line.\n\n    Example Claude Code config (~/.claude/settings.json)::\n\n        { \"mcpServers\": { \"androguard\": { \"command\": \"androguard-skills\", \"args\": [\"mcp\"] } } }",
+        "params": [
+          {
+            "name": "--with-ui",
+            "dest": "with_ui",
+            "type": "BoolParamType",
+            "required": false,
+            "default": false,
+            "help": "Also expose UI control tools (ui.snapshot, ui.action, etc.)",
+            "is_flag": true,
+            "multiple": false,
+            "nargs": 1,
+            "is_argument": false,
+            "choices": null
+          }
+        ],
+        "callback_name": "mcp_cmd",
+        "methods": []
+      },
+      {
         "name": "unload",
         "help": "Unload the current APK and release parsed objects (daemon mode).\n\n    Releases the loaded APK's APK/DEX/Analysis objects, runs gc, and trims\n    glibc malloc arenas so RSS falls back after processing large APKs.\n    Use this when a daemon has finished analyzing one APK and will idle or\n    switch contexts, to keep long-running memory bounded.",
         "params": [],

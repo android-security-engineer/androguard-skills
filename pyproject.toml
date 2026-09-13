@@ -2,7 +2,7 @@
 name = "androguard"
 description = "Androguard is a full python tool to play with Android files."
 authors = ["desnos <desnos@t0t0.fr>"]
-version = "4.1.4"
+version = "4.2.0"
 license = "Apache Licence, Version 2.0"
 readme = "README.md"
 homepage = "https://github.com/androguard/androguard"
@@ -35,6 +35,8 @@ cryptography = ">=46.0.6"
 
 [tool.poetry.scripts]
 androguard = "androguard.cli.cli:entry_point"
+androguard-skills = "androguard.skills.main:entry_point"
+androguard-mcp = "androguard.agent.server:main"
 
 [build-system]
 requires = ["poetry-core"]

@@ -86,6 +86,7 @@ class DaemonServer:
         self.port = port
         self.host = host
         self._skills = None
+        self._api = None
         self._server = None
         self._running = False
 
@@ -96,6 +97,14 @@ class DaemonServer:
 
             self._skills = AndroguardSkillsMain()
         return self._skills
+
+    def _get_api(self):
+        """懒加载 HeadlessAPI（共享同一 skills 实例）。"""
+        if self._api is None:
+            from androguard.agent.headless import HeadlessAPI
+
+            self._api = HeadlessAPI(skills=self._get_skills())
+        return self._api
 
     async def _handle_client(self, reader, writer):
         """处理客户端连接。
@@ -185,29 +194,35 @@ class DaemonServer:
         """
         # JSON-RPC 2.0 批量请求：[req1, req2, ...] → [resp1, resp2, ...]
         if isinstance(request, list):
-            return [await self._dispatch_single(r) for r in request]
+            responses = [await self._dispatch_single(r) for r in request]
+            return [r for r in responses if r is not None]
         return await self._dispatch_single(request)
 
     async def _dispatch_single(self, request: dict) -> dict:
-        """分发单个 JSON-RPC 请求。"""
+        """分发单个 JSON-RPC 请求。
+
+        daemon 特有的内置方法（status/shutdown）在此处理；其余全部委托给
+        HeadlessAPI.handle()，统一走 ToolRegistry 路由（参数校验、jsonable
+        序列化、MCP tools/list 支持一并获得）。
+        """
         method_name = request.get("method", "")
-        params = request.get("params", {})
         req_id = request.get("id")
 
-        # 内置方法
+        # daemon 内置：状态查询
         if method_name == "status":
+            skills = self._get_skills()
             return {
                 "jsonrpc": "2.0",
                 "result": {
                     "status": "running",
                     "pid": os.getpid(),
                     "uptime": time.time() - self._start_time,
-                    "apk_loaded": self._skills is not None
-                    and self._skills.is_loaded,
+                    "apk_loaded": skills.is_loaded,
                 },
                 "id": req_id,
             }
 
+        # daemon 内置：优雅关闭
         if method_name == "shutdown":
             self._running = False
             return {
@@ -216,30 +231,13 @@ class DaemonServer:
                 "id": req_id,
             }
 
-        # 分发到 AndroguardSkillsMain
-        skills = self._get_skills()
-        method = getattr(skills, method_name, None)
-        if method is None:
-            return {
-                "jsonrpc": "2.0",
-                "error": {
-                    "code": -32601,
-                    "message": f"Method not found: {method_name}",
-                },
-                "id": req_id,
-            }
-
+        # 其余全部委托给 HeadlessAPI（统一路由：技能方法 + MCP initialize/tools/list/tools/call）
         try:
-            # load_apk 特殊处理：参数名为 path 而非 apk_path
-            if method_name == "load_apk":
-                result = method(params.get("path", params.get("apk_path", "")))
-            elif method_name == "load_dex":
-                result = method(params.get("path", params.get("dex_path", "")))
-            else:
-                # 调用方法，传递参数
-                result = method(**params)
-
-            return {"jsonrpc": "2.0", "result": result, "id": req_id}
+            response = self._get_api().handle(request)
+            if response is None:
+                # MCP notification（无 id）→ 无响应
+                return None
+            return response
         except Exception as e:
             return {
                 "jsonrpc": "2.0",

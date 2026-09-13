@@ -1278,7 +1278,7 @@ class AndroguardSkillsMain:
         """
         return util_skills.util_detect_raw(data)
 
-    def util_permissions(self, apilevel) -> dict:
+    def util_permissions(self, apilevel: int) -> dict:
         """
         加载指定 API level 的 AOSP 权限定义。
 
@@ -1286,7 +1286,7 @@ class AndroguardSkillsMain:
         """
         return util_skills.util_permissions(apilevel)
 
-    def util_permission_mappings(self, apilevel) -> dict:
+    def util_permission_mappings(self, apilevel: int) -> dict:
         """
         加载指定 API level 的方法签名 → 权限映射。
 
@@ -2244,7 +2244,7 @@ class AndroguardSkillsMain:
             limit,
         )
 
-    def analysis_permissions(self, apilevel=None, limit: int = None) -> dict:
+    def analysis_permissions(self, apilevel: int = None, limit: int = None) -> dict:
         """
         基于 API level 的方法→权限映射分析（批量列出需权限的 API 调用）。
 
@@ -2372,7 +2372,7 @@ class AndroguardSkillsMain:
         except RuntimeError as e:
             return {"error": str(e)}
 
-    def resource_value(self, resource_id, package: str = None) -> dict:
+    def resource_value(self, resource_id: int, package: str = None) -> dict:
         """
         按资源 ID 取类型化解析值。
 
@@ -2617,6 +2617,30 @@ def entry_point(verbosity):
 
 
 # ================================================================
+# MCP stdio server 命令
+# ================================================================
+
+@entry_point.command(name="mcp")
+@click.option(
+    "--with-ui",
+    is_flag=True,
+    default=False,
+    help="Also expose UI control tools (ui.snapshot, ui.action, etc.)",
+)
+def mcp_cmd(with_ui):
+    """Run as an MCP stdio server (JSON-RPC line-framed on stdin/stdout).
+
+    Suitable for use with Claude Desktop, Claude Code, and any MCP-compatible
+    client. Each request is one JSON line; each response is one JSON line.
+
+    Example Claude Code config (~/.claude/settings.json)::\n
+        { "mcpServers": { "androguard": { "command": "androguard-skills", "args": ["mcp"] } } }
+    """
+    from androguard.agent.server import run_stdio
+    run_stdio(include_ui=with_ui)
+
+
+# ================================================================
 # Daemon 命令
 # ================================================================
 
@@ -2671,7 +2695,7 @@ def daemon_status():
 def load_apk(apk_path):
     """Load an APK file for analysis"""
     # 先尝试 daemon
-    result = _try_daemon_call("load_apk", {"path": apk_path})
+    result = _try_daemon_call("load_apk", {"apk_path": apk_path})
     if result is not None:
         _output_json(result)
         return

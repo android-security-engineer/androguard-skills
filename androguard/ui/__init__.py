@@ -1,3 +1,4 @@
+import json
 import os
 import queue
 
@@ -56,6 +57,10 @@ class DynamicUI:
     def __init__(self, input_queue):
         logger.info("Starting the Terminal UI")
         self.filter: Filter | None = None
+        self.app = None
+        self._running = False
+        self._stop_requested = False
+        self._pending_filter_sync = None  # (interface, method, types) for render-thread apply
 
         self.input_queue = input_queue
         self.all_transactions = []
@@ -68,12 +73,22 @@ class DynamicUI:
         self.filter_panel = FiltersPanel()
         self.help_panel = HelpPanel()
 
-        self.resize_components(os.get_terminal_size())
+        self.focusable = [self.transaction_table, self.details_pane]
+        self.focus_index = 0
+        self.focusable[self.focus_index].activated = True
+
+        try:
+            dimensions = os.get_terminal_size()
+        except OSError:
+            # Agent clients and tests often construct the UI without a TTY.
+            dimensions = os.terminal_size((120, 40))
+        self.resize_components(dimensions)
 
     def run(self):
         self.focusable = [self.transaction_table, self.details_pane]
         self.focus_index = 0
         self.focusable[self.focus_index].activated = True
+        self._stop_requested = False
 
         kb1 = KeyBindings()
 
@@ -211,12 +226,356 @@ class DynamicUI:
             full_screen=True,
             style=style,
         )
+        self.app = app
         app.before_render += self.check_resize
 
-        app.run()
+        self._running = True
+        app.before_render += self._process_data_hook
+        try:
+            app.run()
+        finally:
+            self._running = False
+            self.app = None
+
+    def _process_data_hook(self, _):
+        self.process_data()
+        self._apply_filter_sync()
+
+    def _apply_filter_sync(self):
+        if self._pending_filter_sync is None:
+            return
+        interface, method, types = self._pending_filter_sync
+        self.filter_panel.interface_textarea.text = interface
+        self.filter_panel.method_textarea.text = method
+        wanted_types = set(types or [])
+        for value, _label in self.filter_panel.type_filter_checkboxes.values:
+            if value in wanted_types:
+                if value not in self.filter_panel.type_filter_checkboxes.current_values:
+                    self.filter_panel.type_filter_checkboxes.current_values.append(value)
+            else:
+                try:
+                    self.filter_panel.type_filter_checkboxes.current_values.remove(value)
+                except ValueError:
+                    pass
+        self._pending_filter_sync = None
+
+    def request_stop(self):
+        """Ask a running prompt-toolkit application to exit."""
+        self._stop_requested = True
+        if self.app is not None:
+            self.app.exit()
+
+    def agent_snapshot(self, error=None):
+        """Return a JSON-friendly snapshot for an Agent or test client."""
+        selected = None
+        if self.transactions.selection_valid():
+            item = self.transactions.selected()
+            selected = {
+                "index": item.index,
+                "from_method": item.from_method,
+                "to_method": item.to_method,
+                "params": item.params,
+                "ret_value": item.ret_value,
+                "type": item.type(),
+            }
+
+        status = "running" if self._running or self.app is not None else "stopped"
+        if self._stop_requested and status == "running":
+            status = "stopping"
+        return {
+            "status": status,
+            "transaction_count": len(self.all_transactions),
+            "visible_count": len(self.transactions),
+            "selected_index": self.transactions.selection,
+            "selected": selected,
+            "view": {
+                "start": self.transactions.view.start,
+                "end": self.transactions.view.end,
+                "max_size": self.transactions.max_view_size,
+            },
+            "visible_transactions": [
+                {
+                    "index": t.index,
+                    "from_method": t.from_method,
+                    "to_method": t.to_method,
+                    "type": t.type(),
+                }
+                for t in self.transactions.view_slice()
+            ],
+            "focus": self._focus_name(),
+            "help_visible": self.help_panel.visible,
+            "filters_visible": self.filter_panel.visible,
+            "filter": {
+                "interface": self.filter.interface if self.filter else None,
+                "method": self.filter.method if self.filter else None,
+                "types": self.filter.types if self.filter else [],
+            },
+            "error": error,
+        }
+
+    def _focus_name(self):
+        if self.focus_index == 1:
+            return "details"
+        return "transactions"
+
+    def _set_focus(self, panel):
+        names = {"transactions": 0, "transaction": 0, "details": 1}
+        try:
+            self.focus_index = names[panel]
+        except KeyError as exc:
+            raise ValueError(
+                "Unknown panel; expected transactions or details"
+            ) from exc
+        for index, frame in enumerate(self.focusable):
+            frame.activated = index == self.focus_index
+        if self.app is not None:
+            container = self.focusable[self.focus_index]
+            self.app.layout.focus(container)
+
+    def _action_select(self, **arguments):
+        index = int(arguments["index"])
+        if not 0 <= index < len(self.transactions):
+            raise IndexError("Selection index out of range")
+        self.transactions.move_selection(index - self.transactions.selection)
+
+    def _action_move(self, **arguments):
+        self.transactions.move_selection(int(arguments.get("step", 0)))
+
+    def _action_focus(self, **arguments):
+        self._set_focus(arguments["panel"])
+
+    def _action_filter(self, **arguments):
+        types = self._normalise_types(arguments.get("types"))
+        self.filter = Filter(
+            interface=arguments.get("interface") or None,
+            method=arguments.get("method") or None,
+            types=types,
+        )
+        self.transactions.assign(
+            item for item in self.all_transactions if self.filter.passes(item)
+        )
+        # Defer widget synchronization to the render thread while the TUI runs.
+        self._pending_filter_sync = (
+            arguments.get("interface") or "",
+            arguments.get("method") or "",
+            set(types),
+        )
+        if self.app is None:
+            self._apply_filter_sync()
+
+    def _action_toggle_help(self, **arguments):
+        self.help_panel.visible = not self.help_panel.visible
+
+    def _action_toggle_filters(self, **arguments):
+        self.filter_panel.visible = not self.filter_panel.visible
+
+    def _action_close_modals(self, **arguments):
+        self.help_panel.visible = False
+        self.filter_panel.visible = False
+
+    def _action_clear(self, **arguments):
+        self.all_transactions.clear()
+        self.transactions.clear()
+        self.filter = None
+        self._pending_filter_sync = ("", "", set())
+        if self.app is None:
+            self._apply_filter_sync()
+
+    def agent_action(self, action, **arguments):
+        """Apply a semantic action and return the resulting snapshot."""
+        handlers = {
+            "select": self._action_select,
+            "move": self._action_move,
+            "focus": self._action_focus,
+            "filter": self._action_filter,
+            "toggle_help": self._action_toggle_help,
+            "toggle_filters": self._action_toggle_filters,
+            "close_modals": self._action_close_modals,
+            "clear": self._action_clear,
+        }
+        try:
+            handler = handlers[action]
+        except KeyError as exc:
+            raise ValueError(f"Unknown UI action: {action}") from exc
+        handler(**arguments)
+        if self.app is not None:
+            self.app.invalidate()
+        return self.agent_snapshot()
+
+    def agent_get_transaction(self, index: int) -> dict:
+        """Return full details of a single transaction from all_transactions by index."""
+        if not 0 <= index < len(self.all_transactions):
+            raise IndexError(
+                f"Transaction index {index} out of range (0–{len(self.all_transactions) - 1})"
+            )
+        t = self.all_transactions[index]
+        return {
+            "index": t.index,
+            "from_method": t.from_method,
+            "to_method": t.to_method,
+            "params": t.params,
+            "ret_value": t.ret_value,
+            "type": t.type(),
+        }
+
+    # ------------------------------------------------------------------
+    # 事务匹配 / 分页辅助 —— 供 agent_query / agent_export / agent_search
+    # 三个数据方法共享，避免各自重复遍历全表与构造 Filter。
+    # ------------------------------------------------------------------
+    def _normalise_types(self, types):
+        if types is None:
+            return []
+        if isinstance(types, str):
+            return [types]
+        return list(types)
+
+    def _matching_rows(self, interface, method, types, full=False):
+        """Return all_transactions rows matching criteria.
+
+        ``full=True`` includes params/ret_value (export), else returns
+        index/from_method/to_method/type summaries (query/search).
+        """
+        from androguard.ui.filter import Filter as _Filter
+
+        types = self._normalise_types(types)
+        predicate = _Filter(
+            interface=interface or None, method=method or None, types=types
+        )
+        rows = []
+        for t in self.all_transactions:
+            if not predicate.passes(t):
+                continue
+            if full:
+                rows.append(
+                    {
+                        "index": t.index,
+                        "from_method": t.from_method,
+                        "to_method": t.to_method,
+                        "params": t.params,
+                        "ret_value": t.ret_value,
+                        "type": t.type(),
+                    }
+                )
+            else:
+                rows.append(
+                    {
+                        "index": t.index,
+                        "from_method": t.from_method,
+                        "to_method": t.to_method,
+                        "type": t.type(),
+                    }
+                )
+        return rows
+
+    @staticmethod
+    def _page(rows, limit, offset):
+        """Apply optional limit/offset to a matched row list.
+
+        Returns (slice, has_more).  No limit → all rows, has_more=False.
+        This keeps big transaction streams from exploding Agent payloads while
+        remaining backward compatible (no limit → full list).
+        """
+        if limit is None:
+            return rows, False
+        if limit < 0:
+            raise ValueError("limit must be >= 0")
+        if offset is None:
+            offset = 0
+        if offset < 0:
+            raise ValueError("offset must be >= 0")
+        end = offset + limit
+        return rows[offset:end], end < len(rows)
+
+    def agent_export_transactions(
+        self,
+        interface: str = None,
+        method: str = None,
+        types: list = None,
+        limit: int = None,
+        offset: int = None,
+    ) -> dict:
+        """Return all transactions (optionally filtered) as a structured list.
+
+        Reads from all_transactions so the result is not affected by the
+        active view filter.  Pass interface/method/types to narrow results,
+        and limit/offset to page large transaction streams.
+        """
+        rows = self._matching_rows(interface, method, types, full=True)
+        page, has_more = self._page(rows, limit, offset)
+        return {"count": len(rows), "transactions": page, "has_more": has_more}
+
+    def agent_query(
+        self,
+        interface: str = None,
+        method: str = None,
+        types: list = None,
+        limit: int = None,
+        offset: int = None,
+    ) -> dict:
+        """Count and summarise transactions matching optional criteria without changing the active filter.
+
+        Useful when the Agent needs statistics or a quick search without
+        disrupting the view the human is currently looking at.
+        """
+        rows = self._matching_rows(interface, method, types)
+        page, has_more = self._page(rows, limit, offset)
+        return {"count": len(rows), "transactions": page, "has_more": has_more}
+
+    def agent_search(
+        self,
+        keyword: str,
+        search_params: bool = True,
+        search_ret_value: bool = True,
+        search_methods: bool = False,
+        limit: int = None,
+        offset: int = None,
+    ) -> dict:
+        """Full-text search across transaction params, ret_value, and optionally method names.
+
+        Returns matching transaction summaries without changing the active filter.
+        Case-insensitive substring match.  Useful for finding sensitive strings
+        like passwords, tokens, URLs, or cryptographic operations.
+
+        When search_methods=True, also matches against from_method/to_method.
+        """
+        if not keyword:
+            return {"count": 0, "transactions": [], "has_more": False}
+        keyword_lower = keyword.lower()
+        rows = []
+        for t in self.all_transactions:
+            hit = False
+            if search_methods:
+                if keyword_lower in t.from_method.lower() or keyword_lower in t.to_method.lower():
+                    hit = True
+            if not hit and search_params:
+                if isinstance(t.params, str) and keyword_lower in t.params.lower():
+                    hit = True
+                elif isinstance(t.params, dict):
+                    if keyword_lower in json.dumps(t.params, ensure_ascii=False).lower():
+                        hit = True
+            if not hit and search_ret_value:
+                if isinstance(t.ret_value, str) and keyword_lower in t.ret_value.lower():
+                    hit = True
+                elif isinstance(t.ret_value, dict):
+                    if keyword_lower in json.dumps(t.ret_value, ensure_ascii=False).lower():
+                        hit = True
+            if hit:
+                rows.append(
+                    {
+                        "index": t.index,
+                        "from_method": t.from_method,
+                        "to_method": t.to_method,
+                        "type": t.type(),
+                    }
+                )
+        page, has_more = self._page(rows, limit, offset)
+        return {"count": len(rows), "transactions": page, "has_more": has_more}
 
     def check_resize(self, _):
-        new_dimensions = os.get_terminal_size()
+        try:
+            new_dimensions = os.get_terminal_size()
+        except OSError:
+            new_dimensions = os.terminal_size((120, 40))
         if self.dimensions != new_dimensions:
             self.resize_components(new_dimensions)
 
@@ -246,9 +605,11 @@ class DynamicUI:
 
     def get_available_blocks(self):
         blocks: list[Message] = []
-        # Retrieve every unhandled block currently available in the queue
+        # Drain up to 500 pending blocks per render cycle to keep the TUI
+        # responsive even when thousands of trace events are queued.
+        max_per_frame = 500
         try:
-            for _ in range(10):
+            for _ in range(max_per_frame):
                 blocks.append(self.input_queue.get_nowait())
         except queue.Empty:
             pass
@@ -256,12 +617,11 @@ class DynamicUI:
 
     def process_data(self):
         blocks = self.get_available_blocks()
-        # For every block...
         for block in blocks:
             block = DisplayTransaction(block)
             if not self.filter or self.filter.passes(block):
                 self.transactions.append(block)
-
             self.all_transactions.append(block)
-
+        if blocks and self.app is not None:
+            self.app.invalidate()
         return bool(blocks)

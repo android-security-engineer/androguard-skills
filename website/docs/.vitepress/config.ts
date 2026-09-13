@@ -135,6 +135,7 @@ export default defineConfig({
           collapsed: false,
           items: [
             { text: 'Python API', link: '/guide/python-api' },
+            { text: 'Agent API（无头 / GUI）', link: '/guide/agent-api' },
             { text: '常见工作流', link: '/guide/workflows' },
             { text: 'FAQ', link: '/guide/faq' },
           ],

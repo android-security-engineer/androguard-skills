@@ -25,7 +25,7 @@ class Filter:
         )  # List of associated types of the filter (call, return, etc)
         self.inclusive = include
 
-    def passes(self):
+    def passes(self, block=None, interface=None, method=None, call_type=None):
         """
         FUNCTION passes
             Brief - Returns whether a block should be displayed
@@ -36,13 +36,19 @@ class Filter:
                 The code checks if the filter passes the checks, and then tailors the output to the filter_mode
                 The type is either Inclusive ("Incl") or Exclusive ("Excl")
         """
-        # matches = (
-        #    (not self.types or block.type() in self.types) and
-        #    (not self.interface or self.interface in block.interface) and
-        #    (not self.method or self.method in block.method)
-        # )
-        # return not matches ^ self.inclusive
-        return False
+        if block is not None and not isinstance(block, str):
+            interface = getattr(block, "from_method", None)
+            method = getattr(block, "to_method", None)
+            call_type = block.type() if hasattr(block, "type") else None
+
+        interface = interface or ""
+        method = method or ""
+        matches = (
+            (not self.types or call_type in self.types)
+            and (not self.interface or self.interface in interface)
+            and (not self.method or self.method in method)
+        )
+        return matches if self.inclusive else not matches
 
     def toggle_inclusivity(self):
         self.inclusive = not self.inclusive
@@ -62,4 +68,7 @@ class FilterSet(UserList[_T]):
 
     def passes(self, interface=None, method=None, call_type=None):
         """Return True if all filters in the set pass, False otherwise."""
-        return all([f.passes(interface, method, call_type) for f in self.data])
+        return all(
+            f.passes(interface=interface, method=method, call_type=call_type)
+            for f in self.data
+        )
