@@ -13,13 +13,48 @@ New tool: Goauld [Dynamic injection tool for Linux/Android ](https://github.com/
 See the new version of Androguard: https://github.com/androguard/androguard/tree/ng
 
 ## Installation
-Quick installation:
-~~~~
-pip install androguard
-~~~~
+
+本项目在 GitHub Release 上发布（`.whl` 包），通过 `pip` 即可安装，依赖会自动拉取。
+
+### 方式一：从 GitHub Release 安装（推荐）
+
+```bash
+pip install "androguard @ https://github.com/android-security-engineer/androguard-skills/releases/download/v4.2.0/androguard-4.2.0-py3-none-any.whl"
+```
+
+### 方式二：从 git 仓库 + 指定版本 tag 安装
+
+```bash
+pip install "git+https://github.com/android-security-engineer/androguard-skills.git@v4.2.0"
+```
+
+> 最新开发版可用 `pip install "androguard @ git+https://github.com/android-security-engineer/androguard-skills"`。
+
+### 验证是否装好
+
+```bash
+# 三个命令入口都应可用
+androguard --version
+androguard-skills --help
+androguard-mcp --help
+```
+
+### 给 AI Agent 用（MCP 接入）
+
+装好后自带 `androguard-mcp` 命令，可直接在 Claude Desktop / Claude Code 的 MCP 配置中注册：
+
+```json
+{
+  "mcpServers": {
+    "androguard": { "command": "androguard-mcp" }
+  }
+}
+```
+
+完整接入与命令说明见下节文档站。
 
 > [!IMPORTANT]
-> Versions >= 4.0.0 are new releases after a long time, where the project has substantial differences from the previous stable version 3.3.5 from 2019. This means that certain functionalities have been removed. If you notice an issue with your project using the latest version, please open up an [issue](https://github.com/androguard/androguard/issues).
+> 本仓库是经过定制的 **AndroGuard Skills** 增强版（新增 MCP / skills 命令系统 / daemon 模式）。它 `from` 上游 androguard 演进而来，但安装命令**不要**照搬上游的 `pip install androguard`（那会装到上游原版，不含本仓库的 AI Agent 能力）。请使用本节的 GitHub 安装命令。
 
 ## Documentation
 **Documentation contains outdated information - In progress of updating**
