@@ -15,6 +15,7 @@ modules 表格）都是静态校验，但没测 VitePress 能否成功 build。�
 运行：``pytest tests/test_website_build.py -v``
 独立：``python3 tests/test_website_build.py``
 """
+
 import os
 import shutil
 import subprocess
@@ -29,12 +30,17 @@ DIST_DIR = os.path.join(WEBSITE_DIR, "docs", ".vitepress", "dist")
 
 
 def _has_node():
-    """检查 node + vitepress 是否可用。"""
+    """检查 node + vitepress 是否可用。
+
+    只认本地真实安装的 vitepress（website/node_modules/.bin/vitepress）。
+    不要用 ``shutil.which("npx")`` 兜底——CI 测试 job 未跑 ``npm install``，
+    npx 虽存在但 vitepress 不在 node_modules，``npx vitepress`` 会联网解析失败
+    报 "Cannot find package 'vitepress'"，而不是干净 skip。
+    """
     if not shutil.which("node"):
         return False
-    # 检查 website/node_modules 里有 vitepress
     vp = os.path.join(WEBSITE_DIR, "node_modules", ".bin", "vitepress")
-    return os.path.exists(vp) or shutil.which("npx") is not None
+    return os.path.exists(vp)
 
 
 def test_vitepress_build_succeeds():
@@ -50,25 +56,29 @@ def test_vitepress_build_succeeds():
 
     proc = subprocess.run(
         ["npx", "vitepress", "build", "docs"],
-        capture_output=True, text=True, timeout=300, cwd=WEBSITE_DIR,
+        capture_output=True,
+        text=True,
+        timeout=300,
+        cwd=WEBSITE_DIR,
     )
     assert proc.returncode == 0, (
         f"VitePress build 失败 (exit {proc.returncode}):\n"
         f"{proc.stderr[-1000:]}\n{proc.stdout[-500:]}"
     )
     # build 应生成 dist 目录
-    assert os.path.exists(DIST_DIR), (
-        f"build 成功但未生成 dist: {DIST_DIR}"
-    )
+    assert os.path.exists(DIST_DIR), f"build 成功但未生成 dist: {DIST_DIR}"
     # dist 里应有 index.html（首页渲染产物）
-    assert os.path.exists(os.path.join(DIST_DIR, "index.html")), (
-        "dist 里无 index.html，首页未渲染"
-    )
+    assert os.path.exists(
+        os.path.join(DIST_DIR, "index.html")
+    ), "dist 里无 index.html，首页未渲染"
 
 
 if __name__ == "__main__":
-    fns = [v for k, v in sorted(globals().items())
-           if k.startswith("test_") and callable(v)]
+    fns = [
+        v
+        for k, v in sorted(globals().items())
+        if k.startswith("test_") and callable(v)
+    ]
     passed = failed = 0
     for fn in fns:
         try:

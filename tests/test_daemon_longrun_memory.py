@@ -60,10 +60,13 @@ _NEED_APKS = pytest.mark.skipif(
 # 故两道断言：
 #   1. 峰值增长 < MAX_PEAK_GROWTH_MB：宽松，覆盖单次最大 APK 解析瞬时占用，
 #      防的是"全部 N 个 APK 的 Analysis 图同时驻留不释放"的真泄漏（那种情况
-#      峰值会随轮次单调爬升到数百 MB 甚至 GB）
+#      峰值会随轮次单调爬升到数百 MB 甚至 GB）。
+#      CI 实测：Linux 3.10 上单次大 APK 瞬时 RSS 峰值增长可到 ~387MB（glibc
+#      碎片因 Python 版本/分配器而异），故阈值取 600MB——远低于 6-APK 真泄漏
+#      的 ~1.8GB，又能容忍跨版本的瞬时波动。
 #   2. 末次 gc 后净增长 < MAX_FINAL_GROWTH_MB：精确，证明旧对象确实被回收，
 #      不是"峰值刚好没超阈值"
-MAX_PEAK_GROWTH_MB = 350
+MAX_PEAK_GROWTH_MB = 600
 # 末次 gc 后净增长阈值：glibc malloc 不归还 arena（traced memory 回落但
 # RSS 不降），故放宽到 250MB——防的是 GB 级真泄漏，glibc 碎片的可控高位
 # 由 unload 测试的 malloc_trim 回落断言兜住。
