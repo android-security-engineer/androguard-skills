@@ -135,7 +135,10 @@ class DaemonServer:
                     except json.JSONDecodeError as e:
                         response = {
                             "jsonrpc": "2.0",
-                            "error": {"code": -32700, "message": f"Parse error: {e}"},
+                            "error": {
+                                "code": -32700,
+                                "message": f"Parse error: {e}",
+                            },
                             "id": None,
                         }
                     except Exception as e:
@@ -153,20 +156,23 @@ class DaemonServer:
                     # 的连接不静默死契约。序列化失败时回退结构化 error 响应。
                     try:
                         response_bytes = (
-                            json.dumps(response, cls=_DaemonJsonEncoder)
-                            .encode("utf-8")
+                            json.dumps(
+                                response, cls=_DaemonJsonEncoder
+                            ).encode("utf-8")
                             + b"\n"
                         )
                     except Exception as e:
                         response_bytes = (
-                            json.dumps({
-                                "jsonrpc": "2.0",
-                                "error": {
-                                    "code": -32603,
-                                    "message": f"Response serialization failed: {e}",
-                                },
-                                "id": None,
-                            }).encode("utf-8")
+                            json.dumps(
+                                {
+                                    "jsonrpc": "2.0",
+                                    "error": {
+                                        "code": -32603,
+                                        "message": f"Response serialization failed: {e}",
+                                    },
+                                    "id": None,
+                                }
+                            ).encode("utf-8")
                             + b"\n"
                         )
                     writer.write(response_bytes)
@@ -399,7 +405,9 @@ class DaemonServer:
 
             with _sock.create_connection(("127.0.0.1", port), timeout=1) as s:
                 # 发一个 status 请求确认是本 daemon（而非别的服务占了端口）
-                s.sendall(b'{"jsonrpc":"2.0","method":"status","params":{},"id":1}\n')
+                s.sendall(
+                    b'{"jsonrpc":"2.0","method":"status","params":{},"id":1}\n'
+                )
                 data = b""
                 while b"\n" not in data:
                     chunk = s.recv(4096)

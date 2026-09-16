@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """This file is a simplified version of writer.py that outputs an AST instead of source code."""
+
 import struct
 
 from loguru import logger

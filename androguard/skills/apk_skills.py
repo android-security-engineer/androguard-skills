@@ -52,6 +52,7 @@ def apk_permissions(apk_obj) -> dict:
     来自 set 迭代——同一 APK 多次加载顺序不同，导致字节级 JSON 输出非确定。
     对 list 排序、对 dict 按 key 重建，固定输出，让 agent 对接能稳定比对。
     """
+
     def _sorted_dict(d):
         """按 key 排序重建 dict，固定 JSON key 顺序（dict 来自 set 构建，key 序非确定）。"""
         if not isinstance(d, dict):
@@ -61,12 +62,22 @@ def apk_permissions(apk_obj) -> dict:
     return {
         "permissions": sorted(apk_obj.get_permissions()),
         "details_permissions": _sorted_dict(apk_obj.get_details_permissions()),
-        "uses_implied_permissions": sorted(apk_obj.get_uses_implied_permission_list()),
-        "requested_aosp_permissions": sorted(apk_obj.get_requested_aosp_permissions()),
-        "requested_aosp_permissions_details": _sorted_dict(apk_obj.get_requested_aosp_permissions_details()),
-        "requested_third_party_permissions": sorted(apk_obj.get_requested_third_party_permissions()),
+        "uses_implied_permissions": sorted(
+            apk_obj.get_uses_implied_permission_list()
+        ),
+        "requested_aosp_permissions": sorted(
+            apk_obj.get_requested_aosp_permissions()
+        ),
+        "requested_aosp_permissions_details": _sorted_dict(
+            apk_obj.get_requested_aosp_permissions_details()
+        ),
+        "requested_third_party_permissions": sorted(
+            apk_obj.get_requested_third_party_permissions()
+        ),
         "declared_permissions": sorted(apk_obj.get_declared_permissions()),
-        "declared_permissions_details": _sorted_dict(apk_obj.get_declared_permissions_details()),
+        "declared_permissions_details": _sorted_dict(
+            apk_obj.get_declared_permissions_details()
+        ),
     }
 
 
@@ -261,6 +272,7 @@ def apk_signature(apk_obj) -> dict:
             # 尝试解析证书详情
             try:
                 from asn1crypto import x509
+
                 from androguard.util import get_certificate_name_string
 
                 x509_cert = x509.Certificate.load(cert_der)
@@ -408,7 +420,10 @@ def apk_file(apk_obj, filename: str) -> dict:
                 "base64": base64.b64encode(data).decode("ascii"),
             }
         else:
-            return {"filename": filename, "error": f"File '{filename}' not found in APK"}
+            return {
+                "filename": filename,
+                "error": f"File '{filename}' not found in APK",
+            }
     except Exception as e:
         return {"filename": filename, "error": str(e)}
 
@@ -437,7 +452,9 @@ def apk_verify(apk_obj) -> dict:
 
     # 检查是否有重复签名 ID
     try:
-        result["has_duplicate_signature_ids"] = apk_obj.has_duplicate_apk_signature_ids()
+        result["has_duplicate_signature_ids"] = (
+            apk_obj.has_duplicate_apk_signature_ids()
+        )
     except Exception:
         pass
 
@@ -480,10 +497,12 @@ def apk_signing_block(apk_obj) -> dict:
             if keys:
                 key_infos = []
                 for key_der in keys:
-                    key_infos.append({
-                        "sha256": hashlib.sha256(key_der).hexdigest(),
-                        "size": len(key_der),
-                    })
+                    key_infos.append(
+                        {
+                            "sha256": hashlib.sha256(key_der).hexdigest(),
+                            "size": len(key_der),
+                        }
+                    )
                 result[f"{version}_public_keys"] = key_infos
         except Exception:
             pass
@@ -567,7 +586,9 @@ def _parse_certificate(cert) -> dict:
         try:
             from androguard.util import get_certificate_name_string
 
-            info["issuer"] = get_certificate_name_string(cert.issuer, short=True)
+            info["issuer"] = get_certificate_name_string(
+                cert.issuer, short=True
+            )
             info["subject"] = get_certificate_name_string(
                 cert.subject, short=True
             )
@@ -600,7 +621,10 @@ def apk_certificate(apk_obj, filename: str = None) -> dict:
             cert = apk_obj.get_certificate(filename)
             if cert is None:
                 return {"filename": filename, "error": "Certificate not found"}
-            return {"filename": filename, "certificate": _parse_certificate(cert)}
+            return {
+                "filename": filename,
+                "certificate": _parse_certificate(cert),
+            }
 
         # 返回所有证书
         certs = apk_obj.get_certificates()
@@ -897,7 +921,11 @@ def apk_certificates_der(apk_obj, scheme: str = "v3") -> dict:
             }
             for d in ders
         ]
-        return {"scheme": scheme, "total": len(cert_list), "certificates": cert_list}
+        return {
+            "scheme": scheme,
+            "total": len(cert_list),
+            "certificates": cert_list,
+        }
     except Exception as e:
         return {"scheme": scheme, "error": str(e)}
 
@@ -919,7 +947,10 @@ def apk_public_keys(apk_obj, scheme: str = "v3") -> dict:
         }
         getter = pk_getters.get(scheme)
         if getter is None:
-            return {"scheme": scheme, "error": "Public keys only support v2/v3/v31"}
+            return {
+                "scheme": scheme,
+                "error": "Public keys only support v2/v3/v31",
+            }
         pks = getter()
         key_list = []
         for pk in pks:
@@ -939,7 +970,11 @@ def apk_public_keys(apk_obj, scheme: str = "v3") -> dict:
             except Exception as e:
                 info["der_error"] = str(e)
             key_list.append(info)
-        return {"scheme": scheme, "total": len(key_list), "public_keys": key_list}
+        return {
+            "scheme": scheme,
+            "total": len(key_list),
+            "public_keys": key_list,
+        }
     except Exception as e:
         return {"scheme": scheme, "error": str(e)}
 
@@ -960,7 +995,9 @@ def apk_signature_files(apk_obj) -> dict:
         try:
             sig = apk_obj.get_signature()
             if sig:
-                result["signature_base64"] = base64.b64encode(sig).decode("ascii")
+                result["signature_base64"] = base64.b64encode(sig).decode(
+                    "ascii"
+                )
                 result["signature_size"] = len(sig)
         except Exception as e:
             result["signature_error"] = str(e)
@@ -1018,7 +1055,10 @@ def apk_fingerprint(apk_obj, scheme: str = "v3") -> dict:
         }
         getter = pk_getters.get(scheme)
         if getter is None:
-            return {"scheme": scheme, "error": "Fingerprint only supports v2/v3/v31"}
+            return {
+                "scheme": scheme,
+                "error": "Fingerprint only supports v2/v3/v31",
+            }
         pks = getter()
         if not pks:
             return {
@@ -1037,7 +1077,11 @@ def apk_fingerprint(apk_obj, scheme: str = "v3") -> dict:
                     "fingerprint_base64": base64.b64encode(fp).decode("ascii"),
                 }
             )
-        return {"scheme": scheme, "total": len(fingerprints), "fingerprints": fingerprints}
+        return {
+            "scheme": scheme,
+            "total": len(fingerprints),
+            "fingerprints": fingerprints,
+        }
     except Exception as e:
         return {"scheme": scheme, "error": str(e)}
 
@@ -1153,7 +1197,9 @@ def apk_axml(apk_obj, filename: str, pretty: bool = True) -> dict:
                 # 直接子标签统计（了解文件结构规模）
                 children = list(xml_obj)
                 result["children_count"] = len(children)
-                result["children_tags"] = sorted({c.tag.split("}")[-1] for c in children})
+                result["children_tags"] = sorted(
+                    {c.tag.split("}")[-1] for c in children}
+                )
         except Exception as e:
             result["xml_obj_error"] = str(e)
         return result
@@ -1205,7 +1251,10 @@ def apk_requested_permissions(apk_obj) -> dict:
         for item in implied:
             if isinstance(item, (list, tuple)) and len(item) >= 1:
                 implied_norm.append(
-                    {"permission": item[0], "level": item[1] if len(item) > 1 else None}
+                    {
+                        "permission": item[0],
+                        "level": item[1] if len(item) > 1 else None,
+                    }
                 )
             else:
                 implied_norm.append({"permission": str(item), "level": None})
@@ -1365,11 +1414,13 @@ def apk_manifest_tree(apk_obj) -> dict:
         # 按出现次数降序
         tags = []
         for tag, count in tag_counts.most_common():
-            tags.append({
-                "tag": tag,
-                "count": count,
-                "attributes": sorted(tag_attrs.get(tag, set())),
-            })
+            tags.append(
+                {
+                    "tag": tag,
+                    "count": count,
+                    "attributes": sorted(tag_attrs.get(tag, set())),
+                }
+            )
         return {
             "root_tag": xml.tag.split("}")[-1] if "}" in xml.tag else xml.tag,
             "total_tags": sum(tag_counts.values()),
@@ -1380,7 +1431,9 @@ def apk_manifest_tree(apk_obj) -> dict:
         return {"error": str(e)}
 
 
-def apk_find_tags_xml(apk_obj, xml_name: str, tag_name: str, **filter_kwargs) -> dict:
+def apk_find_tags_xml(
+    apk_obj, xml_name: str, tag_name: str, **filter_kwargs
+) -> dict:
     """
     从 APK 中指定 XML 文件查找标签（find_tags_from_xml）。
 
@@ -1394,7 +1447,9 @@ def apk_find_tags_xml(apk_obj, xml_name: str, tag_name: str, **filter_kwargs) ->
     :return: 匹配的标签列表
     """
     try:
-        results = apk_obj.find_tags_from_xml(xml_name, tag_name, **filter_kwargs)
+        results = apk_obj.find_tags_from_xml(
+            xml_name, tag_name, **filter_kwargs
+        )
         # find_tags_from_xml 返回 lxml _Element 列表，需序列化
         tags = []
         for elem in results or []:
@@ -1453,10 +1508,18 @@ def apk_cert_names(apk_obj, scheme: str = "v3", android: bool = True) -> dict:
             try:
                 subj = cert.subject
                 issuer = cert.issuer
-                entry["subject_canonical"] = apk_obj.canonical_name(subj, android=android)
-                entry["issuer_canonical"] = apk_obj.canonical_name(issuer, android=android)
-                entry["subject_comparison"] = apk_obj.comparison_name(subj, android=android)
-                entry["issuer_comparison"] = apk_obj.comparison_name(issuer, android=android)
+                entry["subject_canonical"] = apk_obj.canonical_name(
+                    subj, android=android
+                )
+                entry["issuer_canonical"] = apk_obj.canonical_name(
+                    issuer, android=android
+                )
+                entry["subject_comparison"] = apk_obj.comparison_name(
+                    subj, android=android
+                )
+                entry["issuer_comparison"] = apk_obj.comparison_name(
+                    issuer, android=android
+                )
             except Exception as e:
                 entry["error"] = str(e)
             results.append(entry)
@@ -1575,7 +1638,9 @@ def apk_app_name(apk_obj, locale: str = None) -> dict:
         result = {"app_name": name, "locale": locale}
         # 未解析的资源引用会以 @ 开头原样返回
         if isinstance(name, str) and name.startswith("@"):
-            result["note"] = "Resource ID not resolved for this locale, returned as-is"
+            result["note"] = (
+                "Resource ID not resolved for this locale, returned as-is"
+            )
         return result
     except Exception as e:
         return {"error": str(e)}
@@ -1639,7 +1704,9 @@ def apk_security_overview(apk_obj) -> dict:
         result["min_sdk"] = apk_obj.get_min_sdk_version()
         result["target_sdk"] = apk_obj.get_target_sdk_version()
         result["max_sdk"] = apk_obj.get_max_sdk_version()
-        result["effective_target_sdk"] = apk_obj.get_effective_target_sdk_version()
+        result["effective_target_sdk"] = (
+            apk_obj.get_effective_target_sdk_version()
+        )
     except Exception:
         pass
 
@@ -1738,7 +1805,9 @@ def apk_security_overview(apk_obj) -> dict:
             implicit_list = []
             for name in items:
                 try:
-                    exp = apk_obj.get_attribute_value(tag, "exported", name=name)
+                    exp = apk_obj.get_attribute_value(
+                        tag, "exported", name=name
+                    )
                 except Exception:
                     exp = None
                 if str(exp).lower() == "true":
@@ -1860,6 +1929,7 @@ def apk_application_flags(apk_obj) -> dict:
     :param apk_obj: androguard.core.apk.APK 对象
     :return: application 安全标志审计结果
     """
+
     def _effective_target():
         try:
             t = apk_obj.get_effective_target_sdk_version()
@@ -1886,26 +1956,30 @@ def apk_application_flags(apk_obj) -> dict:
     # ---- debuggable ----
     v = _attr("debuggable")
     eff = _bool(v) if v is not None else False  # 默认 false
-    flags.append({
-        "name": "debuggable",
-        "value": v,
-        "effective": eff,
-        "default": False,
-        "risk": "critical" if eff else "safe",
-        "desc": "允许调试应用（可附加 jdb 调试器，绕过保护读取内存/数据）",
-    })
+    flags.append(
+        {
+            "name": "debuggable",
+            "value": v,
+            "effective": eff,
+            "default": False,
+            "risk": "critical" if eff else "safe",
+            "desc": "允许调试应用（可附加 jdb 调试器，绕过保护读取内存/数据）",
+        }
+    )
 
     # ---- allowBackup ----
     v = _attr("allowBackup")
     eff = _bool(v) if v is not None else True  # 默认 true
-    flags.append({
-        "name": "allowBackup",
-        "value": v,
-        "effective": eff,
-        "default": True,
-        "risk": "warning" if eff else "safe",
-        "desc": "允许 adb backup 导出应用数据（敏感数据可被提取）",
-    })
+    flags.append(
+        {
+            "name": "allowBackup",
+            "value": v,
+            "effective": eff,
+            "default": True,
+            "risk": "warning" if eff else "safe",
+            "desc": "允许 adb backup 导出应用数据（敏感数据可被提取）",
+        }
+    )
 
     # ---- usesCleartextTraffic ----
     v = _attr("usesCleartextTraffic")
@@ -1914,25 +1988,29 @@ def apk_application_flags(apk_obj) -> dict:
     else:
         # targetSdk >= 28 默认 false（拒绝明文）；< 28 默认 true（允许）
         eff = False if (eff_target is not None and eff_target >= 28) else True
-    flags.append({
-        "name": "usesCleartextTraffic",
-        "value": v,
-        "effective": eff,
-        "default": (eff_target is None and None) or (eff_target < 28),
-        "risk": "warning" if eff else "safe",
-        "desc": "允许 HTTP 明文流量（中间人可窃听/篡改）",
-    })
+    flags.append(
+        {
+            "name": "usesCleartextTraffic",
+            "value": v,
+            "effective": eff,
+            "default": (eff_target is None and None) or (eff_target < 28),
+            "risk": "warning" if eff else "safe",
+            "desc": "允许 HTTP 明文流量（中间人可窃听/篡改）",
+        }
+    )
 
     # ---- networkSecurityConfig ----
     v = _attr("networkSecurityConfig")
-    flags.append({
-        "name": "networkSecurityConfig",
-        "value": v,
-        "effective": v,
-        "default": None,
-        "risk": "info" if v else "warning",
-        "desc": "网络安全配置资源（未设置则用系统默认，明文策略取决于 usesCleartextTraffic）",
-    })
+    flags.append(
+        {
+            "name": "networkSecurityConfig",
+            "value": v,
+            "effective": v,
+            "default": None,
+            "risk": "info" if v else "warning",
+            "desc": "网络安全配置资源（未设置则用系统默认，明文策略取决于 usesCleartextTraffic）",
+        }
+    )
 
     # ---- extractNativeLibs ----
     v = _attr("extractNativeLibs")
@@ -1949,72 +2027,84 @@ def apk_application_flags(apk_obj) -> dict:
         default = True
         if min_sdk is not None and min_sdk >= 23:
             default = False  # minSdk>=23 倾向 false（取决于构建工具）
-    flags.append({
-        "name": "extractNativeLibs",
-        "value": v,
-        "effective": eff,
-        "default": default,
-        "risk": "info",
-        "desc": "是否解压 native 库到磁盘（true 增加体积/可被替换，false 提升完整性）",
-    })
+    flags.append(
+        {
+            "name": "extractNativeLibs",
+            "value": v,
+            "effective": eff,
+            "default": default,
+            "risk": "info",
+            "desc": "是否解压 native 库到磁盘（true 增加体积/可被替换，false 提升完整性）",
+        }
+    )
 
     # ---- testOnly ----
     v = _attr("testOnly")
     eff = _bool(v) if v is not None else False
-    flags.append({
-        "name": "testOnly",
-        "value": v,
-        "effective": eff,
-        "default": False,
-        "risk": "critical" if eff else "safe",
-        "desc": "仅测试安装（android:testOnly，正常发布不应为 true）",
-    })
+    flags.append(
+        {
+            "name": "testOnly",
+            "value": v,
+            "effective": eff,
+            "default": False,
+            "risk": "critical" if eff else "safe",
+            "desc": "仅测试安装（android:testOnly，正常发布不应为 true）",
+        }
+    )
 
     # ---- requestLegacyExternalStorage ----
     v = _attr("requestLegacyExternalStorage")
     eff = _bool(v) if v is not None else False
-    flags.append({
-        "name": "requestLegacyExternalStorage",
-        "value": v,
-        "effective": eff,
-        "default": False,
-        "risk": "warning" if eff else "safe",
-        "desc": "请求旧版外部存储访问（绕过 Scoped Storage 限制）",
-    })
+    flags.append(
+        {
+            "name": "requestLegacyExternalStorage",
+            "value": v,
+            "effective": eff,
+            "default": False,
+            "risk": "warning" if eff else "safe",
+            "desc": "请求旧版外部存储访问（绕过 Scoped Storage 限制）",
+        }
+    )
 
     # ---- directBootAware ----
     v = _attr("directBootAware")
     eff = _bool(v) if v is not None else False
-    flags.append({
-        "name": "directBootAware",
-        "value": v,
-        "effective": eff,
-        "default": False,
-        "risk": "info",
-        "desc": "设备直接启动（用户解锁前）即可运行",
-    })
+    flags.append(
+        {
+            "name": "directBootAware",
+            "value": v,
+            "effective": eff,
+            "default": False,
+            "risk": "info",
+            "desc": "设备直接启动（用户解锁前）即可运行",
+        }
+    )
 
     # ---- dataExtractionRules (Android 12+) ----
     v = _attr("dataExtractionRules")
-    flags.append({
-        "name": "dataExtractionRules",
-        "value": v,
-        "effective": v,
-        "default": None,
-        "risk": "info",
-        "desc": "备份/迁移数据规则（Android 12+，替代 allowBackup/fullBackupContent）",
-    })
+    flags.append(
+        {
+            "name": "dataExtractionRules",
+            "value": v,
+            "effective": v,
+            "default": None,
+            "risk": "info",
+            "desc": "备份/迁移数据规则（Android 12+，替代 allowBackup/fullBackupContent）",
+        }
+    )
 
     # ---- fullBackupContent ----
     v = _attr("fullBackupContent")
-    flags.append({
-        "name": "fullBackupContent",
-        "value": v,
-        "effective": v,
-        "default": None,
-        "risk": "info" if v else "warning",
-        "desc": "备份包含/排除规则资源（未设置则全量备份，取决于 allowBackup）",
-    })
+    flags.append(
+        {
+            "name": "fullBackupContent",
+            "value": v,
+            "effective": v,
+            "default": None,
+            "risk": "info" if v else "warning",
+            "desc": "备份包含/排除规则资源（未设置则全量备份，取决于 allowBackup）",
+        }
+    )
 
     # 汇总
     risk_summary = {"critical": 0, "warning": 0, "info": 0, "safe": 0}
@@ -2050,6 +2140,7 @@ def apk_component_details(apk_obj) -> dict:
     :param apk_obj: androguard.core.apk.APK 对象
     :return: 组件安全属性详情
     """
+
     def _attr(tag, attr, name):
         try:
             return apk_obj.get_attribute_value(tag, attr, name=name)
@@ -2099,10 +2190,19 @@ def apk_component_details(apk_obj) -> dict:
     # Activity
     try:
         activities = [
-            _component("activity", n, [
-                "launchMode", "taskAffinity", "noHistory", "configChanges",
-                "screenOrientation", "windowSoftInputMode", "theme",
-            ])
+            _component(
+                "activity",
+                n,
+                [
+                    "launchMode",
+                    "taskAffinity",
+                    "noHistory",
+                    "configChanges",
+                    "screenOrientation",
+                    "windowSoftInputMode",
+                    "theme",
+                ],
+            )
             for n in apk_obj.get_activities()
         ]
         result["activities"] = activities
@@ -2112,9 +2212,16 @@ def apk_component_details(apk_obj) -> dict:
     # Activity aliases
     try:
         aliases = [
-            _component("activity-alias", n, [
-                "targetActivity", "launchMode", "taskAffinity", "noHistory",
-            ])
+            _component(
+                "activity-alias",
+                n,
+                [
+                    "targetActivity",
+                    "launchMode",
+                    "taskAffinity",
+                    "noHistory",
+                ],
+            )
             for n in apk_obj.get_activity_aliases()
         ]
         result["activity_aliases"] = aliases
@@ -2124,9 +2231,15 @@ def apk_component_details(apk_obj) -> dict:
     # Service
     try:
         services = [
-            _component("service", n, [
-                "foregroundServiceType", "isolatedProcess", "exported",
-            ])
+            _component(
+                "service",
+                n,
+                [
+                    "foregroundServiceType",
+                    "isolatedProcess",
+                    "exported",
+                ],
+            )
             for n in apk_obj.get_services()
         ]
         result["services"] = services
@@ -2147,11 +2260,19 @@ def apk_component_details(apk_obj) -> dict:
     try:
         providers = []
         for n in apk_obj.get_providers():
-            c = _component("provider", n, [
-                "authorities", "grantUriPermissions", "readPermission",
-                "writePermission", "uriPermissionPatterns", "multiprocess",
-                "initOrder",
-            ])
+            c = _component(
+                "provider",
+                n,
+                [
+                    "authorities",
+                    "grantUriPermissions",
+                    "readPermission",
+                    "writePermission",
+                    "uriPermissionPatterns",
+                    "multiprocess",
+                    "initOrder",
+                ],
+            )
             # provider 风险修正：导出且无 read/writePermission 保护
             rp = c.get("readPermission")
             wp = c.get("writePermission")
@@ -2165,8 +2286,13 @@ def apk_component_details(apk_obj) -> dict:
         result["providers"] = []
 
     # 汇总
-    exposed = {"activities": 0, "activity_aliases": 0, "services": 0,
-               "receivers": 0, "providers": 0}
+    exposed = {
+        "activities": 0,
+        "activity_aliases": 0,
+        "services": 0,
+        "receivers": 0,
+        "providers": 0,
+    }
     totals = dict(exposed)
     for kind in exposed:
         for c in result.get(kind, []):
@@ -2221,7 +2347,9 @@ def apk_deeplinks(apk_obj) -> dict:
                 if not data_tags:
                     continue
                 for data in data_tags:
-                    attrs = {k.replace(NS, ""): v for k, v in data.attrib.items()}
+                    attrs = {
+                        k.replace(NS, ""): v for k, v in data.attrib.items()
+                    }
                     if not attrs:
                         continue
                     scheme = attrs.get("scheme")
@@ -2229,8 +2357,12 @@ def apk_deeplinks(apk_obj) -> dict:
                     uri_preview = None
                     if scheme:
                         uri_preview = scheme + "://" + (host or "")
-                        path = (attrs.get("path") or attrs.get("pathPrefix")
-                                or attrs.get("pathPattern") or "")
+                        path = (
+                            attrs.get("path")
+                            or attrs.get("pathPrefix")
+                            or attrs.get("pathPattern")
+                            or ""
+                        )
                         uri_preview += path
                     deeplinks.append(
                         {
@@ -2246,7 +2378,9 @@ def apk_deeplinks(apk_obj) -> dict:
                             "mimeType": attrs.get("mimeType"),
                             "browsable": browsable,
                             "view_action": view,
-                            "web_reachable": browsable and view and bool(scheme),
+                            "web_reachable": browsable
+                            and view
+                            and bool(scheme),
                             "uri_preview": uri_preview,
                         }
                     )

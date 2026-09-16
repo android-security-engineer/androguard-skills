@@ -152,7 +152,9 @@ def dex_header(dex_obj) -> dict:
                     try:
                         val = getattr(header, attr)()
                         # 只保留基本类型的值
-                        if isinstance(val, (int, str, bytes, bool, type(None))):
+                        if isinstance(
+                            val, (int, str, bytes, bool, type(None))
+                        ):
                             if isinstance(val, bytes):
                                 val = val.hex()
                             result[attr[4:]] = val
@@ -160,15 +162,31 @@ def dex_header(dex_obj) -> dict:
                         pass
 
             # 直接访问属性
-            for attr in ["magic", "checksum", "signature", "file_size",
-                         "header_size", "endian_tag", "link_size", "link_off",
-                         "map_off", "string_ids_size", "string_ids_off",
-                         "type_ids_size", "type_ids_off",
-                         "proto_ids_size", "proto_ids_off",
-                         "field_ids_size", "field_ids_off",
-                         "method_ids_size", "method_ids_off",
-                         "class_defs_size", "class_defs_off",
-                         "data_size", "data_off"]:
+            for attr in [
+                "magic",
+                "checksum",
+                "signature",
+                "file_size",
+                "header_size",
+                "endian_tag",
+                "link_size",
+                "link_off",
+                "map_off",
+                "string_ids_size",
+                "string_ids_off",
+                "type_ids_size",
+                "type_ids_off",
+                "proto_ids_size",
+                "proto_ids_off",
+                "field_ids_size",
+                "field_ids_off",
+                "method_ids_size",
+                "method_ids_off",
+                "class_defs_size",
+                "class_defs_off",
+                "data_size",
+                "data_off",
+            ]:
                 try:
                     val = getattr(header, attr, None)
                     if val is not None:
@@ -214,7 +232,11 @@ def dex_hidden_api(dex_obj) -> dict:
     try:
         hidden = dex_obj.get_hidden_api()
         if hidden is None:
-            return {"total": 0, "hidden_api": [], "note": "No hidden API data in this DEX"}
+            return {
+                "total": 0,
+                "hidden_api": [],
+                "note": "No hidden API data in this DEX",
+            }
 
         result = {}
         for attr in dir(hidden):
@@ -258,7 +280,9 @@ def dex_disassemble(dex_obj, offset: int, size: int) -> dict:
                     }
                 )
             except Exception:
-                instructions.append({"error": "Failed to serialize instruction"})
+                instructions.append(
+                    {"error": "Failed to serialize instruction"}
+                )
     except Exception as e:
         error = str(e)
 
@@ -270,7 +294,9 @@ def dex_disassemble(dex_obj, offset: int, size: int) -> dict:
     }
     if error:
         result["error"] = error
-        result["note"] = "Disassembly stopped at invalid instruction; partial results returned"
+        result["note"] = (
+            "Disassembly stopped at invalid instruction; partial results returned"
+        )
     return result
 
 
@@ -381,7 +407,11 @@ def dex_regex_strings(dex_list, pattern: str) -> dict:
             matches = dex_obj.get_regex_strings(pattern)
             if matches:
                 all_matches.extend(matches)
-        return {"pattern": pattern, "total": len(all_matches), "strings": all_matches}
+        return {
+            "pattern": pattern,
+            "total": len(all_matches),
+            "strings": all_matches,
+        }
     except Exception as e:
         return {"pattern": pattern, "error": str(e)}
 
@@ -441,7 +471,9 @@ def dex_debug_info(dex_list, class_name: str = None) -> dict:
                     except Exception:
                         pass
                     try:
-                        entry["parameter_names_idx"] = debug.get_parameter_names()
+                        entry["parameter_names_idx"] = (
+                            debug.get_parameter_names()
+                        )
                     except Exception:
                         pass
                     try:
@@ -500,7 +532,9 @@ def _encoded_method_info(method) -> dict:
     return info
 
 
-def dex_encoded_fields(dex_list, class_name: str = None, limit: int = None) -> dict:
+def dex_encoded_fields(
+    dex_list, class_name: str = None, limit: int = None
+) -> dict:
     """
     获取 DEX 中的全部 EncodedField（底层字段表）。
 
@@ -525,7 +559,9 @@ def dex_encoded_fields(dex_list, class_name: str = None, limit: int = None) -> d
         return {"error": str(e)}
 
 
-def dex_encoded_methods(dex_list, class_name: str = None, limit: int = None) -> dict:
+def dex_encoded_methods(
+    dex_list, class_name: str = None, limit: int = None
+) -> dict:
     """
     获取 DEX 中的全部 EncodedMethod（底层方法表）。
 
@@ -660,7 +696,9 @@ def dex_cm_lookup(dex_list, idx: int, kind: str = "string") -> dict:
             value = dex_obj.get_cm_type(idx)
             return {"idx": idx, "kind": "type", "value": value}
         else:
-            return {"error": f"Unknown kind: {kind}; use string/method/field/type"}
+            return {
+                "error": f"Unknown kind: {kind}; use string/method/field/type"
+            }
     except Exception as e:
         return {"idx": idx, "kind": kind, "error": str(e)}
 
@@ -829,7 +867,8 @@ def dex_class_manager(dex_list) -> dict:
                 cm = d.get_class_manager()
                 entry["type"] = type(cm).__name__
                 methods = sorted(
-                    m for m in dir(cm)
+                    m
+                    for m in dir(cm)
                     if not m.startswith("_") and callable(getattr(cm, m, None))
                 )
                 entry["methods"] = methods
@@ -847,7 +886,9 @@ def dex_class_manager(dex_list) -> dict:
 # ================================================================
 
 
-def dex_encoded_fields_class(dex_list, class_name: str, limit: int = None) -> dict:
+def dex_encoded_fields_class(
+    dex_list, class_name: str, limit: int = None
+) -> dict:
     """
     获取指定类的全部 EncodedField（按类过滤的底层字段表）。
 
@@ -868,21 +909,31 @@ def dex_encoded_fields_class(dex_list, class_name: str, limit: int = None) -> di
                 total = len(items)
                 if limit:
                     items = items[:limit]
-                dexes.append({
-                    "dex_index": idx,
-                    "class": class_name,
-                    "total": total,
-                    "returned": len(items),
-                    "fields": items,
-                })
+                dexes.append(
+                    {
+                        "dex_index": idx,
+                        "class": class_name,
+                        "total": total,
+                        "returned": len(items),
+                        "fields": items,
+                    }
+                )
             except Exception as e:
-                dexes.append({"dex_index": idx, "class": class_name, "error": str(e)[:80]})
+                dexes.append(
+                    {
+                        "dex_index": idx,
+                        "class": class_name,
+                        "error": str(e)[:80],
+                    }
+                )
         return {"class": class_name, "dex_count": len(dexes), "dexes": dexes}
     except Exception as e:
         return {"error": str(e)}
 
 
-def dex_encoded_methods_class(dex_list, class_name: str, limit: int = None) -> dict:
+def dex_encoded_methods_class(
+    dex_list, class_name: str, limit: int = None
+) -> dict:
     """
     获取指定类的全部 EncodedMethod（按类过滤的底层方法表）。
 
@@ -900,15 +951,23 @@ def dex_encoded_methods_class(dex_list, class_name: str, limit: int = None) -> d
                 total = len(items)
                 if limit:
                     items = items[:limit]
-                dexes.append({
-                    "dex_index": idx,
-                    "class": class_name,
-                    "total": total,
-                    "returned": len(items),
-                    "methods": items,
-                })
+                dexes.append(
+                    {
+                        "dex_index": idx,
+                        "class": class_name,
+                        "total": total,
+                        "returned": len(items),
+                        "methods": items,
+                    }
+                )
             except Exception as e:
-                dexes.append({"dex_index": idx, "class": class_name, "error": str(e)[:80]})
+                dexes.append(
+                    {
+                        "dex_index": idx,
+                        "class": class_name,
+                        "error": str(e)[:80],
+                    }
+                )
         return {"class": class_name, "dex_count": len(dexes), "dexes": dexes}
     except Exception as e:
         return {"error": str(e)}
@@ -931,15 +990,19 @@ def dex_encoded_method_by_idx(dex_list, idx: int) -> dict:
             try:
                 method = d.get_encoded_method_by_idx(idx)
                 if method is not None:
-                    dexes.append({
-                        "dex_index": di,
-                        "idx": idx,
-                        "method": _encoded_method_info(method),
-                    })
+                    dexes.append(
+                        {
+                            "dex_index": di,
+                            "idx": idx,
+                            "method": _encoded_method_info(method),
+                        }
+                    )
                 else:
                     dexes.append({"dex_index": di, "idx": idx, "method": None})
             except Exception as e:
-                dexes.append({"dex_index": di, "idx": idx, "error": str(e)[:80]})
+                dexes.append(
+                    {"dex_index": di, "idx": idx, "error": str(e)[:80]}
+                )
         return {"idx": idx, "dex_count": len(dexes), "dexes": dexes}
     except Exception as e:
         return {"error": str(e)}
@@ -966,15 +1029,19 @@ def dex_encoded_field_by_name(dex_list, name: str, limit: int = None) -> dict:
                 total = len(items)
                 if limit:
                     items = items[:limit]
-                dexes.append({
-                    "dex_index": di,
-                    "name": name,
-                    "total": total,
-                    "returned": len(items),
-                    "fields": items,
-                })
+                dexes.append(
+                    {
+                        "dex_index": di,
+                        "name": name,
+                        "total": total,
+                        "returned": len(items),
+                        "fields": items,
+                    }
+                )
             except Exception as e:
-                dexes.append({"dex_index": di, "name": name, "error": str(e)[:80]})
+                dexes.append(
+                    {"dex_index": di, "name": name, "error": str(e)[:80]}
+                )
         return {"name": name, "dex_count": len(dexes), "dexes": dexes}
     except Exception as e:
         return {"error": str(e)}
@@ -1003,20 +1070,28 @@ def dex_encoded_field_descriptor(
         for di, dex_obj in enumerate(dex_list):
             try:
                 name_val = (
-                    dex_obj.get_name() if hasattr(dex_obj, "get_name") else f"dex_{di}"
+                    dex_obj.get_name()
+                    if hasattr(dex_obj, "get_name")
+                    else f"dex_{di}"
                 )
                 field = dex_obj.get_encoded_field_descriptor(
                     class_name, field_name, descriptor
                 )
-                dexes.append({
-                    "dex_index": di,
-                    "name": name_val,
-                    "class": class_name,
-                    "field_name": field_name,
-                    "descriptor": descriptor,
-                    "found": field is not None,
-                    "field": _encoded_field_info(field) if field is not None else None,
-                })
+                dexes.append(
+                    {
+                        "dex_index": di,
+                        "name": name_val,
+                        "class": class_name,
+                        "field_name": field_name,
+                        "descriptor": descriptor,
+                        "found": field is not None,
+                        "field": (
+                            _encoded_field_info(field)
+                            if field is not None
+                            else None
+                        ),
+                    }
+                )
             except Exception as e:
                 dexes.append({"dex_index": di, "error": str(e)[:80]})
         return {
@@ -1046,7 +1121,9 @@ def _method_id_info(m) -> dict:
         proto = m.get_proto()
         # get_proto 返回 [params_list, return_type] 二元组
         if isinstance(proto, (list, tuple)):
-            info["proto"] = [list(p) if isinstance(p, (list, tuple)) else p for p in proto]
+            info["proto"] = [
+                list(p) if isinstance(p, (list, tuple)) else p for p in proto
+            ]
         else:
             info["proto"] = str(proto)
     except Exception:
@@ -1056,7 +1133,10 @@ def _method_id_info(m) -> dict:
     except Exception:
         pass
     try:
-        info["triple"] = [list(t) if isinstance(t, (list, tuple)) else t for t in m.get_triple()]
+        info["triple"] = [
+            list(t) if isinstance(t, (list, tuple)) else t
+            for t in m.get_triple()
+        ]
     except Exception:
         pass
     try:
@@ -1090,7 +1170,11 @@ def dex_method_id_by_name(dex_list, name: str, limit: int = None) -> dict:
         dexes = []
         for di, dex_obj in enumerate(dex_list):
             try:
-                name_val = dex_obj.get_name() if hasattr(dex_obj, "get_name") else f"dex_{di}"
+                name_val = (
+                    dex_obj.get_name()
+                    if hasattr(dex_obj, "get_name")
+                    else f"dex_{di}"
+                )
                 # get_method(name) 有 bug，改用全表过滤
                 all_methods = dex_obj.get_methods() or []
                 results = [m for m in all_methods if m.get_name() == name]
@@ -1098,13 +1182,15 @@ def dex_method_id_by_name(dex_list, name: str, limit: int = None) -> dict:
                 total = len(items)
                 if limit:
                     items = items[:limit]
-                dexes.append({
-                    "dex_index": di,
-                    "name": name_val,
-                    "total": total,
-                    "returned": len(items),
-                    "methods": items,
-                })
+                dexes.append(
+                    {
+                        "dex_index": di,
+                        "name": name_val,
+                        "total": total,
+                        "returned": len(items),
+                        "methods": items,
+                    }
+                )
             except Exception as e:
                 dexes.append({"dex_index": di, "error": str(e)[:80]})
         return {"name": name, "dex_count": len(dexes), "dexes": dexes}
@@ -1130,19 +1216,25 @@ def dex_method_ids(dex_list, limit: int = None) -> dict:
         dexes = []
         for di, dex_obj in enumerate(dex_list):
             try:
-                name_val = dex_obj.get_name() if hasattr(dex_obj, "get_name") else f"dex_{di}"
+                name_val = (
+                    dex_obj.get_name()
+                    if hasattr(dex_obj, "get_name")
+                    else f"dex_{di}"
+                )
                 all_methods = dex_obj.get_methods() or []
                 items = [_method_id_info(m) for m in all_methods]
                 total = len(items)
                 if limit:
                     items = items[:limit]
-                dexes.append({
-                    "dex_index": di,
-                    "name": name_val,
-                    "total": total,
-                    "returned": len(items),
-                    "methods": items,
-                })
+                dexes.append(
+                    {
+                        "dex_index": di,
+                        "name": name_val,
+                        "total": total,
+                        "returned": len(items),
+                        "methods": items,
+                    }
+                )
             except Exception as e:
                 dexes.append({"dex_index": di, "error": str(e)[:80]})
         return {"dex_count": len(dexes), "dexes": dexes}
@@ -1172,29 +1264,38 @@ def dex_field_id_by_name(dex_list, name: str, limit: int = None) -> dict:
         dexes = []
         for di, dex_obj in enumerate(dex_list):
             try:
-                name_val = dex_obj.get_name() if hasattr(dex_obj, "get_name") else f"dex_{di}"
+                name_val = (
+                    dex_obj.get_name()
+                    if hasattr(dex_obj, "get_name")
+                    else f"dex_{di}"
+                )
                 # get_field(name) 有 bug，改用全表过滤
                 all_fields = dex_obj.get_fields() or []
                 results = [f for f in all_fields if f.get_name() == name]
-                items = [{
-                    "name": f.get_name(),
-                    "descriptor": f.get_descriptor(),
-                    "class": f.get_class_name(),
-                    "type": f.get_type(),
-                    "name_idx": f.get_name_idx(),
-                    "type_idx": f.get_type_idx(),
-                    "class_idx": f.get_class_idx(),
-                } for f in results]
+                items = [
+                    {
+                        "name": f.get_name(),
+                        "descriptor": f.get_descriptor(),
+                        "class": f.get_class_name(),
+                        "type": f.get_type(),
+                        "name_idx": f.get_name_idx(),
+                        "type_idx": f.get_type_idx(),
+                        "class_idx": f.get_class_idx(),
+                    }
+                    for f in results
+                ]
                 total = len(items)
                 if limit:
                     items = items[:limit]
-                dexes.append({
-                    "dex_index": di,
-                    "name": name_val,
-                    "total": total,
-                    "returned": len(items),
-                    "fields": items,
-                })
+                dexes.append(
+                    {
+                        "dex_index": di,
+                        "name": name_val,
+                        "total": total,
+                        "returned": len(items),
+                        "fields": items,
+                    }
+                )
             except Exception as e:
                 dexes.append({"dex_index": di, "error": str(e)[:80]})
         return {"name": name, "dex_count": len(dexes), "dexes": dexes}
@@ -1202,7 +1303,9 @@ def dex_field_id_by_name(dex_list, name: str, limit: int = None) -> dict:
         return {"error": str(e)}
 
 
-def dex_encoded_method_class_method(dex_list, class_name: str, method_name: str) -> dict:
+def dex_encoded_method_class_method(
+    dex_list, class_name: str, method_name: str
+) -> dict:
     """
     在指定类内按方法名查找 EncodedMethod（无需 descriptor，比 descriptor 精确查更宽松）。
 
@@ -1217,21 +1320,31 @@ def dex_encoded_method_class_method(dex_list, class_name: str, method_name: str)
         dexes = []
         for di, dex_obj in enumerate(dex_list):
             try:
-                name_val = dex_obj.get_name() if hasattr(dex_obj, "get_name") else f"dex_{di}"
-                em = dex_obj.get_encoded_methods_class_method(class_name, method_name)
+                name_val = (
+                    dex_obj.get_name()
+                    if hasattr(dex_obj, "get_name")
+                    else f"dex_{di}"
+                )
+                em = dex_obj.get_encoded_methods_class_method(
+                    class_name, method_name
+                )
                 if em is not None:
-                    dexes.append({
-                        "dex_index": di,
-                        "name": name_val,
-                        "found": True,
-                        "method": _encoded_method_info(em),
-                    })
+                    dexes.append(
+                        {
+                            "dex_index": di,
+                            "name": name_val,
+                            "found": True,
+                            "method": _encoded_method_info(em),
+                        }
+                    )
                 else:
-                    dexes.append({
-                        "dex_index": di,
-                        "name": name_val,
-                        "found": False,
-                    })
+                    dexes.append(
+                        {
+                            "dex_index": di,
+                            "name": name_val,
+                            "found": False,
+                        }
+                    )
             except Exception as e:
                 dexes.append({"dex_index": di, "error": str(e)[:80]})
         return {
@@ -1270,21 +1383,31 @@ def dex_encoded_field_descriptor(
         dexes = []
         for di, dex_obj in enumerate(dex_list):
             try:
-                name_val = dex_obj.get_name() if hasattr(dex_obj, "get_name") else f"dex_{di}"
-                ef = dex_obj.get_encoded_field_descriptor(class_name, field_name, descriptor)
+                name_val = (
+                    dex_obj.get_name()
+                    if hasattr(dex_obj, "get_name")
+                    else f"dex_{di}"
+                )
+                ef = dex_obj.get_encoded_field_descriptor(
+                    class_name, field_name, descriptor
+                )
                 if ef is not None:
-                    dexes.append({
-                        "dex_index": di,
-                        "name": name_val,
-                        "found": True,
-                        "field": _encoded_field_info(ef),
-                    })
+                    dexes.append(
+                        {
+                            "dex_index": di,
+                            "name": name_val,
+                            "found": True,
+                            "field": _encoded_field_info(ef),
+                        }
+                    )
                 else:
-                    dexes.append({
-                        "dex_index": di,
-                        "name": name_val,
-                        "found": False,
-                    })
+                    dexes.append(
+                        {
+                            "dex_index": di,
+                            "name": name_val,
+                            "found": False,
+                        }
+                    )
             except Exception as e:
                 dexes.append({"dex_index": di, "error": str(e)[:80]})
         return {
@@ -1326,9 +1449,7 @@ def _find_encoded_method(dex_list, class_name: str, method_name: str):
     return None
 
 
-def dex_method_info(
-    dex_list, class_name: str, method_name: str
-) -> dict:
+def dex_method_info(dex_list, class_name: str, method_name: str) -> dict:
     """
     获取方法的寄存器/参数映射等签名级元信息。
 
@@ -1368,9 +1489,11 @@ def dex_method_info(
             if isinstance(data, dict):
                 info["signature"] = {
                     "return": data.get("return"),
-                    "registers": list(data.get("registers", []))
-                    if isinstance(data.get("registers"), (list, tuple))
-                    else data.get("registers"),
+                    "registers": (
+                        list(data.get("registers", []))
+                        if isinstance(data.get("registers"), (list, tuple))
+                        else data.get("registers")
+                    ),
                     "params": [
                         list(p) if isinstance(p, (list, tuple)) else p
                         for p in (data.get("params") or [])
@@ -1413,9 +1536,7 @@ def dex_method_info(
         return {"class": class_name, "method": method_name, "error": str(e)}
 
 
-def dex_method_code(
-    dex_list, class_name: str, method_name: str
-) -> dict:
+def dex_method_code(dex_list, class_name: str, method_name: str) -> dict:
     """
     获取方法 DalvikCode 的底层信息（寄存器帧 + try/catch 异常表 + handlers）。
 
@@ -1508,11 +1629,13 @@ def dex_method_code(
                     except Exception:
                         pass
                     try:
-                        for tp in (h.get_handlers() or []):
-                            entry["handlers"].append({
-                                "type_idx": tp.get_type_idx(),
-                                "handler_addr": tp.get_addr(),
-                            })
+                        for tp in h.get_handlers() or []:
+                            entry["handlers"].append(
+                                {
+                                    "type_idx": tp.get_type_idx(),
+                                    "handler_addr": tp.get_addr(),
+                                }
+                            )
                     except Exception:
                         pass
                     handler_list.append(entry)
@@ -1521,12 +1644,14 @@ def dex_method_code(
             try_items = []
             for t in tries:
                 try:
-                    try_items.append({
-                        "start_addr": t.get_start_addr(),
-                        "insn_count": t.get_insn_count(),
-                        "length": t.get_length(),
-                        "handler_off": t.get_handler_off(),
-                    })
+                    try_items.append(
+                        {
+                            "start_addr": t.get_start_addr(),
+                            "insn_count": t.get_insn_count(),
+                            "length": t.get_length(),
+                            "handler_off": t.get_handler_off(),
+                        }
+                    )
                 except Exception:
                     try_items.append({"raw": str(t)[:120]})
             result["tries"] = try_items
@@ -1673,7 +1798,9 @@ def dex_class_meta(dex_list, class_name: str) -> dict:
                 continue
             cm = dex_obj.get_class_manager()
             name_val = (
-                dex_obj.get_name() if hasattr(dex_obj, "get_name") else f"dex_{di}"
+                dex_obj.get_name()
+                if hasattr(dex_obj, "get_name")
+                else f"dex_{di}"
             )
             result = {
                 "class": class_name,
@@ -1690,9 +1817,15 @@ def dex_class_meta(dex_list, class_name: str) -> dict:
             try:
                 adi = cls.annotations_directory_item
                 if adi is not None:
-                    result["annotated_fields_size"] = adi.get_annotated_fields_size()
-                    result["annotated_methods_size"] = adi.get_annotated_methods_size()
-                    result["annotated_parameters_size"] = adi.get_annotated_parameters_size()
+                    result["annotated_fields_size"] = (
+                        adi.get_annotated_fields_size()
+                    )
+                    result["annotated_methods_size"] = (
+                        adi.get_annotated_methods_size()
+                    )
+                    result["annotated_parameters_size"] = (
+                        adi.get_annotated_parameters_size()
+                    )
             except Exception:
                 pass
             # 源文件名（idx + class_manager 解析）
@@ -1777,7 +1910,9 @@ def dex_class_data(dex_list, class_name: str, limit: int = None) -> dict:
                 continue
             cd = cls.get_class_data()
             name_val = (
-                dex_obj.get_name() if hasattr(dex_obj, "get_name") else f"dex_{di}"
+                dex_obj.get_name()
+                if hasattr(dex_obj, "get_name")
+                else f"dex_{di}"
             )
             if cd is None:
                 return {
@@ -1883,7 +2018,11 @@ def dex_field_init_value(dex_list, class_name: str, field_name: str) -> dict:
                 "dex_index": di,
                 "error": "Field not found in class",
             }
-        return {"class": class_name, "field": field_name, "error": "Class not found in DEX"}
+        return {
+            "class": class_name,
+            "field": field_name,
+            "error": "Class not found in DEX",
+        }
     except Exception as e:
         return {"class": class_name, "field": field_name, "error": str(e)}
 
@@ -1929,7 +2068,11 @@ def dex_method_instructions_idx(
         sliced = pairs[:limit] if limit else pairs
         instructions = []
         for idx, ins in sliced:
-            item = {"idx": idx, "name": ins.get_name(), "output": ins.get_output()}
+            item = {
+                "idx": idx,
+                "name": ins.get_name(),
+                "output": ins.get_output(),
+            }
             try:
                 item["op_value"] = ins.get_op_value()
             except Exception:
@@ -2002,7 +2145,9 @@ def dex_proto_ids(dex_list, limit: int = None) -> dict:
                     chunk = raw.read(12)
                     if len(chunk) < 12:
                         break
-                    shorty_idx, ret_idx, params_off = struct.unpack("<III", chunk)
+                    shorty_idx, ret_idx, params_off = struct.unpack(
+                        "<III", chunk
+                    )
                     entry = {
                         "dex_index": di,
                         "proto_idx": idx,
@@ -2070,7 +2215,9 @@ def _encode_value_to_python(ev):
     return str(v)[:200]
 
 
-def dex_annotations(dex_list, class_name: str = None, limit: int = None) -> dict:
+def dex_annotations(
+    dex_list, class_name: str = None, limit: int = None
+) -> dict:
     """
     获取 DEX 注解目录（AnnotationsDirectoryItem）：类级/字段级/方法级/参数级注解。
 
@@ -2116,7 +2263,10 @@ def dex_annotations(dex_list, class_name: str = None, limit: int = None) -> dict
                         continue
                     vis = ai.get_visibility()
                     ann = ai.get_annotation()
-                    entry = {"visibility": vis, "visibility_name": visibility_names.get(vis, str(vis))}
+                    entry = {
+                        "visibility": vis,
+                        "visibility_name": visibility_names.get(vis, str(vis)),
+                    }
                     try:
                         tidx = ann.get_type_idx()
                         entry["type_idx"] = tidx
@@ -2134,7 +2284,9 @@ def dex_annotations(dex_list, class_name: str = None, limit: int = None) -> dict
                             except Exception:
                                 pass
                             try:
-                                elem["value"] = _encode_value_to_python(e.get_value())
+                                elem["value"] = _encode_value_to_python(
+                                    e.get_value()
+                                )
                             except Exception as ex:
                                 elem["value_error"] = str(ex)[:60]
                             elems.append(elem)
@@ -2169,11 +2321,13 @@ def dex_annotations(dex_list, class_name: str = None, limit: int = None) -> dict
                 if not ao:
                     if class_name is not None:
                         # 显式查询的类无注解
-                        classes_out.append({
-                            "class": cname,
-                            "dex_index": di,
-                            "has_annotations": False,
-                        })
+                        classes_out.append(
+                            {
+                                "class": cname,
+                                "dex_index": di,
+                                "has_annotations": False,
+                            }
+                        )
                     continue
                 try:
                     cdi = c.annotations_directory_item
@@ -2207,7 +2361,9 @@ def dex_annotations(dex_list, class_name: str = None, limit: int = None) -> dict
                         except Exception:
                             pass
                         try:
-                            item["annotations"] = parse_annotation_set(fa.get_annotations_off(), cm)
+                            item["annotations"] = parse_annotation_set(
+                                fa.get_annotations_off(), cm
+                            )
                         except Exception as e:
                             item["annotations_error"] = str(e)[:60]
                         field_anns.append(item)
@@ -2226,7 +2382,9 @@ def dex_annotations(dex_list, class_name: str = None, limit: int = None) -> dict
                         except Exception:
                             pass
                         try:
-                            item["annotations"] = parse_annotation_set(ma.get_annotations_off(), cm)
+                            item["annotations"] = parse_annotation_set(
+                                ma.get_annotations_off(), cm
+                            )
                         except Exception as e:
                             item["annotations_error"] = str(e)[:60]
                         method_anns.append(item)
@@ -2250,14 +2408,19 @@ def dex_annotations(dex_list, class_name: str = None, limit: int = None) -> dict
                             # 参数注解是 AnnotationSetRefList：
                             # size u4 + N 个 u4 annotations_off（每参数一组 set）
                             import struct as _struct
+
                             raw = getattr(dex_obj, "raw", None)
                             params = []
                             if raw is not None and off:
                                 raw.seek(off)
-                                plist_size = _struct.unpack("<I", raw.read(4))[0]
+                                plist_size = _struct.unpack("<I", raw.read(4))[
+                                    0
+                                ]
                                 for _ in range(plist_size):
                                     poff = _struct.unpack("<I", raw.read(4))[0]
-                                    params.append(parse_annotation_set(poff, cm))
+                                    params.append(
+                                        parse_annotation_set(poff, cm)
+                                    )
                             item["parameter_annotations"] = params
                         except Exception as e:
                             item["parameter_annotations_error"] = str(e)[:60]
@@ -2296,10 +2459,22 @@ def dex_static_values(dex_list, class_name: str) -> dict:
         from androguard.core.dex import EncodedArrayItem
 
         value_type_names = {
-            0: "BYTE", 2: "SHORT", 3: "CHAR", 4: "INT", 6: "LONG",
-            16: "FLOAT", 17: "DOUBLE", 23: "STRING", 24: "TYPE",
-            25: "FIELD", 26: "METHOD", 27: "ENUM", 28: "ARRAY",
-            29: "ANNOTATION", 30: "NULL", 31: "BOOLEAN",
+            0: "BYTE",
+            2: "SHORT",
+            3: "CHAR",
+            4: "INT",
+            6: "LONG",
+            16: "FLOAT",
+            17: "DOUBLE",
+            23: "STRING",
+            24: "TYPE",
+            25: "FIELD",
+            26: "METHOD",
+            27: "ENUM",
+            28: "ARRAY",
+            29: "ANNOTATION",
+            30: "NULL",
+            31: "BOOLEAN",
         }
 
         for di, dex_obj in enumerate(dex_list):
@@ -2342,7 +2517,9 @@ def dex_static_values(dex_list, class_name: str) -> dict:
             try:
                 cd = cls.get_class_data()
                 if cd is not None:
-                    field_names = [f.get_name() for f in cd.get_static_fields()]
+                    field_names = [
+                        f.get_name() for f in cd.get_static_fields()
+                    ]
             except Exception:
                 pass
             for i, ev in enumerate(evs):
@@ -2352,7 +2529,9 @@ def dex_static_values(dex_list, class_name: str) -> dict:
                 try:
                     vt = ev.get_value_type()
                     entry["value_type"] = vt
-                    entry["value_type_name"] = value_type_names.get(vt, str(vt))
+                    entry["value_type_name"] = value_type_names.get(
+                        vt, str(vt)
+                    )
                 except Exception:
                     pass
                 try:
@@ -2378,7 +2557,9 @@ def dex_static_values(dex_list, class_name: str) -> dict:
 # ================================================================
 
 
-def dex_strings_table(dex_list, filter_regex: str = None, limit: int = None) -> dict:
+def dex_strings_table(
+    dex_list, filter_regex: str = None, limit: int = None
+) -> dict:
     """
     字符串常量池完整表（idx + 值 + 字节偏移 + UTF-16 长度）。
 
@@ -2414,13 +2595,15 @@ def dex_strings_table(dex_list, filter_regex: str = None, limit: int = None) -> 
                 value = None
             if pattern and (value is None or not pattern.search(value)):
                 continue
-            entries.append({
-                "dex_index": dex_idx,
-                "string_idx": idx,
-                "value": value,
-                "offset": getattr(item, "offset", None),
-                "utf16_size": getattr(item, "utf16_size", None),
-            })
+            entries.append(
+                {
+                    "dex_index": dex_idx,
+                    "string_idx": idx,
+                    "value": value,
+                    "offset": getattr(item, "offset", None),
+                    "utf16_size": getattr(item, "utf16_size", None),
+                }
+            )
             if limit is not None and len(entries) >= limit:
                 break
         if limit is not None and len(entries) >= limit:
@@ -2470,12 +2653,14 @@ def dex_type_ids(dex_list, limit: int = None) -> dict:
                     descriptor = cm.get_string(descriptor_idx)
                 except Exception:
                     descriptor = None
-                entries.append({
-                    "dex_index": dex_idx,
-                    "type_idx": type_idx,
-                    "descriptor_idx": descriptor_idx,
-                    "descriptor": descriptor,
-                })
+                entries.append(
+                    {
+                        "dex_index": dex_idx,
+                        "type_idx": type_idx,
+                        "descriptor_idx": descriptor_idx,
+                        "descriptor": descriptor,
+                    }
+                )
                 if limit is not None and len(entries) >= limit:
                     break
         except Exception as e:

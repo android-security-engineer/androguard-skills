@@ -3,8 +3,6 @@
 # see https://peps.python.org/pep-0563/
 from __future__ import annotations
 
-# Python core
-
 import binascii
 import hashlib
 import io
@@ -18,14 +16,10 @@ from typing import Any, Iterator, List, Tuple, Union
 from xml.dom.pulldom import SAX2DOM
 from zlib import crc32
 
-import lxml.sax
-from apkInspector.headers import ZipEntry
-
-# Used for reading Certificates
-
 # included to resolve full module path for docs
 import asn1crypto
-
+import lxml.sax
+from apkInspector.headers import ZipEntry
 from asn1crypto import cms, keys, x509
 from asn1crypto.util import OrderedDict
 from cryptography.exceptions import InvalidSignature
@@ -51,6 +45,12 @@ from androguard.core.axml import (
     format_value,
 )
 from androguard.util import get_certificate_name_string
+
+# Python core
+
+
+# Used for reading Certificates
+
 
 NS_ANDROID_URI = 'http://schemas.android.com/apk/res/android'
 NS_ANDROID = '{{{}}}'.format(NS_ANDROID_URI)  # Namespace as used by etree
@@ -170,7 +170,7 @@ class APKV2SignedData:
 
         certs_infos = ""
 
-        for i,cert in enumerate(self.certificates):
+        for i, cert in enumerate(self.certificates):
             x509_cert = asn1crypto.x509.Certificate.load(cert)
 
             certs_infos += "\n"
@@ -591,7 +591,6 @@ class APK:
         """
         return self.filename
 
-
     def has_duplicate_apk_signature_ids(self):
         """
         Return whether there are multiple V2 or V3 signing blocks in the APK.
@@ -602,7 +601,6 @@ class APK:
         :returns: boolean
         """
         return any([b.is_duplicate_id for b in self._v2_blocks])
-
 
     def get_app_name(self, locale=None) -> str:
         """
@@ -1181,7 +1179,7 @@ class APK:
     ) -> list[str]:
         """
         Return a list of all the matched tags in a specific xml
-        
+
         :param str xml_name: specify from which xml to pick the tag from
         :param str tag_name: specify the tag name
 
@@ -1204,7 +1202,9 @@ class APK:
             tag for tag in tags if self.is_tag_matched(tag, **attribute_filter)
         ]
 
-    def is_tag_matched(self, tag: lxml.etree.Element, **attribute_filter) -> bool:
+    def is_tag_matched(
+        self, tag: lxml.etree.Element, **attribute_filter
+    ) -> bool:
         r"""
         Return `True` if the attributes matches in attribute filter.
 
@@ -1262,7 +1262,9 @@ class APK:
                 for sitem in item.findall(".//action"):
                     val = sitem.get(self._ns("name"))
                     if val == "android.intent.action.MAIN":
-                        activity = item.get(self._ns("name")) or item.get("name")
+                        activity = item.get(self._ns("name")) or item.get(
+                            "name"
+                        )
                         if activity is not None:
                             x.add(activity)
                         else:
@@ -1271,7 +1273,9 @@ class APK:
                 for sitem in item.findall(".//category"):
                     val = sitem.get(self._ns("name"))
                     if val == "android.intent.category.LAUNCHER":
-                        activity = item.get(self._ns("name")) or item.get("name")
+                        activity = item.get(self._ns("name")) or item.get(
+                            "name"
+                        )
                         if activity is not None:
                             y.add(activity)
                         else:
@@ -1460,7 +1464,7 @@ class APK:
     def get_uses_implied_permission_list(self) -> list[str]:
         """
         Return all permissions implied by the target SDK or other permissions.
-        
+
         :returns: list of all permissions implied by the target SDK or other permissions as strings
         """
         target_sdk_version = self.get_effective_target_sdk_version()
@@ -1561,17 +1565,31 @@ class APK:
                 x = self.permission_module[i]
                 l[i] = [x["protectionLevel"], x["label"], x["description"]]
             elif i in self.declared_permissions:
-                protectionLevel_hex = self.declared_permissions[i]["protectionLevel"]
+                protectionLevel_hex = self.declared_permissions[i][
+                    "protectionLevel"
+                ]
                 try:
-                    key = int(protectionLevel_hex, 0) if isinstance(protectionLevel_hex, str) else protectionLevel_hex
+                    key = (
+                        int(protectionLevel_hex, 0)
+                        if isinstance(protectionLevel_hex, str)
+                        else protectionLevel_hex
+                    )
                 except Exception:
                     key = None
 
-                protectionLevel = protection_flags_to_attributes.get(key) if isinstance(key, int) else None
+                protectionLevel = (
+                    protection_flags_to_attributes.get(key)
+                    if isinstance(key, int)
+                    else None
+                )
                 if protectionLevel is None:
-                    protectionLevel = protection_flags_to_attributes.get(protectionLevel_hex)
+                    protectionLevel = protection_flags_to_attributes.get(
+                        protectionLevel_hex
+                    )
                 if protectionLevel is None and isinstance(key, int):
-                    protectionLevel = protection_flags_to_attributes.get(key & 0xF)
+                    protectionLevel = protection_flags_to_attributes.get(
+                        key & 0xF
+                    )
                 if protectionLevel is None:
                     protectionLevel = f"unknown({protectionLevel_hex!r})"
 
@@ -1654,9 +1672,9 @@ class APK:
 
     def get_min_sdk_version(self) -> str:
         """
-          Return the `android:minSdkVersion` attribute
+        Return the `android:minSdkVersion` attribute
 
-          :returns: the `android:minSdkVersion` attribute
+        :returns: the `android:minSdkVersion` attribute
         """
         return self.get_attribute_value("uses-sdk", "minSdkVersion")
 
@@ -1915,7 +1933,7 @@ class APK:
         signer_info: asn1crypto.cms.SignerInfo,
         matching_certificate,
         signed_data,
-        crypto_hash_algorithm
+        crypto_hash_algorithm,
     ) -> bytes:
         matching_certificate_verified = None
         signature = signer_info['signature'].native
@@ -1969,7 +1987,9 @@ class APK:
         return matching_certificate_verified
 
     @staticmethod
-    def get_hash_algorithm(signer_info: asn1crypto.cms.SignerInfo) -> dict[str, hashes.HashAlgorithm]:
+    def get_hash_algorithm(
+        signer_info: asn1crypto.cms.SignerInfo,
+    ) -> dict[str, hashes.HashAlgorithm]:
         # Determine the hash algorithm from the SignerInfo
         digest_algorithm = signer_info['digest_algorithm']['algorithm'].native
         # Map the digest algorithm to a hash function
@@ -1988,7 +2008,8 @@ class APK:
     def find_certificate(
         self,
         signed_data_certificates: asn1crypto.cms.CertificateSet,
-        signer_info: asn1crypto.cms.SignerInfo) -> Union[asn1crypto.x509.Certificate, None]:
+        signer_info: asn1crypto.cms.SignerInfo,
+    ) -> Union[asn1crypto.x509.Certificate, None]:
         """
         From the bag of certs, obtain the certificate referenced by the `asn1crypto.cms.SignerInfo`.
 
@@ -2027,7 +2048,9 @@ class APK:
 
         return matching_certificate
 
-    def get_certificate(self, filename: str) -> Union[asn1crypto.x509.Certificate, None]:
+    def get_certificate(
+        self, filename: str
+    ) -> Union[asn1crypto.x509.Certificate, None]:
         """
         Return a X.509 certificate object by giving the name in the apk file
 
@@ -2041,7 +2064,9 @@ class APK:
             certificate = None
         return certificate
 
-    def canonical_name(self, name: asn1crypto.x509.Name, android: bool = False) -> str:
+    def canonical_name(
+        self, name: asn1crypto.x509.Name, android: bool = False
+    ) -> str:
         """
         ```
          * Method is dual-licensed under the Apache License 2.0 and GPLv3+.
@@ -2115,7 +2140,7 @@ class APK:
         """
 
         def key(
-            ava: Tuple[int, str, str, str]
+            ava: Tuple[int, str, str, str],
         ) -> Tuple[int, Union[str, List[int]], str]:
             o, t, nv, _ = ava
             if android and o:
@@ -2256,7 +2281,10 @@ class APK:
         :returns: True if any of v1, v2, v3 or v3.1 signatures were found, else False
         """
         return (
-            self.is_signed_v1() or self.is_signed_v2() or self.is_signed_v3() or self.is_signed_v31()
+            self.is_signed_v1()
+            or self.is_signed_v2()
+            or self.is_signed_v3()
+            or self.is_signed_v31()
         )
 
     def is_signed_v1(self) -> bool:
@@ -2314,7 +2342,7 @@ class APK:
 
     def read_uint32_le(self, io_stream) -> int:
         """read a `uint32_le` from `io_stream`
-        
+
         :param io_stream: the stream to get a `uint32_le` from
         :return: the `uint32_le` value
         """
@@ -2325,11 +2353,11 @@ class APK:
         self, digest_bytes: bytes
     ) -> list[tuple[int, bytes]]:
         """Parse digests
-        
+
         :param digest_bytes: the digests bytes
         :returns: a list of tuple where the first element is the `algorithm_id` and the second is the digest bytes
         """
-        
+
         if not len(digest_bytes):
             return []
 
@@ -2436,7 +2464,9 @@ class APK:
                 logger.warning(
                     "Duplicate block ID in APK Signing Block: {}".format(key)
                 )
-            self._v2_blocks.append(APKV2SignatureBlock(key, is_duplicate_id, value))
+            self._v2_blocks.append(
+                APKV2SignatureBlock(key, is_duplicate_id, value)
+            )
 
         # Test if a signature is found
         if self._APK_SIG_KEY_V2_SIGNATURE in [b.id for b in self._v2_blocks]:
@@ -2468,12 +2498,18 @@ class APK:
             return
 
         # only selecting the first block to mimic apksig behavior
-        sig_key = self._APK_SIG_KEY_V31_SIGNATURE if v31 else self._APK_SIG_KEY_V3_SIGNATURE
+        sig_key = (
+            self._APK_SIG_KEY_V31_SIGNATURE
+            if v31
+            else self._APK_SIG_KEY_V3_SIGNATURE
+        )
         try:
-            block_bytes = next(b.data for b in self._v2_blocks if b.id == sig_key)
+            block_bytes = next(
+                b.data for b in self._v2_blocks if b.id == sig_key
+            )
         except StopIteration:
             raise ValueError(f"Missing signature block for {sig_key!r}")
-            
+
         block = io.BytesIO(block_bytes)
         view = block.getvalue()
 
@@ -2577,7 +2613,13 @@ class APK:
             return
 
         # only selecting the first block to mimic apksig behavior
-        block_bytes = next((b.data for b in self._v2_blocks if b.id == self._APK_SIG_KEY_V2_SIGNATURE))
+        block_bytes = next(
+            (
+                b.data
+                for b in self._v2_blocks
+                if b.id == self._APK_SIG_KEY_V2_SIGNATURE
+            )
+        )
         block = io.BytesIO(block_bytes)
         view = block.getvalue()
 
@@ -2855,7 +2897,7 @@ class APK:
         Note that we simply extract all certificates regardless of the signer.
         Therefore this is just a list of all certificates found in all signers.
         Exception is v1, for which the certificate returned is verified.
-        
+
         :returns: a list of the found `asn1crypto.x509.Certificate`
         """
         fps = []
@@ -2987,7 +3029,9 @@ class APK:
                 show_Certificate(c)
 
 
-def show_Certificate(cert:asn1crypto.x509.Certificate, short:bool=False) -> None:
+def show_Certificate(
+    cert: asn1crypto.x509.Certificate, short: bool = False
+) -> None:
     """
     Print Fingerprints, Issuer and Subject of an X509 Certificate.
 

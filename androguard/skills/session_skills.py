@@ -13,6 +13,7 @@ Session 支持多 APK/DEX 关联分析，可按类查文件名/digest。
 from __future__ import annotations
 
 import os
+
 from loguru import logger
 
 
@@ -59,9 +60,7 @@ def session_add_apk(session_obj, filename: str, data: bytes) -> dict:
         return {"filename": filename, "error": str(e)}
 
 
-def session_add_dex(
-    session_obj, filename: str, data: bytes
-) -> dict:
+def session_add_dex(session_obj, filename: str, data: bytes) -> dict:
     """
     向 Session 添加 DEX。
 
@@ -96,10 +95,12 @@ def session_info(session_obj) -> dict:
         apk_infos = []
         for digest, apk_list in apks:
             for a in apk_list:
-                apk_infos.append({
-                    "digest": digest,
-                    "package": a.get_package(),
-                })
+                apk_infos.append(
+                    {
+                        "digest": digest,
+                        "package": a.get_package(),
+                    }
+                )
         return {
             "is_open": session_obj.isOpen(),
             "apk_count": len(apk_infos),
@@ -133,13 +134,17 @@ def session_filename_by_class(session_obj, class_name: str) -> dict:
                 filename = session_obj.get_filename_by_class(cls)
                 digest = session_obj.get_digest_by_class(cls)
                 fmt = session_obj.get_format(cls)
-                results.append({
-                    "class": class_name,
-                    "dex_digest": dex_digest,
-                    "session_filename": filename,
-                    "digest": digest,
-                    "format": type(fmt).__name__ if fmt is not None else None,
-                })
+                results.append(
+                    {
+                        "class": class_name,
+                        "dex_digest": dex_digest,
+                        "session_filename": filename,
+                        "digest": digest,
+                        "format": (
+                            type(fmt).__name__ if fmt is not None else None
+                        ),
+                    }
+                )
         if not results:
             return {"class": class_name, "error": "Class not found in session"}
         return {"class": class_name, "total": len(results), "results": results}
@@ -163,21 +168,33 @@ def session_strings(session_obj, limit: int = None) -> dict:
         for digest, filename, strings_map in session_obj.get_strings():
             items = []
             for value, sa in strings_map.items():
-                xref_from = sa.get_xref_from() if hasattr(sa, "get_xref_from") else set()
-                items.append({
-                    "value": value,
-                    "xref_count": len(xref_from) if hasattr(xref_from, "__len__") else 0,
-                })
+                xref_from = (
+                    sa.get_xref_from()
+                    if hasattr(sa, "get_xref_from")
+                    else set()
+                )
+                items.append(
+                    {
+                        "value": value,
+                        "xref_count": (
+                            len(xref_from)
+                            if hasattr(xref_from, "__len__")
+                            else 0
+                        ),
+                    }
+                )
             total = len(items)
             if limit:
                 items = items[:limit]
-            dexes.append({
-                "digest": digest,
-                "filename": filename,
-                "total": total,
-                "returned": len(items),
-                "strings": items,
-            })
+            dexes.append(
+                {
+                    "digest": digest,
+                    "filename": filename,
+                    "total": total,
+                    "returned": len(items),
+                    "strings": items,
+                }
+            )
         return {"dex_count": len(dexes), "dexes": dexes}
     except Exception as e:
         return {"error": str(e)}
@@ -194,13 +211,15 @@ def session_classes(session_obj, limit: int = None) -> dict:
     try:
         classes = []
         for idx, filename, digest, class_list in session_obj.get_classes():
-            classes.append({
-                "index": idx,
-                "filename": filename,
-                "digest": digest,
-                "class_count": len(class_list),
-                "classes": [c.get_name() for c in class_list],
-            })
+            classes.append(
+                {
+                    "index": idx,
+                    "filename": filename,
+                    "digest": digest,
+                    "class_count": len(class_list),
+                    "classes": [c.get_name() for c in class_list],
+                }
+            )
         total = len(classes)
         if limit:
             classes = classes[:limit]

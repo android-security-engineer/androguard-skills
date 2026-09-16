@@ -12,7 +12,16 @@ import json
 import typing
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Callable, Dict, Iterable, Mapping, Union, get_args, get_origin
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    Mapping,
+    Union,
+    get_args,
+    get_origin,
+)
 
 
 class AgentError(Exception):
@@ -56,7 +65,14 @@ def _annotation_schema(annotation: Any) -> Dict[str, Any]:
     if annotation is None or annotation is type(None):
         return {"type": "null"}
     if annotation in (str, int, float, bool):
-        return {"type": {str: "string", int: "integer", float: "number", bool: "boolean"}[annotation]}
+        return {
+            "type": {
+                str: "string",
+                int: "integer",
+                float: "number",
+                bool: "boolean",
+            }[annotation]
+        }
     if annotation is bytes or annotation is bytearray:
         return {"type": "string", "description": "hex-encoded bytes"}
     if annotation is dict:
@@ -70,7 +86,12 @@ def _annotation_schema(annotation: Any) -> Dict[str, Any]:
         item_schema = _annotation_schema(args[0]) if args else {}
         return {"type": "array", "items": item_schema}
     if origin in (dict, Mapping):
-        return {"type": "object", "additionalProperties": _annotation_schema(args[1]) if len(args) > 1 else {}}
+        return {
+            "type": "object",
+            "additionalProperties": (
+                _annotation_schema(args[1]) if len(args) > 1 else {}
+            ),
+        }
     if origin is Union:
         non_null = [arg for arg in args if arg is not type(None)]
         if len(non_null) == 1 and len(non_null) != len(args):
@@ -100,7 +121,9 @@ class ToolSpec:
         }
 
 
-def tool_from_callable(name: str, handler: Callable[..., Any], description: str = "") -> ToolSpec:
+def tool_from_callable(
+    name: str, handler: Callable[..., Any], description: str = ""
+) -> ToolSpec:
     """Build a tool description from a normal Python callable."""
 
     signature = inspect.signature(handler)
@@ -148,7 +171,9 @@ class ToolRegistry:
     def __init__(self):
         self._tools: Dict[str, ToolSpec] = {}
 
-    def add(self, name: str, handler: Callable[..., Any], description: str = "") -> ToolSpec:
+    def add(
+        self, name: str, handler: Callable[..., Any], description: str = ""
+    ) -> ToolSpec:
         if not name or name.startswith("_"):
             raise ValueError("Tool names must be non-empty and public")
         spec = tool_from_callable(name, handler, description)
@@ -169,18 +194,26 @@ class ToolRegistry:
         try:
             return self._tools[name]
         except KeyError as exc:
-            raise AgentError(f"Unknown tool: {name}", "tool_not_found") from exc
+            raise AgentError(
+                f"Unknown tool: {name}", "tool_not_found"
+            ) from exc
 
-    def call(self, name: str, arguments: Mapping[str, Any] | None = None) -> Any:
+    def call(
+        self, name: str, arguments: Mapping[str, Any] | None = None
+    ) -> Any:
         spec = self.get(name)
         arguments = dict(arguments or {})
         try:
             bound = inspect.signature(spec.handler).bind(**arguments)
         except TypeError as exc:
-            raise AgentError(f"Invalid arguments for {name}: {exc}", "invalid_arguments") from exc
+            raise AgentError(
+                f"Invalid arguments for {name}: {exc}", "invalid_arguments"
+            ) from exc
         try:
             return jsonable(spec.handler(*bound.args, **bound.kwargs))
         except AgentError:
             raise
         except Exception as exc:
-            raise AgentError(f"Tool {name} failed: {exc}", "tool_failed") from exc
+            raise AgentError(
+                f"Tool {name} failed: {exc}", "tool_failed"
+            ) from exc

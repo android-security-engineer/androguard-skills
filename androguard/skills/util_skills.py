@@ -144,11 +144,21 @@ def util_available_api_levels() -> dict:
         # load_permissions 内部会查找，这里直接扫描两个可能位置
         search_dirs = [
             ("permissions", os.path.join(root, "aosp_permissions")),
-            ("permissions", os.path.join(root, "api_specific_resources", "aosp_permissions")),
-            ("permission_mappings", os.path.join(root, "api_permission_mappings")),
+            (
+                "permissions",
+                os.path.join(
+                    root, "api_specific_resources", "aosp_permissions"
+                ),
+            ),
             (
                 "permission_mappings",
-                os.path.join(root, "api_specific_resources", "api_permission_mappings"),
+                os.path.join(root, "api_permission_mappings"),
+            ),
+            (
+                "permission_mappings",
+                os.path.join(
+                    root, "api_specific_resources", "api_permission_mappings"
+                ),
             ),
         ]
         found_dirs = set()
@@ -214,7 +224,12 @@ def util_format(value: str, to: str = "java") -> dict:
             c = cls
             if c.startswith("L") and c.endswith(";") and len(c) > 2:
                 c = c[1:-1]
-            return c.replace("/", "_").replace(".", "_").replace("[", "array_").replace(";", "")
+            return (
+                c.replace("/", "_")
+                .replace(".", "_")
+                .replace("[", "array_")
+                .replace(";", "")
+            )
 
         if is_descriptor:
             # 描述符级转换：逐类型替换
@@ -236,7 +251,10 @@ def util_format(value: str, to: str = "java") -> dict:
         elif to == "python":
             out = to_python(v)
         else:
-            return {"input": value, "error": f"Unknown target format: {to} (use java/dalvik/python)"}
+            return {
+                "input": value,
+                "error": f"Unknown target format: {to} (use java/dalvik/python)",
+            }
 
         return {
             "input": value,

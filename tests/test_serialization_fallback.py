@@ -208,10 +208,12 @@ def test_daemon_handle_client_serialization_in_try():
     把序列化移出 try。
     """
     import inspect
+    import re
     from androguard.skills.daemon import DaemonServer
     src = inspect.getsource(DaemonServer._handle_client)
-    # json.dumps 必须出现在源码里
-    assert "json.dumps(response" in src or "json.dumps(response" in src, (
+    # json.dumps 必须出现在源码里（压平空白，兼容 black 自动拆行）
+    compact = re.sub(r"\s+", "", src)
+    assert "json.dumps(response" in compact, (
         "_handle_client 应含 json.dumps(response) 序列化"
     )
     # 必须有针对序列化失败的 except 兜底（含 serialization failed 或同义）

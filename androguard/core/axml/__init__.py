@@ -276,7 +276,9 @@ class StringBlock:
 
         if self.m_charbuff[offset + encoded_bytes] != 0:
             logger.warning(
-                "UTF-8 String is not null terminated! At offset={}".format(offset)
+                "UTF-8 String is not null terminated! At offset={}".format(
+                    offset
+                )
             )
             return ""
 
@@ -959,7 +961,7 @@ class AXMLParser:
 
         return self.m_attribute_count
 
-    def getAttributeUri(self, index:int) -> int:
+    def getAttributeUri(self, index: int) -> int:
         """
         Returns the numeric ID for the namespace URI of an attribute
 
@@ -972,7 +974,7 @@ class AXMLParser:
 
         return uri
 
-    def getAttributeNamespace(self, index:int) -> str:
+    def getAttributeNamespace(self, index: int) -> str:
         """
         Return the Namespace URI (if any) for the attribute
 
@@ -988,7 +990,7 @@ class AXMLParser:
 
         return self.sb[uri]
 
-    def getAttributeName(self, index:int) -> str:
+    def getAttributeName(self, index: int) -> str:
         """
         Returns the String which represents the attribute name
 
@@ -1015,7 +1017,9 @@ class AXMLParser:
             if attr:
                 res = 'android:UNKNOWN_SYSTEM_ATTRIBUTE_{:08x}'.format(attr)
             else:
-                res = 'android:UNKNOWN_SYSTEM_ATTRIBUTE_{:08x}'.format(random.randint(1, 1137))
+                res = 'android:UNKNOWN_SYSTEM_ATTRIBUTE_{:08x}'.format(
+                    random.randint(1, 1137)
+                )
         return res
 
     def getAttributeValueType(self, index: int):
@@ -1405,10 +1409,10 @@ class AXMLPrinter:
         """
         if not self.__charrange or not self.__replacement:
             self.__charrange = re.compile(
-                '^[\u0020-\uD7FF\u0009\u000A\u000D\uE000-\uFFFD\U00010000-\U0010FFFF]*$'
+                '^[\u0020-\ud7ff\u0009\u000a\u000d\ue000-\ufffd\U00010000-\U0010ffff]*$'
             )
             self.__replacement = re.compile(
-                '[^\u0020-\uD7FF\u0009\u000A\u000D\uE000-\uFFFD\U00010000-\U0010FFFF]'
+                '[^\u0020-\ud7ff\u0009\u000a\u000d\ue000-\ufffd\U00010000-\U0010ffff]'
             )
 
         # Reading string until \x00. This is the same as aapt does.
@@ -1872,7 +1876,9 @@ class ARSCParser:
                                 # Check if FLAG_OFFSET16 is set
                                 if a_res_type.flags & FLAG_OFFSET16:
                                     # Read as 16-bit offset
-                                    offset_16 = unpack('<H', self.buff.read(2))[0]
+                                    offset_16 = unpack(
+                                        '<H', self.buff.read(2)
+                                    )[0]
                                     offset = offset_from16(offset_16)
                                     if offset == NO_ENTRY_16:
                                         continue
@@ -1886,7 +1892,10 @@ class ARSCParser:
                         self.packages[package_name].append(entries)
 
                         base_offset = self.buff.tell()
-                        if base_offset + ((4 - (base_offset % 4)) % 4) != expected_entries_start:
+                        if (
+                            base_offset + ((4 - (base_offset % 4)) % 4)
+                            != expected_entries_start
+                        ):
                             # FIXME: seems like I am missing 2 bytes here in some cases, though it does not affect the result
                             logger.warning(
                                 "Something is off here! We are not where the entries should start."
@@ -2629,7 +2638,9 @@ class ARSCParser:
         except KeyError:
             return None
 
-    def get_res_id_by_key(self, package_name: str, resource_type: str, key: str) -> Union[int, None]:
+    def get_res_id_by_key(
+        self, package_name: str, resource_type: str, key: str
+    ) -> Union[int, None]:
         self._analyse()
         try:
             return self.resource_keys[package_name][resource_type][key]
@@ -2789,9 +2800,7 @@ class ARSCHeader:
     SIZE = 2 + 2 + 4
 
     def __init__(
-        self,
-        buff: BinaryIO,
-        expected_type: Union[int, None] = None
+        self, buff: BinaryIO, expected_type: Union[int, None] = None
     ) -> None:
         """
         :raises ResParserError: if header malformed
@@ -2820,8 +2829,14 @@ class ARSCHeader:
                 == cur_pos + self._header_size + 4 + 4
             ):
                 self._size = 24
-            header_ok = self._header_size >= self.SIZE and self._size >= self._header_size
-            if (self._type < RES_XML_FIRST_CHUNK_TYPE or self._type > RES_XML_LAST_CHUNK_TYPE) and header_ok:
+            header_ok = (
+                self._header_size >= self.SIZE
+                and self._size >= self._header_size
+            )
+            if (
+                self._type < RES_XML_FIRST_CHUNK_TYPE
+                or self._type > RES_XML_LAST_CHUNK_TYPE
+            ) and header_ok:
                 break
             if cur_pos == 0 or header_ok:
                 break

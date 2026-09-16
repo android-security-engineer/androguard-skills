@@ -31,13 +31,17 @@ def visualize_method_dot(method_analysis) -> dict:
         }
     except Exception as e:
         return {
-            "class": method_analysis.class_name if method_analysis else "unknown",
+            "class": (
+                method_analysis.class_name if method_analysis else "unknown"
+            ),
             "method": method_analysis.name if method_analysis else "unknown",
             "error": f"Failed to generate DOT: {str(e)}",
         }
 
 
-def visualize_method_image(method_analysis, output: str, fmt: str = "png") -> dict:
+def visualize_method_image(
+    method_analysis, output: str, fmt: str = "png"
+) -> dict:
     """
     导出方法的控制流图为图片（PNG/JPG）。
 
@@ -59,7 +63,9 @@ def visualize_method_image(method_analysis, output: str, fmt: str = "png") -> di
         }
     except Exception as e:
         return {
-            "class": method_analysis.class_name if method_analysis else "unknown",
+            "class": (
+                method_analysis.class_name if method_analysis else "unknown"
+            ),
             "method": method_analysis.name if method_analysis else "unknown",
             "error": f"Failed to export image: {str(e)}",
         }
@@ -84,7 +90,9 @@ def visualize_method_json(method_analysis) -> dict:
         }
     except Exception as e:
         return {
-            "class": method_analysis.class_name if method_analysis else "unknown",
+            "class": (
+                method_analysis.class_name if method_analysis else "unknown"
+            ),
             "method": method_analysis.name if method_analysis else "unknown",
             "error": f"Failed to generate JSON: {str(e)}",
         }

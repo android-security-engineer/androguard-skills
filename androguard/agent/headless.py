@@ -19,7 +19,11 @@ class HeadlessAPI:
 
     protocol_version = "2024-11-05"
 
-    def __init__(self, skills: AndroguardSkillsMain | None = None, include_ui: bool = False):
+    def __init__(
+        self,
+        skills: AndroguardSkillsMain | None = None,
+        include_ui: bool = False,
+    ):
         self.skills = skills or AndroguardSkillsMain()
         self.registry = ToolRegistry()
         self.registry.add_object(self.skills)
@@ -32,7 +36,9 @@ class HeadlessAPI:
             self.registry.add("ui.action", self._ui.action)
             self.registry.add("ui.publish", self._ui.publish)
             self.registry.add("ui.get_transaction", self._ui.get_transaction)
-            self.registry.add("ui.export_transactions", self._ui.export_transactions)
+            self.registry.add(
+                "ui.export_transactions", self._ui.export_transactions
+            )
             self.registry.add("ui.query", self._ui.query)
             self.registry.add("ui.search", self._ui.search)
             self.registry.add("ui.start", self._ui.start)
@@ -41,7 +47,9 @@ class HeadlessAPI:
     def list_tools(self) -> list[dict[str, Any]]:
         return self.registry.list()
 
-    def call_tool(self, name: str, arguments: Mapping[str, Any] | None = None) -> Any:
+    def call_tool(
+        self, name: str, arguments: Mapping[str, Any] | None = None
+    ) -> Any:
         return self.registry.call(name, arguments)
 
     def handle(self, request: Mapping[str, Any]) -> dict[str, Any] | None:
@@ -55,11 +63,14 @@ class HeadlessAPI:
         if method == "notifications/initialized":
             return None
         if method == "initialize":
-            return self._result(request_id, {
-                "protocolVersion": self.protocol_version,
-                "capabilities": {"tools": {}},
-                "serverInfo": {"name": "androguard-agent", "version": "1"},
-            })
+            return self._result(
+                request_id,
+                {
+                    "protocolVersion": self.protocol_version,
+                    "capabilities": {"tools": {}},
+                    "serverInfo": {"name": "androguard-agent", "version": "1"},
+                },
+            )
         if method == "tools/list":
             return self._result(request_id, {"tools": self.list_tools()})
         if method == "tools/call":
@@ -67,15 +78,33 @@ class HeadlessAPI:
                 name = params["name"]
                 arguments = params.get("arguments", {})
                 result = self.call_tool(name, arguments)
-                return self._result(request_id, {
-                    "content": [{"type": "text", "text": json.dumps(result, ensure_ascii=False)}],
-                    "isError": False,
-                })
+                return self._result(
+                    request_id,
+                    {
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": json.dumps(result, ensure_ascii=False),
+                            }
+                        ],
+                        "isError": False,
+                    },
+                )
             except AgentError as exc:
-                return self._result(request_id, {
-                    "content": [{"type": "text", "text": json.dumps({"error": exc.message}, ensure_ascii=False)}],
-                    "isError": True,
-                })
+                return self._result(
+                    request_id,
+                    {
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": json.dumps(
+                                    {"error": exc.message}, ensure_ascii=False
+                                ),
+                            }
+                        ],
+                        "isError": True,
+                    },
+                )
         # A direct method call is useful for simple SKILLS-style clients and
         # remains compatible with the existing daemon method names.
         if method in self.registry._tools:
@@ -90,7 +119,9 @@ class HeadlessAPI:
         return {"jsonrpc": "2.0", "result": jsonable(result), "id": request_id}
 
     @staticmethod
-    def _error(request_id: Any, code: int, message: str, data: Any = None) -> dict[str, Any]:
+    def _error(
+        request_id: Any, code: int, message: str, data: Any = None
+    ) -> dict[str, Any]:
         error = {"code": code, "message": message}
         if data is not None:
             error["data"] = data

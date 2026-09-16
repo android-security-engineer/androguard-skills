@@ -19,11 +19,12 @@ class MyFilter:
         levelno = logger.level(self.level).no
         return record["level"].no >= levelno
 
-def set_log(level:str) -> None:
+
+def set_log(level: str) -> None:
     """
     Sets the log for loguru based on the level being passed.
     The possible string values are:
-     
+
     * `TRACE`
     * `DEBUG`
     * `INFO`
@@ -31,7 +32,7 @@ def set_log(level:str) -> None:
     * `WARNING`
     * `ERROR`
     * `CRITICAL`
-    
+
     :param level: the log level string
     """
     logger.remove(0)

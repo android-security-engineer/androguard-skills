@@ -38,11 +38,16 @@ def run_stdio(include_ui: bool = False) -> None:
         try:
             request = json.loads(raw)
         except json.JSONDecodeError as exc:
-            _write({
-                "jsonrpc": "2.0",
-                "error": {"code": -32700, "message": f"Parse error: {exc}"},
-                "id": None,
-            })
+            _write(
+                {
+                    "jsonrpc": "2.0",
+                    "error": {
+                        "code": -32700,
+                        "message": f"Parse error: {exc}",
+                    },
+                    "id": None,
+                }
+            )
             continue
 
         # JSON-RPC 2.0 batch request

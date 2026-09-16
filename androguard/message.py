@@ -22,4 +22,3 @@ class MessageSystem(Message):
         self.to_method = function_callee
         self.params = params
         self.ret_value = information
-

@@ -39,12 +39,12 @@ class DisplayTransaction:
 
     @property
     def direction_indicator(self) -> str:
-        return '\u21D0'
+        return '\u21d0'
 
         if self.block.direction == Direction.IN:
-            return '\u21D0' if self.block.oneway else '\u21D2'
+            return '\u21d0' if self.block.oneway else '\u21d2'
         elif self.block.direction == Direction.OUT:
-            return '\u21CF'
+            return '\u21cf'
         else:
             return ''
 

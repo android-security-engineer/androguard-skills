@@ -87,7 +87,7 @@ def load_permissions(
 
 
 def load_permission_mappings(
-    apilevel: Union[str, int]
+    apilevel: Union[str, int],
 ) -> dict[str, list[str]]:
     """
     Load the API/Permission mapping for the requested API level.

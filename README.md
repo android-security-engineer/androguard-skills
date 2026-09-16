@@ -2,9 +2,9 @@
 
 # Androguard
 
-[![PyPI Upload](https://github.com/androguard/androguard/actions/workflows/pythonpublish.yml/badge.svg)](https://github.com/androguard/androguard/actions/workflows/pythonpublish.yml)
-![PyPI - Version](https://img.shields.io/pypi/v/androguard)
-![Static Badge](https://img.shields.io/badge/Documentation-InProgress-red)
+[![CI](https://github.com/android-security-engineer/androguard-skills/actions/workflows/tests.yml/badge.svg)](https://github.com/android-security-engineer/androguard-skills/actions/workflows/tests.yml)
+[![Release](https://img.shields.io/github/v/release/android-security-engineer/androguard-skills)](https://github.com/android-security-engineer/androguard-skills/releases)
+[![License](https://img.shields.io/github/license/android-security-engineer/androguard-skills)](LICENCE-2.0)
 
 Do you think your phone has been pwned ? please check [IsMyPhonePwned](https://github.com/IsMyPhonePwned)
 

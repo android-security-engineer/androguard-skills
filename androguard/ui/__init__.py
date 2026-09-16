@@ -60,7 +60,9 @@ class DynamicUI:
         self.app = None
         self._running = False
         self._stop_requested = False
-        self._pending_filter_sync = None  # (interface, method, types) for render-thread apply
+        self._pending_filter_sync = (
+            None  # (interface, method, types) for render-thread apply
+        )
 
         self.input_queue = input_queue
         self.all_transactions = []
@@ -250,11 +252,18 @@ class DynamicUI:
         wanted_types = set(types or [])
         for value, _label in self.filter_panel.type_filter_checkboxes.values:
             if value in wanted_types:
-                if value not in self.filter_panel.type_filter_checkboxes.current_values:
-                    self.filter_panel.type_filter_checkboxes.current_values.append(value)
+                if (
+                    value
+                    not in self.filter_panel.type_filter_checkboxes.current_values
+                ):
+                    self.filter_panel.type_filter_checkboxes.current_values.append(
+                        value
+                    )
             else:
                 try:
-                    self.filter_panel.type_filter_checkboxes.current_values.remove(value)
+                    self.filter_panel.type_filter_checkboxes.current_values.remove(
+                        value
+                    )
                 except ValueError:
                     pass
         self._pending_filter_sync = None
@@ -279,7 +288,9 @@ class DynamicUI:
                 "type": item.type(),
             }
 
-        status = "running" if self._running or self.app is not None else "stopped"
+        status = (
+            "running" if self._running or self.app is not None else "stopped"
+        )
         if self._stop_requested and status == "running":
             status = "stopping"
         return {
@@ -545,19 +556,34 @@ class DynamicUI:
         for t in self.all_transactions:
             hit = False
             if search_methods:
-                if keyword_lower in t.from_method.lower() or keyword_lower in t.to_method.lower():
+                if (
+                    keyword_lower in t.from_method.lower()
+                    or keyword_lower in t.to_method.lower()
+                ):
                     hit = True
             if not hit and search_params:
-                if isinstance(t.params, str) and keyword_lower in t.params.lower():
+                if (
+                    isinstance(t.params, str)
+                    and keyword_lower in t.params.lower()
+                ):
                     hit = True
                 elif isinstance(t.params, dict):
-                    if keyword_lower in json.dumps(t.params, ensure_ascii=False).lower():
+                    if (
+                        keyword_lower
+                        in json.dumps(t.params, ensure_ascii=False).lower()
+                    ):
                         hit = True
             if not hit and search_ret_value:
-                if isinstance(t.ret_value, str) and keyword_lower in t.ret_value.lower():
+                if (
+                    isinstance(t.ret_value, str)
+                    and keyword_lower in t.ret_value.lower()
+                ):
                     hit = True
                 elif isinstance(t.ret_value, dict):
-                    if keyword_lower in json.dumps(t.ret_value, ensure_ascii=False).lower():
+                    if (
+                        keyword_lower
+                        in json.dumps(t.ret_value, ensure_ascii=False).lower()
+                    ):
                         hit = True
             if hit:
                 rows.append(

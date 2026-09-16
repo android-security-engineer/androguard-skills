@@ -168,9 +168,7 @@ def _parse_xml_resources(data) -> list:
             xml = str(data)
         items = []
         # 匹配 <tagname name="key">value</tagname>
-        for m in re.finditer(
-            r"<(\w+)\s+name=\"([^\"]+)\">([^<]*)</\1>", xml
-        ):
+        for m in re.finditer(r"<(\w+)\s+name=\"([^\"]+)\">([^<]*)</\1>", xml):
             items.append({"name": m.group(2), "value": m.group(3)})
         return items
     except Exception:
@@ -199,24 +197,40 @@ def _typed_resources(
         return {"package": package_name, "error": str(e)}
 
 
-def resource_bool(arsc_obj, package_name: str, locale: str = "\x00\x00") -> dict:
+def resource_bool(
+    arsc_obj, package_name: str, locale: str = "\x00\x00"
+) -> dict:
     """获取布尔类型资源"""
-    return _typed_resources(arsc_obj, package_name, "get_bool_resources", locale)
+    return _typed_resources(
+        arsc_obj, package_name, "get_bool_resources", locale
+    )
 
 
-def resource_color(arsc_obj, package_name: str, locale: str = "\x00\x00") -> dict:
+def resource_color(
+    arsc_obj, package_name: str, locale: str = "\x00\x00"
+) -> dict:
     """获取颜色类型资源"""
-    return _typed_resources(arsc_obj, package_name, "get_color_resources", locale)
+    return _typed_resources(
+        arsc_obj, package_name, "get_color_resources", locale
+    )
 
 
-def resource_dimen(arsc_obj, package_name: str, locale: str = "\x00\x00") -> dict:
+def resource_dimen(
+    arsc_obj, package_name: str, locale: str = "\x00\x00"
+) -> dict:
     """获取尺寸类型资源"""
-    return _typed_resources(arsc_obj, package_name, "get_dimen_resources", locale)
+    return _typed_resources(
+        arsc_obj, package_name, "get_dimen_resources", locale
+    )
 
 
-def resource_integer(arsc_obj, package_name: str, locale: str = "\x00\x00") -> dict:
+def resource_integer(
+    arsc_obj, package_name: str, locale: str = "\x00\x00"
+) -> dict:
     """获取整数类型资源"""
-    return _typed_resources(arsc_obj, package_name, "get_integer_resources", locale)
+    return _typed_resources(
+        arsc_obj, package_name, "get_integer_resources", locale
+    )
 
 
 def resource_id(
@@ -312,11 +326,13 @@ def _parse_public_resources(data) -> list:
         r'<public\s+type="([^"]+)"\s+name="([^"]+)"\s+id="([^"]+)"\s*/?>',
         xml,
     ):
-        items.append({
-            "type": m.group(1),
-            "name": m.group(2),
-            "id": m.group(3),
-        })
+        items.append(
+            {
+                "type": m.group(1),
+                "name": m.group(2),
+                "id": m.group(3),
+            }
+        )
     return items
 
 
@@ -547,11 +563,13 @@ def resource_type_configs(
         types = []
         for t_name, configs in tc.items():
             cfg_list = [_config_info(c) for c in configs]
-            types.append({
-                "type": t_name,
-                "total": len(cfg_list),
-                "configs": cfg_list,
-            })
+            types.append(
+                {
+                    "type": t_name,
+                    "total": len(cfg_list),
+                    "configs": cfg_list,
+                }
+            )
         return {
             "package": package_name,
             "filter_type": resource_type,
@@ -575,10 +593,19 @@ def _entry_info(entry) -> dict:
     # 布尔标志：是否 public/complex/compact/weak（资源项类型特征）
     for flag_method in ("is_public", "is_complex", "is_compact", "is_weak"):
         try:
-            info[flag_method] = bool(entry.is_public() if flag_method == "is_public"
-                                     else entry.is_complex() if flag_method == "is_complex"
-                                     else entry.is_compact() if flag_method == "is_compact"
-                                     else entry.is_weak())
+            info[flag_method] = bool(
+                entry.is_public()
+                if flag_method == "is_public"
+                else (
+                    entry.is_complex()
+                    if flag_method == "is_complex"
+                    else (
+                        entry.is_compact()
+                        if flag_method == "is_compact"
+                        else entry.is_weak()
+                    )
+                )
+            )
         except Exception:
             pass
     # 值与键名
@@ -599,7 +626,9 @@ def _entry_info(entry) -> dict:
                 try:
                     cv = getattr(holding, cattr, None)
                     if cv is not None:
-                        complex_info[cattr] = str(cv) if not isinstance(cv, int) else cv
+                        complex_info[cattr] = (
+                            str(cv) if not isinstance(cv, int) else cv
+                        )
                 except Exception:
                     pass
             if complex_info:
@@ -609,7 +638,9 @@ def _entry_info(entry) -> dict:
     return info
 
 
-def resource_res_configs(arsc_obj, resource_id: int, fallback: bool = True) -> dict:
+def resource_res_configs(
+    arsc_obj, resource_id: int, fallback: bool = True
+) -> dict:
     """
     按资源 ID 查询配置变体（原始 entry 视图）。
 
@@ -635,10 +666,12 @@ def resource_res_configs(arsc_obj, resource_id: int, fallback: bool = True) -> d
             else:
                 cfg = item
                 entry_info = None
-            config_list.append({
-                "config": _config_info(cfg) if cfg is not None else None,
-                "entry": entry_info,
-            })
+            config_list.append(
+                {
+                    "config": _config_info(cfg) if cfg is not None else None,
+                    "entry": entry_info,
+                }
+            )
         return {
             "resource_id": hex(resource_id),
             "decimal_id": resource_id,
@@ -674,31 +707,53 @@ def resource_resolved_strings(arsc_obj, locale: str = None) -> dict:
                     continue
                 locale_list = []
                 for loc, rid_map in locales_dict.items():
-                    loc_label = "default" if loc in ("DEFAULT", "\x00\x00", "") else loc
-                    if locale is not None and loc_label != locale and loc != locale:
+                    loc_label = (
+                        "default"
+                        if loc in ("DEFAULT", "\x00\x00", "")
+                        else loc
+                    )
+                    if (
+                        locale is not None
+                        and loc_label != locale
+                        and loc != locale
+                    ):
                         continue
                     entries = []
                     if isinstance(rid_map, dict):
                         for rid, value in rid_map.items():
-                            entries.append({
-                                "rid": rid if isinstance(rid, int) else str(rid),
-                                "value": str(value) if value is not None else None,
-                            })
+                            entries.append(
+                                {
+                                    "rid": (
+                                        rid
+                                        if isinstance(rid, int)
+                                        else str(rid)
+                                    ),
+                                    "value": (
+                                        str(value)
+                                        if value is not None
+                                        else None
+                                    ),
+                                }
+                            )
                             total += 1
                     elif isinstance(rid_map, (list, tuple)):
                         for item in rid_map:
                             entries.append({"value": str(item)})
                             total += 1
-                    locale_list.append({
-                        "locale": loc_label,
-                        "total": len(entries),
-                        "strings": entries,
-                    })
-                packages.append({
-                    "package": pkg,
-                    "total_locales": len(locale_list),
-                    "locales": locale_list,
-                })
+                    locale_list.append(
+                        {
+                            "locale": loc_label,
+                            "total": len(entries),
+                            "strings": entries,
+                        }
+                    )
+                packages.append(
+                    {
+                        "package": pkg,
+                        "total_locales": len(locale_list),
+                        "locales": locale_list,
+                    }
+                )
         return {
             "total": total,
             "total_packages": len(packages),
@@ -731,7 +786,11 @@ def resource_value(arsc_obj, resource_id: int, package: str = None) -> dict:
     try:
         # 解析 rid：支持 int 或 hex/十进制字符串
         if isinstance(resource_id, str):
-            rid = int(resource_id, 16) if resource_id.lower().startswith("0x") else int(resource_id)
+            rid = (
+                int(resource_id, 16)
+                if resource_id.lower().startswith("0x")
+                else int(resource_id)
+            )
         else:
             rid = int(resource_id)
         result = {"resource_id": rid}
@@ -759,7 +818,9 @@ def resource_value(arsc_obj, resource_id: int, package: str = None) -> dict:
             rc = arsc_obj.get_res_configs(rid, fallback=True)
             if rc:
                 entry = rc[0][1]
-                result["config"] = _config_info(rc[0][0]) if rc[0][0] is not None else None
+                result["config"] = (
+                    _config_info(rc[0][0]) if rc[0][0] is not None else None
+                )
         except Exception as e:
             result["entry_error"] = str(e)[:80]
 
@@ -799,6 +860,7 @@ def resource_value(arsc_obj, resource_id: int, package: str = None) -> dict:
                         if isinstance(v, (list, tuple)):
                             return [_ser(x) for x in v]
                         return v
+
                     parsed[method_name] = _ser(val)
             except Exception:
                 pass

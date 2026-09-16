@@ -81,8 +81,8 @@ default_conf = {
             "meth": Fore.CYAN,
             "type": Fore.BLUE,
             "field": Fore.GREEN,
-        }
-    }
+        },
+    },
 }
 
 
@@ -157,7 +157,7 @@ def is_android_raw(raw: bytes) -> str:
         val = "DEY"
     elif raw[0:4] == b"\x03\x00\x08\x00" or raw[0:4] == b"\x00\x00\x08\x00":
         val = "AXML"
-    elif raw[0:4] == b"\x02\x00\x0C\x00":
+    elif raw[0:4] == b"\x02\x00\x0c\x00":
         val = "ARSC"
 
     return val

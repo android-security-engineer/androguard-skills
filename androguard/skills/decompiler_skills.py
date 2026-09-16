@@ -163,7 +163,11 @@ def decompile_method_ast(
 
 
 def decompile_method_tokens(
-    dex_list, analysis_obj, class_name: str, method_name: str, limit: int = None
+    dex_list,
+    analysis_obj,
+    class_name: str,
+    method_name: str,
+    limit: int = None,
 ) -> dict:
     """
     反编译指定方法并返回 token 流（带词法类型的源码表示）。
@@ -206,7 +210,10 @@ def decompile_method_tokens(
                     tokens = tokens[:limit]
                 # 序列化 token：每项是 (type, value)
                 token_list = [
-                    {"type": str(t[0]), "value": str(t[1]) if len(t) > 1 else ""}
+                    {
+                        "type": str(t[0]),
+                        "value": str(t[1]) if len(t) > 1 else "",
+                    }
                     for t in tokens
                     if isinstance(t, (list, tuple))
                 ]
@@ -233,8 +240,11 @@ def decompile_method_tokens(
 
 
 def decompile_class_ast(
-    dex_list, analysis_obj, class_name: str,
-    fields_limit: int = None, methods_limit: int = None,
+    dex_list,
+    analysis_obj,
+    class_name: str,
+    fields_limit: int = None,
+    methods_limit: int = None,
 ) -> dict:
     """
     反编译指定类并返回类级结构化 AST（含所有方法和字段的 AST）。
@@ -340,10 +350,16 @@ def decompile_class_tokens(
                 if isinstance(t, (list, tuple)) and len(t) >= 1:
                     category = str(t[0])
                     sub = t[1] if len(t) > 1 else []
-                    token_list.append({
-                        "category": category,
-                        "tokens": _ser_subtoken(sub) if isinstance(sub, (list, tuple)) else str(sub),
-                    })
+                    token_list.append(
+                        {
+                            "category": category,
+                            "tokens": (
+                                _ser_subtoken(sub)
+                                if isinstance(sub, (list, tuple))
+                                else str(sub)
+                            ),
+                        }
+                    )
                 else:
                     token_list.append({"raw": str(t)})
             return {

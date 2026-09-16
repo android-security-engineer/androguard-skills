@@ -33,6 +33,12 @@ cryptography = ">=46.0.6"
 ]
 "androguard.core.resources" = ["public.xml"]
 
+[tool.poetry.group.dev.dependencies]
+pytest = ">=7.0"
+pytest-asyncio = ">=0.21"
+black = ">=23.0"
+isort = ">=5.0"
+
 [tool.poetry.scripts]
 androguard = "androguard.cli.cli:entry_point"
 androguard-skills = "androguard.skills.main:entry_point"

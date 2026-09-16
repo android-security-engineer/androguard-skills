@@ -18,7 +18,9 @@ class UIAgentController:
     """Own or attach to a :class:`androguard.ui.DynamicUI` instance."""
 
     def __init__(self, ui=None, input_queue=None):
-        self.input_queue = input_queue if input_queue is not None else queue.Queue()
+        self.input_queue = (
+            input_queue if input_queue is not None else queue.Queue()
+        )
         self.ui = ui
         self._thread = None
         self._error = None
@@ -43,10 +45,14 @@ class UIAgentController:
         def runner():
             try:
                 ui.run()
-            except Exception as exc:  # surfaced through snapshot, not lost in a thread
+            except (
+                Exception
+            ) as exc:  # surfaced through snapshot, not lost in a thread
                 self._error = str(exc)
 
-        self._thread = threading.Thread(target=runner, name="androguard-ui", daemon=True)
+        self._thread = threading.Thread(
+            target=runner, name="androguard-ui", daemon=True
+        )
         self._thread.start()
         return {"status": "starting"}
 
@@ -103,8 +109,11 @@ class UIAgentController:
         """
         ui = self._ensure_ui()
         return ui.agent_export_transactions(
-            interface=interface, method=method, types=types,
-            limit=limit, offset=offset,
+            interface=interface,
+            method=method,
+            types=types,
+            limit=limit,
+            offset=offset,
         )
 
     def search(
@@ -146,8 +155,11 @@ class UIAgentController:
         """
         ui = self._ensure_ui()
         return ui.agent_query(
-            interface=interface, method=method, types=types,
-            limit=limit, offset=offset,
+            interface=interface,
+            method=method,
+            types=types,
+            limit=limit,
+            offset=offset,
         )
 
     def publish(
@@ -161,9 +173,13 @@ class UIAgentController:
     ) -> dict[str, Any]:
         """Publish a trace event for UI testing or an external trace producer."""
         if kind == "system":
-            message = MessageSystem(index, to_method, from_method, params, ret_value)
+            message = MessageSystem(
+                index, to_method, from_method, params, ret_value
+            )
         else:
-            message = MessageEvent(index, to_method, from_method, params, ret_value)
+            message = MessageEvent(
+                index, to_method, from_method, params, ret_value
+            )
         self.input_queue.put(message)
         ui = self._ensure_ui()
         ui.process_data()

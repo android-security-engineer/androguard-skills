@@ -56,6 +56,7 @@ class Operand(IntEnum):
 # https://source.android.com/devices/tech/dalvik/dex-format#type-codes
 class TypeMapItem(IntEnum):
     """Enumeration used for map_items"""
+
     HEADER_ITEM = 0x0
     STRING_ID_ITEM = 0x1
     TYPE_ID_ITEM = 0x2

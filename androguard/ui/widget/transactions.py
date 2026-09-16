@@ -13,8 +13,6 @@ from androguard.ui.widget.frame import SelectableFrame
 # import pyperclip
 
 
-
-
 class TransactionFrame:
 
     def __init__(

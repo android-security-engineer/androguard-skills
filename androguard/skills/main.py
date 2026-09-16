@@ -16,15 +16,15 @@ import click
 from loguru import logger
 
 from androguard.skills import (
-    apk_skills,
-    dex_skills,
     analysis_skills,
+    apk_skills,
     decompiler_skills,
+    dex_skills,
     pentest_skills,
     resource_skills,
-    visualize_skills,
-    util_skills,
     session_skills,
+    util_skills,
+    visualize_skills,
 )
 
 
@@ -355,7 +355,9 @@ class AndroguardSkillsMain:
         self._ensure_loaded()
         return dex_skills.dex_strings(self._dex_list, filter_regex)
 
-    def dex_strings_table(self, filter_regex: str = None, limit: int = None) -> dict:
+    def dex_strings_table(
+        self, filter_regex: str = None, limit: int = None
+    ) -> dict:
         """
         字符串常量池完整表（idx + 值 + 字节偏移 + UTF-16 长度）。
 
@@ -363,7 +365,9 @@ class AndroguardSkillsMain:
         :param limit: 返回条目上限
         """
         self._ensure_loaded()
-        return dex_skills.dex_strings_table(self._dex_list, filter_regex, limit)
+        return dex_skills.dex_strings_table(
+            self._dex_list, filter_regex, limit
+        )
 
     def dex_fields(self, class_name: str = None) -> dict:
         """
@@ -453,9 +457,7 @@ class AndroguardSkillsMain:
         :param class_name: 类名（格式如 Lcom/example/MyClass;）
         """
         self._ensure_loaded()
-        return analysis_skills.analysis_xrefs_from(
-            self._analysis, class_name
-        )
+        return analysis_skills.analysis_xrefs_from(self._analysis, class_name)
 
     def analysis_xrefs_to(self, class_name: str) -> dict:
         """
@@ -464,13 +466,9 @@ class AndroguardSkillsMain:
         :param class_name: 类名
         """
         self._ensure_loaded()
-        return analysis_skills.analysis_xrefs_to(
-            self._analysis, class_name
-        )
+        return analysis_skills.analysis_xrefs_to(self._analysis, class_name)
 
-    def analysis_method_xrefs(
-        self, class_name: str, method_name: str
-    ) -> dict:
+    def analysis_method_xrefs(self, class_name: str, method_name: str) -> dict:
         """
         获取指定方法的交叉引用。
 
@@ -482,9 +480,7 @@ class AndroguardSkillsMain:
             self._analysis, class_name, method_name
         )
 
-    def analysis_callgraph(
-        self, output: str, fmt: str = "gml"
-    ) -> dict:
+    def analysis_callgraph(self, output: str, fmt: str = "gml") -> dict:
         """
         生成调用图并导出。
 
@@ -503,9 +499,7 @@ class AndroguardSkillsMain:
         :param pattern: 类名正则表达式
         """
         self._ensure_loaded()
-        return analysis_skills.analysis_find_classes(
-            self._analysis, pattern
-        )
+        return analysis_skills.analysis_find_classes(self._analysis, pattern)
 
     def analysis_find_methods(self, pattern: str) -> dict:
         """
@@ -514,20 +508,27 @@ class AndroguardSkillsMain:
         :param pattern: 方法名正则表达式
         """
         self._ensure_loaded()
-        return analysis_skills.analysis_find_methods(
-            self._analysis, pattern
-        )
+        return analysis_skills.analysis_find_methods(self._analysis, pattern)
 
     def analysis_find_methods_advanced(
-        self, classname: str = ".*", methodname: str = ".*",
-        descriptor: str = ".*", accessflags: str = ".*",
-        no_external: bool = False, limit: int = 500
+        self,
+        classname: str = ".*",
+        methodname: str = ".*",
+        descriptor: str = ".*",
+        accessflags: str = ".*",
+        no_external: bool = False,
+        limit: int = 500,
     ) -> dict:
         """多维正则方法搜索（类名×方法名×描述符×访问标志×排除外部，原生 find_methods）。"""
         self._ensure_loaded()
         return analysis_skills.analysis_find_methods_advanced(
-            self._analysis, classname, methodname, descriptor,
-            accessflags, no_external, limit
+            self._analysis,
+            classname,
+            methodname,
+            descriptor,
+            accessflags,
+            no_external,
+            limit,
         )
 
     def analysis_find_classes_advanced(
@@ -546,9 +547,7 @@ class AndroguardSkillsMain:
         :param pattern: 字符串正则表达式
         """
         self._ensure_loaded()
-        return analysis_skills.analysis_find_strings(
-            self._analysis, pattern
-        )
+        return analysis_skills.analysis_find_strings(self._analysis, pattern)
 
     def analysis_permission_usage(self, permission: str) -> dict:
         """
@@ -582,7 +581,9 @@ class AndroguardSkillsMain:
         :param filter_regex: 类名过滤正则（可选）
         """
         self._ensure_loaded()
-        return analysis_skills.analysis_internal_classes(self._analysis, filter_regex)
+        return analysis_skills.analysis_internal_classes(
+            self._analysis, filter_regex
+        )
 
     def analysis_external_classes(self, filter_regex: str = None) -> dict:
         """
@@ -591,7 +592,9 @@ class AndroguardSkillsMain:
         :param filter_regex: 类名过滤正则（可选）
         """
         self._ensure_loaded()
-        return analysis_skills.analysis_external_classes(self._analysis, filter_regex)
+        return analysis_skills.analysis_external_classes(
+            self._analysis, filter_regex
+        )
 
     def analysis_internal_methods(self, filter_regex: str = None) -> dict:
         """
@@ -600,7 +603,9 @@ class AndroguardSkillsMain:
         :param filter_regex: 方法名过滤正则（可选）
         """
         self._ensure_loaded()
-        return analysis_skills.analysis_internal_methods(self._analysis, filter_regex)
+        return analysis_skills.analysis_internal_methods(
+            self._analysis, filter_regex
+        )
 
     def analysis_external_methods(self, filter_regex: str = None) -> dict:
         """
@@ -609,7 +614,9 @@ class AndroguardSkillsMain:
         :param filter_regex: 方法名过滤正则（可选）
         """
         self._ensure_loaded()
-        return analysis_skills.analysis_external_methods(self._analysis, filter_regex)
+        return analysis_skills.analysis_external_methods(
+            self._analysis, filter_regex
+        )
 
     def analysis_field_xrefs(self, class_name: str, field_name: str) -> dict:
         """
@@ -619,9 +626,13 @@ class AndroguardSkillsMain:
         :param field_name: 字段名
         """
         self._ensure_loaded()
-        return analysis_skills.analysis_field_xrefs(self._analysis, class_name, field_name)
+        return analysis_skills.analysis_field_xrefs(
+            self._analysis, class_name, field_name
+        )
 
-    def analysis_field_xrefs_detail(self, class_name: str, field_name: str) -> dict:
+    def analysis_field_xrefs_detail(
+        self, class_name: str, field_name: str
+    ) -> dict:
         """
         获取字段读/写引用详情（含每处 offset，不去重）。
 
@@ -654,7 +665,9 @@ class AndroguardSkillsMain:
         :param class_name: 类名（格式如 Lcom/example/MyClass;）
         """
         self._ensure_loaded()
-        return analysis_skills.analysis_class_exists(self._analysis, class_name)
+        return analysis_skills.analysis_class_exists(
+            self._analysis, class_name
+        )
 
     def analysis_method_analysis(
         self, class_name: str, method_name: str, descriptor: str
@@ -687,7 +700,9 @@ class AndroguardSkillsMain:
         :param limit: 每类热点返回的调用位置上限
         """
         self._ensure_loaded()
-        return analysis_skills.analysis_security_hotspots(self._analysis, limit)
+        return analysis_skills.analysis_security_hotspots(
+            self._analysis, limit
+        )
 
     def apk_attack_surface(
         self,
@@ -722,17 +737,23 @@ class AndroguardSkillsMain:
     def analysis_crypto_usage(self, per_type_limit: int = 100) -> dict:
         """加密 API 用法聚合 + 算法串还原 + 弱加密标记（ECB/DES/MD5/SHA1/RC4）。"""
         self._ensure_loaded()
-        return analysis_skills.analysis_crypto_usage(self._analysis, per_type_limit)
+        return analysis_skills.analysis_crypto_usage(
+            self._analysis, per_type_limit
+        )
 
     def analysis_reflection_targets(self, per_type_limit: int = 100) -> dict:
         """反射调用点 + 反射目标字符串还原（反混淆）。"""
         self._ensure_loaded()
-        return analysis_skills.analysis_reflection_targets(self._analysis, per_type_limit)
+        return analysis_skills.analysis_reflection_targets(
+            self._analysis, per_type_limit
+        )
 
     def analysis_url_endpoints(self, per_type_limit: int = 200) -> dict:
         """从字符串常量池提取 URL/host/IP 网络端点 + 引用方法。"""
         self._ensure_loaded()
-        return analysis_skills.analysis_url_endpoints(self._analysis, per_type_limit)
+        return analysis_skills.analysis_url_endpoints(
+            self._analysis, per_type_limit
+        )
 
     def analysis_taint_path(
         self,
@@ -767,72 +788,100 @@ class AndroguardSkillsMain:
     def analysis_webview_security(self, per_type_limit: int = 100) -> dict:
         """WebView 安全配置审计（addJavascriptInterface/文件访问/JS/调试等危险配置聚合 + findings）。"""
         self._ensure_loaded()
-        return analysis_skills.analysis_webview_security(self._analysis, per_type_limit)
+        return analysis_skills.analysis_webview_security(
+            self._analysis, per_type_limit
+        )
 
     def analysis_ssl_safety(self, per_type_limit: int = 100) -> dict:
         """SSL/TLS 校验绕过检测（不安全 TrustManager/HostnameVerifier + 已知绕过调用，MITM 审计）。"""
         self._ensure_loaded()
-        return analysis_skills.analysis_ssl_safety(self._analysis, per_type_limit)
+        return analysis_skills.analysis_ssl_safety(
+            self._analysis, per_type_limit
+        )
 
     def analysis_insecure_storage(self, per_type_limit: int = 100) -> dict:
         """不安全数据存储审计（外部存储/世界可读写模式/明文 SharedPreferences/DB，OWASP M9）。"""
         self._ensure_loaded()
-        return analysis_skills.analysis_insecure_storage(self._analysis, per_type_limit)
+        return analysis_skills.analysis_insecure_storage(
+            self._analysis, per_type_limit
+        )
 
     def analysis_sql_injection(self, per_type_limit: int = 100) -> dict:
         """SQL 注入面审计（rawQuery/execSQL/query 执行点枚举，OWASP M7）。"""
         self._ensure_loaded()
-        return analysis_skills.analysis_sql_injection(self._analysis, per_type_limit)
+        return analysis_skills.analysis_sql_injection(
+            self._analysis, per_type_limit
+        )
 
     def analysis_pending_intent(self, per_type_limit: int = 100) -> dict:
         """PendingIntent 可变性审计（FLAG_IMMUTABLE 缺失 + Intent 重定向面）。"""
         self._ensure_loaded()
-        return analysis_skills.analysis_pending_intent(self._analysis, per_type_limit)
+        return analysis_skills.analysis_pending_intent(
+            self._analysis, per_type_limit
+        )
 
     def analysis_privacy_sinks(self, per_type_limit: int = 100) -> dict:
         """隐私数据收集审计（设备标识/位置/联系人/账户/已装应用/剪贴板/录音摄像，OWASP M6）。"""
         self._ensure_loaded()
-        return analysis_skills.analysis_privacy_sinks(self._analysis, per_type_limit)
+        return analysis_skills.analysis_privacy_sinks(
+            self._analysis, per_type_limit
+        )
 
     def analysis_telephony_sms(self, per_type_limit: int = 100) -> dict:
         """电话短信滥用审计（发/读短信、拨号、短信拦截、通话监听，扣费/拦截马特征）。"""
         self._ensure_loaded()
-        return analysis_skills.analysis_telephony_sms(self._analysis, per_type_limit)
+        return analysis_skills.analysis_telephony_sms(
+            self._analysis, per_type_limit
+        )
 
     def analysis_dynamic_code(self, per_type_limit: int = 100) -> dict:
         """动态代码加载审计（DexClassLoader/native 库/反射加载，脱壳/恶意 payload）。"""
         self._ensure_loaded()
-        return analysis_skills.analysis_dynamic_code(self._analysis, per_type_limit)
+        return analysis_skills.analysis_dynamic_code(
+            self._analysis, per_type_limit
+        )
 
     def analysis_persistence(self, per_type_limit: int = 100) -> dict:
         """持久化/后台驻留审计（设备管理员/无障碍/定时任务/前台服务/通知监听）。"""
         self._ensure_loaded()
-        return analysis_skills.analysis_persistence(self._analysis, per_type_limit)
+        return analysis_skills.analysis_persistence(
+            self._analysis, per_type_limit
+        )
 
     def analysis_weak_random(self, per_type_limit: int = 100) -> dict:
         """不安全随机数审计（java.util.Random/Math.random/固定种子 vs SecureRandom，OWASP M10）。"""
         self._ensure_loaded()
-        return analysis_skills.analysis_weak_random(self._analysis, per_type_limit)
+        return analysis_skills.analysis_weak_random(
+            self._analysis, per_type_limit
+        )
 
     def analysis_broadcast_safety(self, per_type_limit: int = 100) -> dict:
         """广播收发安全审计（无权限广播/动态 receiver/粘性广播，组件间通信劫持面）。"""
         self._ensure_loaded()
-        return analysis_skills.analysis_broadcast_safety(self._analysis, per_type_limit)
+        return analysis_skills.analysis_broadcast_safety(
+            self._analysis, per_type_limit
+        )
 
     def analysis_provider_safety(self, per_type_limit: int = 100) -> dict:
         """ContentProvider 安全审计（openFile 路径穿越/URI 权限授予/跨应用访问）。"""
         self._ensure_loaded()
-        return analysis_skills.analysis_provider_safety(self._analysis, per_type_limit)
+        return analysis_skills.analysis_provider_safety(
+            self._analysis, per_type_limit
+        )
 
     def analysis_anti_analysis(self, per_type_limit: int = 100) -> dict:
         """反分析/加固对抗侦察（root/模拟器/调试器/Frida/Xposed 检测，字符串+API 双路）。"""
         self._ensure_loaded()
-        return analysis_skills.analysis_anti_analysis(self._analysis, per_type_limit)
+        return analysis_skills.analysis_anti_analysis(
+            self._analysis, per_type_limit
+        )
 
     def analysis_network_security(self, per_type_limit: int = 100) -> dict:
         """网络安全配置审计（明文 URL/证书固定/SSL 上下文/HTTP 客户端，通信安全总览）。"""
         self._ensure_loaded()
-        return analysis_skills.analysis_network_security(self._analysis, per_type_limit)
+        return analysis_skills.analysis_network_security(
+            self._analysis, per_type_limit
+        )
 
     def analysis_obfuscation_metrics(self) -> dict:
         """混淆度量（类名长度分布/反射密度/字符串覆盖，量化混淆/加固程度）。"""
@@ -843,7 +892,8 @@ class AndroguardSkillsMain:
         """一键全量安全报告（聚合全部专项审计 + 综合风险评分，漏洞审计套件闭环入口）。"""
         self._ensure_loaded()
         return analysis_skills.apk_security_report(
-            self._apk, self._analysis, self._dex_list, per_type_limit)
+            self._apk, self._analysis, self._dex_list, per_type_limit
+        )
 
     def analysis_class_fields_xref(
         self, class_name: str, xref_limit: int = 20
@@ -891,9 +941,7 @@ class AndroguardSkillsMain:
             self._dex_list, self._analysis, class_name
         )
 
-    def decompile_method(
-        self, class_name: str, method_name: str
-    ) -> dict:
+    def decompile_method(self, class_name: str, method_name: str) -> dict:
         """
         反编译指定方法。
 
@@ -905,9 +953,7 @@ class AndroguardSkillsMain:
             self._dex_list, self._analysis, class_name, method_name
         )
 
-    def decompile_method_ast(
-        self, class_name: str, method_name: str
-    ) -> dict:
+    def decompile_method_ast(self, class_name: str, method_name: str) -> dict:
         """
         反编译方法并返回结构化 AST。
 
@@ -935,7 +981,10 @@ class AndroguardSkillsMain:
         )
 
     def decompile_class_ast(
-        self, class_name: str, fields_limit: int = None, methods_limit: int = None
+        self,
+        class_name: str,
+        fields_limit: int = None,
+        methods_limit: int = None,
     ) -> dict:
         """
         反编译类并返回类级结构化 AST（含所有方法和字段）。
@@ -946,8 +995,11 @@ class AndroguardSkillsMain:
         """
         self._ensure_loaded()
         return decompiler_skills.decompile_class_ast(
-            self._dex_list, self._analysis, class_name,
-            fields_limit, methods_limit,
+            self._dex_list,
+            self._analysis,
+            class_name,
+            fields_limit,
+            methods_limit,
         )
 
     def decompile_class_tokens(
@@ -961,7 +1013,10 @@ class AndroguardSkillsMain:
         """
         self._ensure_loaded()
         return decompiler_skills.decompile_class_tokens(
-            self._dex_list, self._analysis, class_name, limit,
+            self._dex_list,
+            self._analysis,
+            class_name,
+            limit,
         )
 
     # ================================================================
@@ -1151,7 +1206,11 @@ class AndroguardSkillsMain:
         """
         ma = self._get_method_analysis(class_name, method_name)
         if ma is None:
-            return {"class": class_name, "method": method_name, "error": "Method not found"}
+            return {
+                "class": class_name,
+                "method": method_name,
+                "error": "Method not found",
+            }
         return visualize_skills.visualize_method_dot(ma)
 
     def visualize_method_image(
@@ -1167,7 +1226,11 @@ class AndroguardSkillsMain:
         """
         ma = self._get_method_analysis(class_name, method_name)
         if ma is None:
-            return {"class": class_name, "method": method_name, "error": "Method not found"}
+            return {
+                "class": class_name,
+                "method": method_name,
+                "error": "Method not found",
+            }
         return visualize_skills.visualize_method_image(ma, output, fmt)
 
     def visualize_method_json(self, class_name: str, method_name: str) -> dict:
@@ -1179,7 +1242,11 @@ class AndroguardSkillsMain:
         """
         ma = self._get_method_analysis(class_name, method_name)
         if ma is None:
-            return {"class": class_name, "method": method_name, "error": "Method not found"}
+            return {
+                "class": class_name,
+                "method": method_name,
+                "error": "Method not found",
+            }
         return visualize_skills.visualize_method_json(ma)
 
     # ================================================================
@@ -1542,9 +1609,7 @@ class AndroguardSkillsMain:
         :param limit: 返回数量限制
         """
         self._ensure_loaded()
-        return dex_skills.dex_encoded_fields(
-            self._dex_list, class_name, limit
-        )
+        return dex_skills.dex_encoded_fields(self._dex_list, class_name, limit)
 
     def dex_encoded_methods(
         self, class_name: str = None, limit: int = None
@@ -1631,14 +1696,18 @@ class AndroguardSkillsMain:
     # 第七轮：DEX 按类 / 按 idx 的 encoded 查询
     # ================================================================
 
-    def dex_encoded_fields_class(self, class_name: str, limit: int = None) -> dict:
+    def dex_encoded_fields_class(
+        self, class_name: str, limit: int = None
+    ) -> dict:
         """获取指定类的全部 EncodedField（按类过滤）。"""
         self._ensure_loaded()
         return dex_skills.dex_encoded_fields_class(
             self._dex_list, class_name, limit
         )
 
-    def dex_encoded_methods_class(self, class_name: str, limit: int = None) -> dict:
+    def dex_encoded_methods_class(
+        self, class_name: str, limit: int = None
+    ) -> dict:
         """获取指定类的全部 EncodedMethod（按类过滤）。"""
         self._ensure_loaded()
         return dex_skills.dex_encoded_methods_class(
@@ -1653,7 +1722,9 @@ class AndroguardSkillsMain:
     def dex_encoded_field_by_name(self, name: str, limit: int = None) -> dict:
         """按字段名获取 EncodedField（跨类）。"""
         self._ensure_loaded()
-        return dex_skills.dex_encoded_field_by_name(self._dex_list, name, limit)
+        return dex_skills.dex_encoded_field_by_name(
+            self._dex_list, name, limit
+        )
 
     def dex_encoded_field_descriptor(
         self, class_name: str, field_name: str, descriptor: str
@@ -1701,9 +1772,7 @@ class AndroguardSkillsMain:
             self._dex_list, class_name, method_name, limit
         )
 
-    def dex_method_code(
-        self, class_name: str, method_name: str
-    ) -> dict:
+    def dex_method_code(self, class_name: str, method_name: str) -> dict:
         """
         获取方法 DalvikCode 的底层信息（寄存器帧 + try/catch 异常表 + handlers）。
 
@@ -1724,9 +1793,7 @@ class AndroguardSkillsMain:
         self._ensure_loaded()
         return dex_skills.dex_class_meta(self._dex_list, class_name)
 
-    def dex_class_data(
-        self, class_name: str, limit: int = None
-    ) -> dict:
+    def dex_class_data(self, class_name: str, limit: int = None) -> dict:
         """
         获取类的 ClassDataItem 分类视图（direct/virtual 方法 + static/instance 字段）。
 
@@ -1734,13 +1801,9 @@ class AndroguardSkillsMain:
         :param limit: 每类列表返回上限
         """
         self._ensure_loaded()
-        return dex_skills.dex_class_data(
-            self._dex_list, class_name, limit
-        )
+        return dex_skills.dex_class_data(self._dex_list, class_name, limit)
 
-    def dex_field_init_value(
-        self, class_name: str, field_name: str
-    ) -> dict:
+    def dex_field_init_value(self, class_name: str, field_name: str) -> dict:
         """
         获取字段的初始值（硬编码常量检测）。
 
@@ -1777,7 +1840,9 @@ class AndroguardSkillsMain:
         self._ensure_loaded()
         return dex_skills.dex_type_ids(self._dex_list, limit)
 
-    def dex_annotations(self, class_name: str = None, limit: int = None) -> dict:
+    def dex_annotations(
+        self, class_name: str = None, limit: int = None
+    ) -> dict:
         """DEX 注解目录（类/字段/方法/参数注解，含 visibility/type/elements）。"""
         self._ensure_loaded()
         return dex_skills.dex_annotations(self._dex_list, class_name, limit)
@@ -2025,9 +2090,7 @@ class AndroguardSkillsMain:
         self._ensure_loaded()
         return analysis_skills.analysis_strings_overwritten(self._analysis)
 
-    def analysis_string_info(
-        self, value: str, xref_limit: int = None
-    ) -> dict:
+    def analysis_string_info(self, value: str, xref_limit: int = None) -> dict:
         """
         按精确字符串值查询单个字符串的完整分析详情（原始值/当前值/是否覆盖 + xref）。
 
@@ -2244,7 +2307,9 @@ class AndroguardSkillsMain:
             limit,
         )
 
-    def analysis_permissions(self, apilevel: int = None, limit: int = None) -> dict:
+    def analysis_permissions(
+        self, apilevel: int = None, limit: int = None
+    ) -> dict:
         """
         基于 API level 的方法→权限映射分析（批量列出需权限的 API 调用）。
 
@@ -2351,7 +2416,9 @@ class AndroguardSkillsMain:
         """
         try:
             arsc = self._get_arsc()
-            return resource_skills.resource_xml_name(arsc, resource_id, package)
+            return resource_skills.resource_xml_name(
+                arsc, resource_id, package
+            )
         except RuntimeError as e:
             return {"error": str(e)}
 
@@ -2384,7 +2451,6 @@ class AndroguardSkillsMain:
             return resource_skills.resource_value(arsc, resource_id, package)
         except RuntimeError as e:
             return {"error": str(e)}
-
 
     def resource_type_configs(
         self, package: str, resource_type: str = None
@@ -2456,7 +2522,9 @@ class AndroguardSkillsMain:
             # 取第一个 DEX 的类数（d 可能是 list，取首个；为空则 0）
             first_dex = dex_list[0] if dex_list else None
             class_count = (
-                len(list(first_dex.get_classes())) if first_dex is not None else 0
+                len(list(first_dex.get_classes()))
+                if first_dex is not None
+                else 0
             )
 
             return {
@@ -2511,7 +2579,9 @@ class _SkillsJsonEncoder(json.JSONEncoder):
 
 def _output_json(data: dict):
     """输出 JSON 到 stdout"""
-    print(json.dumps(data, indent=2, ensure_ascii=False, cls=_SkillsJsonEncoder))
+    print(
+        json.dumps(data, indent=2, ensure_ascii=False, cls=_SkillsJsonEncoder)
+    )
 
 
 def _parse_filter_pairs(pairs) -> dict:
@@ -2548,8 +2618,13 @@ def _try_daemon_call(method: str, params: dict = None) -> Union[dict, None]:
     # load_apk/load_dex 是慢命令（解析大 APK/DEX 可能耗时数十秒到数分钟），
     # 默认 30s timeout 会让正常的大 APK load 被误判超时→fallback 单次执行
     # （重新解析一遍，更慢且 daemon 那边仍在解析）。对这类命令用长 timeout。
-    slow_methods = {"load_apk", "load_dex", "session_analyze_apk",
-                    "session_add_apk", "session_add_dex"}
+    slow_methods = {
+        "load_apk",
+        "load_dex",
+        "session_analyze_apk",
+        "session_add_apk",
+        "session_add_dex",
+    }
     client_timeout = 600.0 if method in slow_methods else 30.0
     client = DaemonClient(timeout=client_timeout)
     if not client.is_daemon_running():
@@ -2566,7 +2641,7 @@ def _try_daemon_call(method: str, params: dict = None) -> Union[dict, None]:
         # → 返回结构化 error，不 fallback
         msg = str(e)
         if msg.startswith("Daemon error:"):
-            msg = msg[len("Daemon error:"):].strip()
+            msg = msg[len("Daemon error:") :].strip()
         return {"error": msg}
 
 
@@ -2597,7 +2672,9 @@ class _SkillsCliGroup(click.Group):
             ctx.exit(0)
 
 
-@click.group(cls=_SkillsCliGroup, help="AndroGuard Skills - Android 逆向工程能力 CLI")
+@click.group(
+    cls=_SkillsCliGroup, help="AndroGuard Skills - Android 逆向工程能力 CLI"
+)
 @click.version_option(version="4.1.4")
 @click.option(
     "--verbose",
@@ -2620,6 +2697,7 @@ def entry_point(verbosity):
 # MCP stdio server 命令
 # ================================================================
 
+
 @entry_point.command(name="mcp")
 @click.option(
     "--with-ui",
@@ -2637,12 +2715,14 @@ def mcp_cmd(with_ui):
         { "mcpServers": { "androguard": { "command": "androguard-skills", "args": ["mcp"] } } }
     """
     from androguard.agent.server import run_stdio
+
     run_stdio(include_ui=with_ui)
 
 
 # ================================================================
 # Daemon 命令
 # ================================================================
+
 
 @entry_point.group(help="Manage the daemon process")
 def daemon():
@@ -2651,7 +2731,9 @@ def daemon():
 
 
 @daemon.command(name="start")
-@click.option("--port", default=8899, help="TCP port for daemon (default: 8899)")
+@click.option(
+    "--port", default=8899, help="TCP port for daemon (default: 8899)"
+)
 def daemon_start(port):
     """Start the daemon process"""
     from androguard.skills.daemon import DaemonServer
@@ -2689,6 +2771,7 @@ def daemon_status():
 # ================================================================
 # Load 命令
 # ================================================================
+
 
 @entry_point.command(name="load")
 @click.argument("apk_path", type=click.Path(exists=True))
@@ -2731,6 +2814,7 @@ def unload_cmd():
 # APK 命令组
 # ================================================================
 
+
 @entry_point.group(help="APK information commands")
 def apk():
     """APK 信息命令组"""
@@ -2738,7 +2822,11 @@ def apk():
 
 
 @apk.command(name="info")
-@click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path (or set ANDROGUARD_APK_PATH env var)")
+@click.option(
+    "--apk-path",
+    envvar="ANDROGUARD_APK_PATH",
+    help="APK file path (or set ANDROGUARD_APK_PATH env var)",
+)
 def apk_info_cmd(apk_path):
     """Get APK basic information"""
     # 尝试 daemon
@@ -2751,7 +2839,11 @@ def apk_info_cmd(apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.apk_info())
@@ -2769,7 +2861,11 @@ def apk_permissions_cmd(apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.apk_permissions())
@@ -2787,7 +2883,11 @@ def apk_activities_cmd(apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.apk_activities())
@@ -2805,7 +2905,11 @@ def apk_services_cmd(apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.apk_services())
@@ -2823,7 +2927,11 @@ def apk_receivers_cmd(apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.apk_receivers())
@@ -2841,7 +2949,11 @@ def apk_providers_cmd(apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.apk_providers())
@@ -2852,9 +2964,7 @@ def apk_providers_cmd(apk_path):
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def apk_intent_filters_cmd(component, apk_path):
     """Get intent filters for a specific component"""
-    result = _try_daemon_call(
-        "apk_intent_filters", {"component": component}
-    )
+    result = _try_daemon_call("apk_intent_filters", {"component": component})
     if result is not None:
         _output_json(result)
         return
@@ -2862,7 +2972,11 @@ def apk_intent_filters_cmd(component, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.apk_intent_filters(component))
@@ -2880,7 +2994,11 @@ def apk_signature_cmd(apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.apk_signature())
@@ -2898,7 +3016,11 @@ def apk_files_cmd(apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.apk_files())
@@ -2916,7 +3038,11 @@ def apk_manifest_cmd(apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.apk_manifest())
@@ -2934,7 +3060,11 @@ def apk_features_cmd(apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.apk_features())
@@ -2952,14 +3082,23 @@ def apk_libraries_cmd(apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.apk_libraries())
 
 
 @apk.command(name="icon")
-@click.option("--max-dpi", default=65536, type=int, help="Max DPI for icon selection (default: 65536)")
+@click.option(
+    "--max-dpi",
+    default=65536,
+    type=int,
+    help="Max DPI for icon selection (default: 65536)",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def apk_icon_cmd(max_dpi, apk_path):
     """Get app icon information"""
@@ -2971,7 +3110,11 @@ def apk_icon_cmd(max_dpi, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.apk_icon(max_dpi))
@@ -2990,7 +3133,11 @@ def apk_file_cmd(filename, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.apk_file(filename))
@@ -3008,7 +3155,11 @@ def apk_verify_cmd(apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.apk_verify())
@@ -3026,23 +3177,41 @@ def apk_signing_block_cmd(apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.apk_signing_block())
 
 
 @apk.command(name="manifest-attrs")
-@click.option("--tag", "tag_name", required=True, help="Manifest tag name (e.g. uses-permission)")
+@click.option(
+    "--tag",
+    "tag_name",
+    required=True,
+    help="Manifest tag name (e.g. uses-permission)",
+)
 @click.option("--attribute", required=True, help="Attribute name (e.g. name)")
-@click.option("--filter", "filter_pairs", multiple=True, help="Attribute filter as key=value (can repeat)")
+@click.option(
+    "--filter",
+    "filter_pairs",
+    multiple=True,
+    help="Attribute filter as key=value (can repeat)",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def apk_manifest_attrs_cmd(tag_name, attribute, filter_pairs, apk_path):
     """Batch extract attribute values from AndroidManifest tags"""
     attribute_filter = _parse_filter_pairs(filter_pairs)
     result = _try_daemon_call(
         "apk_manifest_attrs",
-        {"tag_name": tag_name, "attribute": attribute, "attribute_filter": attribute_filter},
+        {
+            "tag_name": tag_name,
+            "attribute": attribute,
+            "attribute_filter": attribute_filter,
+        },
     )
     if result is not None:
         _output_json(result)
@@ -3051,23 +3220,38 @@ def apk_manifest_attrs_cmd(tag_name, attribute, filter_pairs, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
-    _output_json(skills.apk_manifest_attrs(tag_name, attribute, attribute_filter))
+    _output_json(
+        skills.apk_manifest_attrs(tag_name, attribute, attribute_filter)
+    )
 
 
 @apk.command(name="manifest-attr")
 @click.option("--tag", "tag_name", required=True, help="Manifest tag name")
 @click.option("--attribute", required=True, help="Attribute name")
-@click.option("--filter", "filter_pairs", multiple=True, help="Attribute filter as key=value (can repeat)")
+@click.option(
+    "--filter",
+    "filter_pairs",
+    multiple=True,
+    help="Attribute filter as key=value (can repeat)",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def apk_manifest_attr_cmd(tag_name, attribute, filter_pairs, apk_path):
     """Extract a single manifest attribute value (first match)"""
     attribute_filter = _parse_filter_pairs(filter_pairs)
     result = _try_daemon_call(
         "apk_manifest_attr",
-        {"tag_name": tag_name, "attribute": attribute, "attribute_filter": attribute_filter},
+        {
+            "tag_name": tag_name,
+            "attribute": attribute,
+            "attribute_filter": attribute_filter,
+        },
     )
     if result is not None:
         _output_json(result)
@@ -3076,14 +3260,24 @@ def apk_manifest_attr_cmd(tag_name, attribute, filter_pairs, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
-    _output_json(skills.apk_manifest_attr(tag_name, attribute, attribute_filter))
+    _output_json(
+        skills.apk_manifest_attr(tag_name, attribute, attribute_filter)
+    )
 
 
 @apk.command(name="certificate")
-@click.option("--filename", default=None, help="Signature file name (e.g. META-INF/CERT.RSA). If omitted, returns all certificates")
+@click.option(
+    "--filename",
+    default=None,
+    help="Signature file name (e.g. META-INF/CERT.RSA). If omitted, returns all certificates",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def apk_certificate_cmd(filename, apk_path):
     """Get APK signing certificate details"""
@@ -3095,14 +3289,22 @@ def apk_certificate_cmd(filename, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.apk_certificate(filename))
 
 
 @apk.command(name="verify-signature")
-@click.option("--filename", default=None, help="Signature file name (e.g. META-INF/CERT.RSA). If omitted, verify all signature files")
+@click.option(
+    "--filename",
+    default=None,
+    help="Signature file name (e.g. META-INF/CERT.RSA). If omitted, verify all signature files",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def apk_verify_signature_cmd(filename, apk_path):
     """Cryptographically verify APK signatures (signer info vs .SF file)"""
@@ -3114,7 +3316,11 @@ def apk_verify_signature_cmd(filename, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.apk_verify_signature(filename))
@@ -3132,14 +3338,20 @@ def apk_files_info_cmd(apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.apk_files_info())
 
 
 @apk.command(name="dex-data")
-@click.option("--all-dex", is_flag=True, help="Extract all DEX files (multidex)")
+@click.option(
+    "--all-dex", is_flag=True, help="Extract all DEX files (multidex)"
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def apk_dex_data_cmd(all_dex, apk_path):
     """Extract DEX binary data (base64 encoded)"""
@@ -3151,7 +3363,11 @@ def apk_dex_data_cmd(all_dex, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.apk_dex_data(all_dex))
@@ -3169,7 +3385,11 @@ def apk_raw_cmd(apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.apk_raw())
@@ -3177,7 +3397,12 @@ def apk_raw_cmd(apk_path):
 
 @apk.command(name="manifest-tags")
 @click.option("--tag", "tag_name", required=True, help="Manifest tag name")
-@click.option("--filter", "filter_pairs", multiple=True, help="Attribute filter as key=value (can repeat)")
+@click.option(
+    "--filter",
+    "filter_pairs",
+    multiple=True,
+    help="Attribute filter as key=value (can repeat)",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def apk_manifest_tags_cmd(tag_name, filter_pairs, apk_path):
     """Find manifest tags by attribute filter"""
@@ -3193,7 +3418,11 @@ def apk_manifest_tags_cmd(tag_name, filter_pairs, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.apk_manifest_tags(tag_name, attribute_filter))
@@ -3211,14 +3440,23 @@ def apk_signing_versions_cmd(apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.apk_signing_versions())
 
 
 @apk.command(name="certificates-scheme")
-@click.option("--scheme", default="v3", type=click.Choice(["v1", "v2", "v3", "v31"]), help="Signing scheme")
+@click.option(
+    "--scheme",
+    default="v3",
+    type=click.Choice(["v1", "v2", "v3", "v31"]),
+    help="Signing scheme",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def apk_certificates_scheme_cmd(scheme, apk_path):
     """Get certificates by signing scheme (v1/v2/v3/v31)"""
@@ -3230,14 +3468,23 @@ def apk_certificates_scheme_cmd(scheme, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.apk_certificates_scheme(scheme))
 
 
 @apk.command(name="certificates-der")
-@click.option("--scheme", default="v3", type=click.Choice(["v2", "v3", "v31"]), help="Signing scheme")
+@click.option(
+    "--scheme",
+    default="v3",
+    type=click.Choice(["v2", "v3", "v31"]),
+    help="Signing scheme",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def apk_certificates_der_cmd(scheme, apk_path):
     """Get certificate DER bytes (base64) by signing scheme"""
@@ -3249,14 +3496,23 @@ def apk_certificates_der_cmd(scheme, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.apk_certificates_der(scheme))
 
 
 @apk.command(name="public-keys")
-@click.option("--scheme", default="v3", type=click.Choice(["v2", "v3", "v31"]), help="Signing scheme")
+@click.option(
+    "--scheme",
+    default="v3",
+    type=click.Choice(["v2", "v3", "v31"]),
+    help="Signing scheme",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def apk_public_keys_cmd(scheme, apk_path):
     """Get signing public keys by scheme"""
@@ -3268,7 +3524,11 @@ def apk_public_keys_cmd(scheme, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.apk_public_keys(scheme))
@@ -3286,7 +3546,11 @@ def apk_signature_files_cmd(apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.apk_signature_files())
@@ -3304,14 +3568,23 @@ def apk_files_crc32_cmd(apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.apk_files_crc32())
 
 
 @apk.command(name="fingerprint")
-@click.option("--scheme", default="v3", type=click.Choice(["v2", "v3", "v31"]), help="Signing scheme to read public keys from")
+@click.option(
+    "--scheme",
+    default="v3",
+    type=click.Choice(["v2", "v3", "v31"]),
+    help="Signing scheme to read public keys from",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def apk_fingerprint_cmd(scheme, apk_path):
     """Get SHA-256 fingerprints of signing public keys"""
@@ -3323,7 +3596,11 @@ def apk_fingerprint_cmd(scheme, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.apk_fingerprint(scheme))
@@ -3341,7 +3618,11 @@ def apk_manifest_axml_cmd(apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.apk_manifest_axml())
@@ -3349,7 +3630,9 @@ def apk_manifest_axml_cmd(apk_path):
 
 @apk.command(name="axml")
 @click.argument("filename")
-@click.option("--no-pretty", is_flag=True, help="Disable pretty-printing (compact XML)")
+@click.option(
+    "--no-pretty", is_flag=True, help="Disable pretty-printing (compact XML)"
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def apk_axml_cmd(filename, no_pretty, apk_path):
     """Decode any binary AXML file in APK to readable XML (layouts/drawables/config)"""
@@ -3364,7 +3647,11 @@ def apk_axml_cmd(filename, no_pretty, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.apk_axml(filename, pretty))
@@ -3374,12 +3661,17 @@ def apk_axml_cmd(filename, no_pretty, apk_path):
 # 第六轮：APK 权限分类 / SDK 版本 / 设备特性
 # ----------------------------------------------------------------
 
+
 def _apk_loader(apk_path):
     """加载 APK 并返回 skills 实例（供无参/单参 apk 命令复用）"""
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return None
         skills.load_apk(apk_path)
     return skills
@@ -3492,7 +3784,12 @@ def apk_manifest_tree_cmd(apk_path):
 @apk.command(name="find-tags-xml")
 @click.argument("xml_name")
 @click.argument("tag_name")
-@click.option("--filter", "filter_pairs", multiple=True, help="Attribute filter as key=value (repeatable)")
+@click.option(
+    "--filter",
+    "filter_pairs",
+    multiple=True,
+    help="Attribute filter as key=value (repeatable)",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def apk_find_tags_xml_cmd(xml_name, tag_name, filter_pairs, apk_path):
     """Find tags in a specific XML file inside the APK"""
@@ -3512,8 +3809,15 @@ def apk_find_tags_xml_cmd(xml_name, tag_name, filter_pairs, apk_path):
 
 
 @apk.command(name="cert-names")
-@click.option("--scheme", default="v3", type=click.Choice(["v1", "v2", "v3", "v31"]), help="Signing scheme")
-@click.option("--no-android", is_flag=True, help="Use non-Android canonicalization")
+@click.option(
+    "--scheme",
+    default="v3",
+    type=click.Choice(["v1", "v2", "v3", "v31"]),
+    help="Signing scheme",
+)
+@click.option(
+    "--no-android", is_flag=True, help="Use non-Android canonicalization"
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def apk_cert_names_cmd(scheme, no_android, apk_path):
     """Get canonical/normalized names of signing certificate subject and issuer"""
@@ -3569,7 +3873,11 @@ def apk_signature_names_cmd(apk_path):
 
 
 @apk.command(name="app-name")
-@click.option("--locale", default=None, help="Locale code (e.g. zh, en); default if omitted")
+@click.option(
+    "--locale",
+    default=None,
+    help="Locale code (e.g. zh, en); default if omitted",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def apk_app_name_cmd(locale, apk_path):
     """Get the app display name (resolved android:label)"""
@@ -3622,11 +3930,17 @@ def apk_security_overview_cmd(apk_path):
 
 
 @apk.command(name="native-libraries")
-@click.option("--include-data", is_flag=True, help="Include base64-encoded .so data (large output)")
+@click.option(
+    "--include-data",
+    is_flag=True,
+    help="Include base64-encoded .so data (large output)",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def apk_native_libraries_cmd(include_data, apk_path):
     """List native libraries (lib/<abi>/*.so) grouped by ABI"""
-    result = _try_daemon_call("apk_native_libraries", {"include_data": include_data})
+    result = _try_daemon_call(
+        "apk_native_libraries", {"include_data": include_data}
+    )
     if result is not None:
         _output_json(result)
         return
@@ -3662,12 +3976,33 @@ def apk_component_details_cmd(apk_path):
 
 
 @apk.command(name="attack-surface")
-@click.option("--max-depth", default=4, type=int, help="Forward reachability depth from component methods (default 4)")
-@click.option("--per-sink-limit", default=10, type=int, help="Max call samples per sink category per component (default 10)")
-@click.option("--max-nodes", default=2000, type=int, help="BFS node cap per component (default 2000)")
-@click.option("--include-safe", is_flag=True, help="Also analyze non-exported/protected components (default: exposed only)")
+@click.option(
+    "--max-depth",
+    default=4,
+    type=int,
+    help="Forward reachability depth from component methods (default 4)",
+)
+@click.option(
+    "--per-sink-limit",
+    default=10,
+    type=int,
+    help="Max call samples per sink category per component (default 10)",
+)
+@click.option(
+    "--max-nodes",
+    default=2000,
+    type=int,
+    help="BFS node cap per component (default 2000)",
+)
+@click.option(
+    "--include-safe",
+    is_flag=True,
+    help="Also analyze non-exported/protected components (default: exposed only)",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
-def apk_attack_surface_cmd(max_depth, per_sink_limit, max_nodes, include_safe, apk_path):
+def apk_attack_surface_cmd(
+    max_depth, per_sink_limit, max_nodes, include_safe, apk_path
+):
     """Attack surface: cross-reference exported components with forward-reachable dangerous sinks"""
     params = {
         "max_depth": max_depth,
@@ -3681,9 +4016,14 @@ def apk_attack_surface_cmd(max_depth, per_sink_limit, max_nodes, include_safe, a
         return
     skills = _apk_loader(apk_path)
     if skills is not None:
-        _output_json(skills.apk_attack_surface(
-            max_depth, per_sink_limit, max_nodes, include_safe,
-        ))
+        _output_json(
+            skills.apk_attack_surface(
+                max_depth,
+                per_sink_limit,
+                max_nodes,
+                include_safe,
+            )
+        )
 
 
 @apk.command(name="deeplinks")
@@ -3700,11 +4040,19 @@ def apk_deeplinks_cmd(apk_path):
 
 
 @apk.command(name="security-report")
-@click.option("--limit", "per_type_limit", default=20, type=int, help="Max samples/findings per domain (default 20)")
+@click.option(
+    "--limit",
+    "per_type_limit",
+    default=20,
+    type=int,
+    help="Max samples/findings per domain (default 20)",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def apk_security_report_cmd(per_type_limit, apk_path):
     """One-shot full security report: aggregate all audits + composite risk score (audit suite closure)"""
-    result = _try_daemon_call("apk_security_report", {"per_type_limit": per_type_limit})
+    result = _try_daemon_call(
+        "apk_security_report", {"per_type_limit": per_type_limit}
+    )
     if result is not None:
         _output_json(result)
         return
@@ -3717,6 +4065,7 @@ def apk_security_report_cmd(per_type_limit, apk_path):
 # DEX 命令组
 # ================================================================
 
+
 @entry_point.group(help="DEX information commands")
 def dex():
     """DEX 信息命令组"""
@@ -3724,13 +4073,16 @@ def dex():
 
 
 @dex.command(name="classes")
-@click.option("--filter", "filter_regex", default=None, help="Regex filter for class names")
+@click.option(
+    "--filter",
+    "filter_regex",
+    default=None,
+    help="Regex filter for class names",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def dex_classes_cmd(filter_regex, apk_path):
     """List DEX classes"""
-    result = _try_daemon_call(
-        "dex_classes", {"filter_regex": filter_regex}
-    )
+    result = _try_daemon_call("dex_classes", {"filter_regex": filter_regex})
     if result is not None:
         _output_json(result)
         return
@@ -3738,20 +4090,27 @@ def dex_classes_cmd(filter_regex, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.dex_classes(filter_regex))
 
 
 @dex.command(name="methods")
-@click.option("--class", "class_name", default=None, help="Filter by class name (e.g. Lcom/example/MyClass;)")
+@click.option(
+    "--class",
+    "class_name",
+    default=None,
+    help="Filter by class name (e.g. Lcom/example/MyClass;)",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def dex_methods_cmd(class_name, apk_path):
     """List DEX methods"""
-    result = _try_daemon_call(
-        "dex_methods", {"class_name": class_name}
-    )
+    result = _try_daemon_call("dex_methods", {"class_name": class_name})
     if result is not None:
         _output_json(result)
         return
@@ -3759,20 +4118,24 @@ def dex_methods_cmd(class_name, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.dex_methods(class_name))
 
 
 @dex.command(name="strings")
-@click.option("--filter", "filter_regex", default=None, help="Regex filter for strings")
+@click.option(
+    "--filter", "filter_regex", default=None, help="Regex filter for strings"
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def dex_strings_cmd(filter_regex, apk_path):
     """List DEX strings"""
-    result = _try_daemon_call(
-        "dex_strings", {"filter_regex": filter_regex}
-    )
+    result = _try_daemon_call("dex_strings", {"filter_regex": filter_regex})
     if result is not None:
         _output_json(result)
         return
@@ -3780,15 +4143,23 @@ def dex_strings_cmd(filter_regex, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.dex_strings(filter_regex))
 
 
 @dex.command(name="strings-table")
-@click.option("--filter", "filter_regex", default=None, help="Regex filter for strings")
-@click.option("--limit", type=int, default=None, help="Max number of entries to return")
+@click.option(
+    "--filter", "filter_regex", default=None, help="Regex filter for strings"
+)
+@click.option(
+    "--limit", type=int, default=None, help="Max number of entries to return"
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def dex_strings_table_cmd(filter_regex, limit, apk_path):
     """List string constant pool with idx/offset/utf16_size (binary location for patching)"""
@@ -3802,20 +4173,24 @@ def dex_strings_table_cmd(filter_regex, limit, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.dex_strings_table(filter_regex, limit))
 
 
 @dex.command(name="fields")
-@click.option("--class", "class_name", default=None, help="Filter by class name")
+@click.option(
+    "--class", "class_name", default=None, help="Filter by class name"
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def dex_fields_cmd(class_name, apk_path):
     """List DEX fields"""
-    result = _try_daemon_call(
-        "dex_fields", {"class_name": class_name}
-    )
+    result = _try_daemon_call("dex_fields", {"class_name": class_name})
     if result is not None:
         _output_json(result)
         return
@@ -3823,7 +4198,11 @@ def dex_fields_cmd(class_name, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.dex_fields(class_name))
@@ -3841,7 +4220,11 @@ def dex_header_cmd(apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.dex_header())
@@ -3859,7 +4242,11 @@ def dex_class_names_cmd(apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.dex_class_names())
@@ -3877,15 +4264,26 @@ def dex_hidden_api_cmd(apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.dex_hidden_api())
 
 
 @dex.command(name="disassemble")
-@click.option("--offset", required=True, type=int, help="Start offset (valid code segment offset, e.g. method code_off)")
-@click.option("--size", required=True, type=int, help="Number of bytes to disassemble")
+@click.option(
+    "--offset",
+    required=True,
+    type=int,
+    help="Start offset (valid code segment offset, e.g. method code_off)",
+)
+@click.option(
+    "--size", required=True, type=int, help="Number of bytes to disassemble"
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def dex_disassemble_cmd(offset, size, apk_path):
     """Disassemble DEX bytecode at a given offset"""
@@ -3899,7 +4297,11 @@ def dex_disassemble_cmd(offset, size, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.dex_disassemble(offset, size))
@@ -3917,7 +4319,11 @@ def dex_hierarchy_cmd(apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.dex_hierarchy())
@@ -3935,7 +4341,11 @@ def dex_stats_cmd(apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.dex_stats())
@@ -3946,9 +4356,7 @@ def dex_stats_cmd(apk_path):
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def dex_class_cmd(class_name, apk_path):
     """Get detailed information for a specific DEX class"""
-    result = _try_daemon_call(
-        "dex_class", {"class_name": class_name}
-    )
+    result = _try_daemon_call("dex_class", {"class_name": class_name})
     if result is not None:
         _output_json(result)
         return
@@ -3956,7 +4364,11 @@ def dex_class_cmd(class_name, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.dex_class(class_name))
@@ -3967,9 +4379,7 @@ def dex_class_cmd(class_name, apk_path):
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def dex_regex_strings_cmd(pattern, apk_path):
     """Search DEX strings using regex (fast C-level implementation)"""
-    result = _try_daemon_call(
-        "dex_regex_strings", {"pattern": pattern}
-    )
+    result = _try_daemon_call("dex_regex_strings", {"pattern": pattern})
     if result is not None:
         _output_json(result)
         return
@@ -3977,20 +4387,27 @@ def dex_regex_strings_cmd(pattern, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.dex_regex_strings(pattern))
 
 
 @dex.command(name="debug-info")
-@click.option("--class", "class_name", default=None, help="Class name to extract debug info for (optional)")
+@click.option(
+    "--class",
+    "class_name",
+    default=None,
+    help="Class name to extract debug info for (optional)",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def dex_debug_info_cmd(class_name, apk_path):
     """Get DEX debug information"""
-    result = _try_daemon_call(
-        "dex_debug_info", {"class_name": class_name}
-    )
+    result = _try_daemon_call("dex_debug_info", {"class_name": class_name})
     if result is not None:
         _output_json(result)
         return
@@ -3998,15 +4415,26 @@ def dex_debug_info_cmd(class_name, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.dex_debug_info(class_name))
 
 
 @dex.command(name="encoded-fields")
-@click.option("--class", "class_name", default=None, help="Filter by class name (optional)")
-@click.option("--limit", default=None, type=int, help="Limit number of results")
+@click.option(
+    "--class",
+    "class_name",
+    default=None,
+    help="Filter by class name (optional)",
+)
+@click.option(
+    "--limit", default=None, type=int, help="Limit number of results"
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def dex_encoded_fields_cmd(class_name, limit, apk_path):
     """List all EncodedField (low-level field table)"""
@@ -4020,15 +4448,26 @@ def dex_encoded_fields_cmd(class_name, limit, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.dex_encoded_fields(class_name, limit))
 
 
 @dex.command(name="encoded-methods")
-@click.option("--class", "class_name", default=None, help="Filter by class name (optional)")
-@click.option("--limit", default=None, type=int, help="Limit number of results")
+@click.option(
+    "--class",
+    "class_name",
+    default=None,
+    help="Filter by class name (optional)",
+)
+@click.option(
+    "--limit", default=None, type=int, help="Limit number of results"
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def dex_encoded_methods_cmd(class_name, limit, apk_path):
     """List all EncodedMethod (low-level method table)"""
@@ -4042,7 +4481,11 @@ def dex_encoded_methods_cmd(class_name, limit, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.dex_encoded_methods(class_name, limit))
@@ -4053,7 +4496,9 @@ def dex_encoded_methods_cmd(class_name, limit, apk_path):
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def dex_encoded_method_cmd(method_name, apk_path):
     """Find EncodedMethod by method name (across all classes)"""
-    result = _try_daemon_call("dex_encoded_method", {"method_name": method_name})
+    result = _try_daemon_call(
+        "dex_encoded_method", {"method_name": method_name}
+    )
     if result is not None:
         _output_json(result)
         return
@@ -4061,7 +4506,11 @@ def dex_encoded_method_cmd(method_name, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.dex_encoded_method(method_name))
@@ -4072,7 +4521,9 @@ def dex_encoded_method_cmd(method_name, apk_path):
 @click.argument("method_name")
 @click.argument("descriptor")
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
-def dex_encoded_method_descriptor_cmd(class_name, method_name, descriptor, apk_path):
+def dex_encoded_method_descriptor_cmd(
+    class_name, method_name, descriptor, apk_path
+):
     """Find EncodedMethod by class+method+descriptor (handles overloads)"""
     result = _try_daemon_call(
         "dex_encoded_method_descriptor",
@@ -4089,7 +4540,11 @@ def dex_encoded_method_descriptor_cmd(class_name, method_name, descriptor, apk_p
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(
@@ -4101,7 +4556,12 @@ def dex_encoded_method_descriptor_cmd(class_name, method_name, descriptor, apk_p
 
 @dex.command(name="cm-lookup")
 @click.argument("idx", type=int)
-@click.option("--kind", default="string", type=click.Choice(["string", "method", "field", "type"]), help="Constant pool kind")
+@click.option(
+    "--kind",
+    default="string",
+    type=click.Choice(["string", "method", "field", "type"]),
+    help="Constant pool kind",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def dex_cm_lookup_cmd(idx, kind, apk_path):
     """Look up ClassManager constant pool entry by index"""
@@ -4113,14 +4573,20 @@ def dex_cm_lookup_cmd(idx, kind, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.dex_cm_lookup(idx, kind))
 
 
 @dex.command(name="fields-id")
-@click.option("--limit", default=None, type=int, help="Limit number of results")
+@click.option(
+    "--limit", default=None, type=int, help="Limit number of results"
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def dex_fields_id_cmd(limit, apk_path):
     """Get DEX field index table (FieldIdItem)"""
@@ -4132,7 +4598,11 @@ def dex_fields_id_cmd(limit, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.dex_fields_id(limit))
@@ -4150,7 +4620,11 @@ def dex_version_cmd(apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.dex_version())
@@ -4160,12 +4634,17 @@ def dex_version_cmd(apk_path):
 # 第六轮：DEX 底层 item 表与计数
 # ----------------------------------------------------------------
 
+
 def _dex_loader(apk_path):
     """加载 APK 并返回 skills 实例（供 dex 命令复用）"""
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return None
         skills.load_apk(apk_path)
     return skills
@@ -4214,9 +4693,12 @@ def dex_class_manager_cmd(apk_path):
 # 第七轮：DEX 按类 / 按 idx 的 encoded 查询
 # ----------------------------------------------------------------
 
+
 @dex.command(name="encoded-fields-class")
 @click.argument("class_name")
-@click.option("--limit", default=None, type=int, help="Max number of fields to return")
+@click.option(
+    "--limit", default=None, type=int, help="Max number of fields to return"
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def dex_encoded_fields_class_cmd(class_name, limit, apk_path):
     """Get all EncodedField of a specific class (class field table)"""
@@ -4233,7 +4715,9 @@ def dex_encoded_fields_class_cmd(class_name, limit, apk_path):
 
 @dex.command(name="encoded-methods-class")
 @click.argument("class_name")
-@click.option("--limit", default=None, type=int, help="Max number of methods to return")
+@click.option(
+    "--limit", default=None, type=int, help="Max number of methods to return"
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def dex_encoded_methods_class_cmd(class_name, limit, apk_path):
     """Get all EncodedMethod of a specific class (class method table)"""
@@ -4264,7 +4748,9 @@ def dex_encoded_method_by_idx_cmd(idx, apk_path):
 
 @dex.command(name="encoded-field-by-name")
 @click.argument("name")
-@click.option("--limit", default=None, type=int, help="Max number of fields to return")
+@click.option(
+    "--limit", default=None, type=int, help="Max number of fields to return"
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def dex_encoded_field_by_name_cmd(name, limit, apk_path):
     """Get EncodedField by field name (across all classes)"""
@@ -4284,18 +4770,28 @@ def dex_encoded_field_by_name_cmd(name, limit, apk_path):
 @click.argument("field_name")
 @click.argument("descriptor")
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
-def dex_encoded_field_descriptor_cmd(class_name, field_name, descriptor, apk_path):
+def dex_encoded_field_descriptor_cmd(
+    class_name, field_name, descriptor, apk_path
+):
     """Find EncodedField by class + field + descriptor (exact match)"""
     result = _try_daemon_call(
         "dex_encoded_field_descriptor",
-        {"class_name": class_name, "field_name": field_name, "descriptor": descriptor},
+        {
+            "class_name": class_name,
+            "field_name": field_name,
+            "descriptor": descriptor,
+        },
     )
     if result is not None:
         _output_json(result)
         return
     skills = _dex_loader(apk_path)
     if skills is not None:
-        _output_json(skills.dex_encoded_field_descriptor(class_name, field_name, descriptor))
+        _output_json(
+            skills.dex_encoded_field_descriptor(
+                class_name, field_name, descriptor
+            )
+        )
 
 
 @dex.command(name="method-info")
@@ -4319,7 +4815,12 @@ def dex_method_info_cmd(class_name, method_name, apk_path):
 @dex.command(name="method-instructions")
 @click.argument("class_name")
 @click.argument("method_name")
-@click.option("--limit", default=None, type=int, help="Max number of instructions to return")
+@click.option(
+    "--limit",
+    default=None,
+    type=int,
+    help="Max number of instructions to return",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def dex_method_instructions_cmd(class_name, method_name, limit, apk_path):
     """Disassemble all Dalvik instructions of a method (instruction stream)"""
@@ -4332,7 +4833,9 @@ def dex_method_instructions_cmd(class_name, method_name, limit, apk_path):
         return
     skills = _dex_loader(apk_path)
     if skills is not None:
-        _output_json(skills.dex_method_instructions(class_name, method_name, limit))
+        _output_json(
+            skills.dex_method_instructions(class_name, method_name, limit)
+        )
 
 
 @dex.command(name="method-code")
@@ -4358,9 +4861,7 @@ def dex_method_code_cmd(class_name, method_name, apk_path):
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def dex_class_meta_cmd(class_name, apk_path):
     """Get ClassDefItem low-level meta (annotations/source_file/interfaces/superclass/offsets)"""
-    result = _try_daemon_call(
-        "dex_class_meta", {"class_name": class_name}
-    )
+    result = _try_daemon_call("dex_class_meta", {"class_name": class_name})
     if result is not None:
         _output_json(result)
         return
@@ -4371,7 +4872,12 @@ def dex_class_meta_cmd(class_name, apk_path):
 
 @dex.command(name="class-data")
 @click.argument("class_name")
-@click.option("--limit", default=None, type=int, help="Max items per category (direct/virtual/static/instance)")
+@click.option(
+    "--limit",
+    default=None,
+    type=int,
+    help="Max items per category (direct/virtual/static/instance)",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def dex_class_data_cmd(class_name, limit, apk_path):
     """Get ClassDataItem categorized view (direct/virtual methods + static/instance fields)"""
@@ -4407,7 +4913,12 @@ def dex_field_init_value_cmd(class_name, field_name, apk_path):
 @dex.command(name="method-instructions-idx")
 @click.argument("class_name")
 @click.argument("method_name")
-@click.option("--limit", default=None, type=int, help="Max number of instructions to return")
+@click.option(
+    "--limit",
+    default=None,
+    type=int,
+    help="Max number of instructions to return",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def dex_method_instructions_idx_cmd(class_name, method_name, limit, apk_path):
     """Disassemble all instructions of a method with byte offset idx"""
@@ -4426,7 +4937,9 @@ def dex_method_instructions_idx_cmd(class_name, method_name, limit, apk_path):
 
 
 @dex.command(name="proto-ids")
-@click.option("--limit", default=None, type=int, help="Max number of protos to return")
+@click.option(
+    "--limit", default=None, type=int, help="Max number of protos to return"
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def dex_proto_ids_cmd(limit, apk_path):
     """List DEX method prototype table (ProtoIdItem: shorty/return_type/parameters)"""
@@ -4440,7 +4953,9 @@ def dex_proto_ids_cmd(limit, apk_path):
 
 
 @dex.command(name="type-ids")
-@click.option("--limit", default=None, type=int, help="Max number of types to return")
+@click.option(
+    "--limit", default=None, type=int, help="Max number of types to return"
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def dex_type_ids_cmd(limit, apk_path):
     """List DEX type constant pool (type_ids: descriptor_idx -> type descriptor)"""
@@ -4454,8 +4969,18 @@ def dex_type_ids_cmd(limit, apk_path):
 
 
 @dex.command(name="annotations")
-@click.option("--class", "class_name", default=None, help="Class name (Dalvik). Omit to scan all annotated classes")
-@click.option("--limit", default=None, type=int, help="Max classes to scan (when no --class)")
+@click.option(
+    "--class",
+    "class_name",
+    default=None,
+    help="Class name (Dalvik). Omit to scan all annotated classes",
+)
+@click.option(
+    "--limit",
+    default=None,
+    type=int,
+    help="Max classes to scan (when no --class)",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def dex_annotations_cmd(class_name, limit, apk_path):
     """List DEX annotation directory (class/field/method/parameter annotations)"""
@@ -4547,12 +5072,15 @@ def dex_encoded_method_class_method_cmd(class_name, method_name, apk_path):
         return
     skills = _dex_loader(apk_path)
     if skills is not None:
-        _output_json(skills.dex_encoded_method_class_method(class_name, method_name))
+        _output_json(
+            skills.dex_encoded_method_class_method(class_name, method_name)
+        )
 
 
 # ================================================================
 # Analysis 命令组
 # ================================================================
+
 
 @entry_point.group(help="Static analysis commands")
 def analysis():
@@ -4575,7 +5103,11 @@ def analysis_xrefs_from_cmd(class_name, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.analysis_xrefs_from(class_name))
@@ -4586,9 +5118,7 @@ def analysis_xrefs_from_cmd(class_name, apk_path):
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def analysis_xrefs_to_cmd(class_name, apk_path):
     """Find what this class references (XrefTo)"""
-    result = _try_daemon_call(
-        "analysis_xrefs_to", {"class_name": class_name}
-    )
+    result = _try_daemon_call("analysis_xrefs_to", {"class_name": class_name})
     if result is not None:
         _output_json(result)
         return
@@ -4596,7 +5126,11 @@ def analysis_xrefs_to_cmd(class_name, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.analysis_xrefs_to(class_name))
@@ -4619,7 +5153,11 @@ def analysis_method_xrefs_cmd(class_name, method_name, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.analysis_method_xrefs(class_name, method_name))
@@ -4648,7 +5186,11 @@ def analysis_callgraph_cmd(output, fmt, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.analysis_callgraph(output, fmt))
@@ -4659,9 +5201,7 @@ def analysis_callgraph_cmd(output, fmt, apk_path):
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def analysis_find_classes_cmd(pattern, apk_path):
     """Search classes by regex pattern"""
-    result = _try_daemon_call(
-        "analysis_find_classes", {"pattern": pattern}
-    )
+    result = _try_daemon_call("analysis_find_classes", {"pattern": pattern})
     if result is not None:
         _output_json(result)
         return
@@ -4669,7 +5209,11 @@ def analysis_find_classes_cmd(pattern, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.analysis_find_classes(pattern))
@@ -4680,9 +5224,7 @@ def analysis_find_classes_cmd(pattern, apk_path):
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def analysis_find_methods_cmd(pattern, apk_path):
     """Search methods by regex pattern"""
-    result = _try_daemon_call(
-        "analysis_find_methods", {"pattern": pattern}
-    )
+    result = _try_daemon_call("analysis_find_methods", {"pattern": pattern})
     if result is not None:
         _output_json(result)
         return
@@ -4690,7 +5232,11 @@ def analysis_find_methods_cmd(pattern, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.analysis_find_methods(pattern))
@@ -4701,9 +5247,7 @@ def analysis_find_methods_cmd(pattern, apk_path):
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def analysis_find_strings_cmd(pattern, apk_path):
     """Search strings by regex pattern"""
-    result = _try_daemon_call(
-        "analysis_find_strings", {"pattern": pattern}
-    )
+    result = _try_daemon_call("analysis_find_strings", {"pattern": pattern})
     if result is not None:
         _output_json(result)
         return
@@ -4711,7 +5255,11 @@ def analysis_find_strings_cmd(pattern, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.analysis_find_strings(pattern))
@@ -4732,15 +5280,23 @@ def analysis_permission_usage_cmd(permission, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.analysis_permission_usage(permission))
 
 
 @analysis.command(name="api-usage")
-@click.option("--limit", default=None, type=int, help="Limit number of results")
-@click.option("--group-by-class", is_flag=True, help="Group API usage by class")
+@click.option(
+    "--limit", default=None, type=int, help="Limit number of results"
+)
+@click.option(
+    "--group-by-class", is_flag=True, help="Group API usage by class"
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def analysis_api_usage_cmd(limit, group_by_class, apk_path):
     """Get Android API usage"""
@@ -4755,14 +5311,23 @@ def analysis_api_usage_cmd(limit, group_by_class, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.analysis_api_usage(limit, group_by_class))
 
 
 @analysis.command(name="internal-classes")
-@click.option("--filter", "filter_regex", default=None, help="Regex filter for class names")
+@click.option(
+    "--filter",
+    "filter_regex",
+    default=None,
+    help="Regex filter for class names",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def analysis_internal_classes_cmd(filter_regex, apk_path):
     """List internal (app) classes"""
@@ -4776,14 +5341,23 @@ def analysis_internal_classes_cmd(filter_regex, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.analysis_internal_classes(filter_regex))
 
 
 @analysis.command(name="external-classes")
-@click.option("--filter", "filter_regex", default=None, help="Regex filter for class names")
+@click.option(
+    "--filter",
+    "filter_regex",
+    default=None,
+    help="Regex filter for class names",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def analysis_external_classes_cmd(filter_regex, apk_path):
     """List external (dependency) classes"""
@@ -4797,14 +5371,23 @@ def analysis_external_classes_cmd(filter_regex, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.analysis_external_classes(filter_regex))
 
 
 @analysis.command(name="internal-methods")
-@click.option("--filter", "filter_regex", default=None, help="Regex filter for method names")
+@click.option(
+    "--filter",
+    "filter_regex",
+    default=None,
+    help="Regex filter for method names",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def analysis_internal_methods_cmd(filter_regex, apk_path):
     """List internal (app) methods"""
@@ -4818,14 +5401,23 @@ def analysis_internal_methods_cmd(filter_regex, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.analysis_internal_methods(filter_regex))
 
 
 @analysis.command(name="external-methods")
-@click.option("--filter", "filter_regex", default=None, help="Regex filter for method names")
+@click.option(
+    "--filter",
+    "filter_regex",
+    default=None,
+    help="Regex filter for method names",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def analysis_external_methods_cmd(filter_regex, apk_path):
     """List external (dependency) methods"""
@@ -4839,7 +5431,11 @@ def analysis_external_methods_cmd(filter_regex, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.analysis_external_methods(filter_regex))
@@ -4862,7 +5458,11 @@ def analysis_field_xrefs_cmd(class_name, field_name, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.analysis_field_xrefs(class_name, field_name))
@@ -4885,7 +5485,11 @@ def analysis_field_xrefs_detail_cmd(class_name, field_name, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.analysis_field_xrefs_detail(class_name, field_name))
@@ -4896,9 +5500,7 @@ def analysis_field_xrefs_detail_cmd(class_name, field_name, apk_path):
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def analysis_find_fields_cmd(pattern, apk_path):
     """Search fields by regex pattern"""
-    result = _try_daemon_call(
-        "analysis_find_fields", {"pattern": pattern}
-    )
+    result = _try_daemon_call("analysis_find_fields", {"pattern": pattern})
     if result is not None:
         _output_json(result)
         return
@@ -4906,7 +5508,11 @@ def analysis_find_fields_cmd(pattern, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.analysis_find_fields(pattern))
@@ -4924,7 +5530,11 @@ def analysis_permissions_map_cmd(apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.analysis_permissions_map())
@@ -4945,7 +5555,11 @@ def analysis_class_exists_cmd(class_name, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.analysis_class_exists(class_name))
@@ -4956,11 +5570,17 @@ def analysis_class_exists_cmd(class_name, apk_path):
 @click.argument("method_name")
 @click.argument("descriptor")
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
-def analysis_method_analysis_cmd(class_name, method_name, descriptor, apk_path):
+def analysis_method_analysis_cmd(
+    class_name, method_name, descriptor, apk_path
+):
     """Get method analysis by class+method+descriptor (with full xref)"""
     result = _try_daemon_call(
         "analysis_method_analysis",
-        {"class_name": class_name, "method_name": method_name, "descriptor": descriptor},
+        {
+            "class_name": class_name,
+            "method_name": method_name,
+            "descriptor": descriptor,
+        },
     )
     if result is not None:
         _output_json(result)
@@ -4969,20 +5589,26 @@ def analysis_method_analysis_cmd(class_name, method_name, descriptor, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
-    _output_json(skills.analysis_method_analysis(class_name, method_name, descriptor))
+    _output_json(
+        skills.analysis_method_analysis(class_name, method_name, descriptor)
+    )
 
 
 @analysis.command(name="strings-analysis")
-@click.option("--limit", default=None, type=int, help="Max number of strings to return")
+@click.option(
+    "--limit", default=None, type=int, help="Max number of strings to return"
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def analysis_strings_analysis_cmd(limit, apk_path):
     """Get all string analyses (with reference locations)"""
-    result = _try_daemon_call(
-        "analysis_strings_analysis", {"limit": limit}
-    )
+    result = _try_daemon_call("analysis_strings_analysis", {"limit": limit})
     if result is not None:
         _output_json(result)
         return
@@ -4990,20 +5616,27 @@ def analysis_strings_analysis_cmd(limit, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.analysis_strings_analysis(limit))
 
 
 @analysis.command(name="security-hotspots")
-@click.option("--limit", default=50, type=int, help="Max samples per hotspot category (default 50)")
+@click.option(
+    "--limit",
+    default=50,
+    type=int,
+    help="Max samples per hotspot category (default 50)",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def analysis_security_hotspots_cmd(limit, apk_path):
     """Scan all methods for security-sensitive calls (reflection/crypto/exec/native/etc.)"""
-    result = _try_daemon_call(
-        "analysis_security_hotspots", {"limit": limit}
-    )
+    result = _try_daemon_call("analysis_security_hotspots", {"limit": limit})
     if result is not None:
         _output_json(result)
         return
@@ -5011,14 +5644,23 @@ def analysis_security_hotspots_cmd(limit, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.analysis_security_hotspots(limit))
 
 
 @analysis.command(name="hardcoded-secrets")
-@click.option("--limit", default=100, type=int, help="Max findings per category (default 100)")
+@click.option(
+    "--limit",
+    default=100,
+    type=int,
+    help="Max findings per category (default 100)",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def analysis_hardcoded_secrets_cmd(limit, apk_path):
     """Scan static field values for hardcoded secrets (API keys/tokens/URLs/private keys)"""
@@ -5029,7 +5671,11 @@ def analysis_hardcoded_secrets_cmd(limit, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.analysis_hardcoded_secrets(limit))
@@ -5044,7 +5690,11 @@ def analysis_get_method_cmd(class_name, method_name, descriptor, apk_path):
     """Get underlying EncodedMethod metadata by class+method+descriptor"""
     result = _try_daemon_call(
         "analysis_get_method",
-        {"class_name": class_name, "method_name": method_name, "descriptor": descriptor},
+        {
+            "class_name": class_name,
+            "method_name": method_name,
+            "descriptor": descriptor,
+        },
     )
     if result is not None:
         _output_json(result)
@@ -5053,21 +5703,35 @@ def analysis_get_method_cmd(class_name, method_name, descriptor, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
-    _output_json(skills.analysis_get_method(class_name, method_name, descriptor))
+    _output_json(
+        skills.analysis_get_method(class_name, method_name, descriptor)
+    )
 
 
 @analysis.command(name="find-fields-advanced")
 @click.option("--classname", default=".*", help="Regex for class name")
 @click.option("--fieldname", default=".*", help="Regex for field name")
 @click.option("--fieldtype", default=".*", help="Regex for field type")
-@click.option("--accessflags", default=".*", help="Regex for access flags (e.g. private|static)")
-@click.option("--limit", default=None, type=int, help="Limit number of results")
+@click.option(
+    "--accessflags",
+    default=".*",
+    help="Regex for access flags (e.g. private|static)",
+)
+@click.option(
+    "--limit", default=None, type=int, help="Limit number of results"
+)
 @click.option("--with-xrefs", is_flag=True, help="Include full xref lists")
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
-def analysis_find_fields_advanced_cmd(classname, fieldname, fieldtype, accessflags, limit, with_xrefs, apk_path):
+def analysis_find_fields_advanced_cmd(
+    classname, fieldname, fieldtype, accessflags, limit, with_xrefs, apk_path
+):
     """Multi-dimensional regex field search (native find_fields)"""
     result = _try_daemon_call(
         "analysis_find_fields_advanced",
@@ -5087,7 +5751,11 @@ def analysis_find_fields_advanced_cmd(classname, fieldname, fieldtype, accessfla
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(
@@ -5100,17 +5768,42 @@ def analysis_find_fields_advanced_cmd(classname, fieldname, fieldtype, accessfla
 @analysis.command(name="find-methods-advanced")
 @click.option("--classname", default=".*", help="Regex for class name")
 @click.option("--methodname", default=".*", help="Regex for method name")
-@click.option("--descriptor", default=".*", help="Regex for method descriptor (params + return type)")
-@click.option("--accessflags", default=".*", help="Regex for access flags (e.g. public.*static.*native)")
-@click.option("--no-external", is_flag=True, help="Exclude external (non-DEX-implemented) methods")
-@click.option("--limit", default=500, type=int, help="Max results (default 500)")
+@click.option(
+    "--descriptor",
+    default=".*",
+    help="Regex for method descriptor (params + return type)",
+)
+@click.option(
+    "--accessflags",
+    default=".*",
+    help="Regex for access flags (e.g. public.*static.*native)",
+)
+@click.option(
+    "--no-external",
+    is_flag=True,
+    help="Exclude external (non-DEX-implemented) methods",
+)
+@click.option(
+    "--limit", default=500, type=int, help="Max results (default 500)"
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
-def analysis_find_methods_advanced_cmd(classname, methodname, descriptor, accessflags, no_external, limit, apk_path):
+def analysis_find_methods_advanced_cmd(
+    classname,
+    methodname,
+    descriptor,
+    accessflags,
+    no_external,
+    limit,
+    apk_path,
+):
     """Multi-dimensional regex method search: class x method x descriptor x accessflags (native find_methods)"""
     params = {
-        "classname": classname, "methodname": methodname,
-        "descriptor": descriptor, "accessflags": accessflags,
-        "no_external": no_external, "limit": limit,
+        "classname": classname,
+        "methodname": methodname,
+        "descriptor": descriptor,
+        "accessflags": accessflags,
+        "no_external": no_external,
+        "limit": limit,
     }
     result = _try_daemon_call("analysis_find_methods_advanced", params)
     if result is not None:
@@ -5119,17 +5812,30 @@ def analysis_find_methods_advanced_cmd(classname, methodname, descriptor, access
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
-    _output_json(skills.analysis_find_methods_advanced(
-        classname, methodname, descriptor, accessflags, no_external, limit))
+    _output_json(
+        skills.analysis_find_methods_advanced(
+            classname, methodname, descriptor, accessflags, no_external, limit
+        )
+    )
 
 
 @analysis.command(name="find-classes-advanced")
 @click.option("--name", default=".*", help="Regex for class name")
-@click.option("--no-external", is_flag=True, help="Exclude external (Android/third-party) classes")
-@click.option("--limit", default=500, type=int, help="Max results (default 500)")
+@click.option(
+    "--no-external",
+    is_flag=True,
+    help="Exclude external (Android/third-party) classes",
+)
+@click.option(
+    "--limit", default=500, type=int, help="Max results (default 500)"
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def analysis_find_classes_advanced_cmd(name, no_external, limit, apk_path):
     """Multi-dimensional regex class search: name regex + exclude-external (native find_classes)"""
@@ -5141,10 +5847,16 @@ def analysis_find_classes_advanced_cmd(name, no_external, limit, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
-    _output_json(skills.analysis_find_classes_advanced(name, no_external, limit))
+    _output_json(
+        skills.analysis_find_classes_advanced(name, no_external, limit)
+    )
 
 
 @analysis.command(name="field-analysis")
@@ -5164,7 +5876,11 @@ def analysis_field_analysis_cmd(class_name, field_name, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.analysis_field_analysis(class_name, field_name))
@@ -5174,12 +5890,17 @@ def analysis_field_analysis_cmd(class_name, field_name, apk_path):
 # 第五轮：Analysis 类/方法/字符串遗漏能力
 # ----------------------------------------------------------------
 
+
 def _analysis_class_loader(class_name, apk_path):
     """加载 APK 并返回 skills 实例（供单参数类命令复用）"""
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return None
         skills.load_apk(apk_path)
     return skills
@@ -5238,7 +5959,9 @@ def analysis_class_xref_const_class_cmd(class_name, apk_path):
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def analysis_class_detail_cmd(class_name, apk_path):
     """Get comprehensive class info (methods/inheritance/xref stats/vm_class type)"""
-    result = _try_daemon_call("analysis_class_detail", {"class_name": class_name})
+    result = _try_daemon_call(
+        "analysis_class_detail", {"class_name": class_name}
+    )
     if result is not None:
         _output_json(result)
         return
@@ -5252,7 +5975,9 @@ def analysis_class_detail_cmd(class_name, apk_path):
 @click.argument("method_name")
 @click.argument("descriptor")
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
-def analysis_method_basic_blocks_cmd(class_name, method_name, descriptor, apk_path):
+def analysis_method_basic_blocks_cmd(
+    class_name, method_name, descriptor, apk_path
+):
     """Get basic blocks (CFG nodes) of a method"""
     result = _try_daemon_call(
         "analysis_method_basic_blocks",
@@ -5279,7 +6004,9 @@ def analysis_method_basic_blocks_cmd(class_name, method_name, descriptor, apk_pa
 @click.argument("method_name")
 @click.argument("descriptor")
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
-def analysis_method_exceptions_cmd(class_name, method_name, descriptor, apk_path):
+def analysis_method_exceptions_cmd(
+    class_name, method_name, descriptor, apk_path
+):
     """Get try/catch exception table for a method"""
     result = _try_daemon_call(
         "analysis_method_exceptions",
@@ -5331,7 +6058,9 @@ def analysis_method_detail_cmd(class_name, method_name, descriptor, apk_path):
 @click.argument("method_name")
 @click.argument("descriptor")
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
-def analysis_method_api_info_cmd(class_name, method_name, descriptor, apk_path):
+def analysis_method_api_info_cmd(
+    class_name, method_name, descriptor, apk_path
+):
     """Get method API/permission annotation (is_android_api/domain_flag/restriction_flag/apilist)"""
     result = _try_daemon_call(
         "analysis_method_api_info",
@@ -5347,12 +6076,16 @@ def analysis_method_api_info_cmd(class_name, method_name, descriptor, apk_path):
     skills = _analysis_class_loader(class_name, apk_path)
     if skills is not None:
         _output_json(
-            skills.analysis_method_api_info(class_name, method_name, descriptor)
+            skills.analysis_method_api_info(
+                class_name, method_name, descriptor
+            )
         )
 
 
 @analysis.command(name="android-api-usage")
-@click.option("--limit", default=None, type=int, help="Max number of APIs to return")
+@click.option(
+    "--limit", default=None, type=int, help="Max number of APIs to return"
+)
 @click.option(
     "--with-xrefs",
     is_flag=True,
@@ -5372,7 +6105,11 @@ def analysis_android_api_usage_cmd(limit, with_xrefs, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.analysis_android_api_usage(limit, with_xrefs))
@@ -5383,7 +6120,9 @@ def analysis_android_api_usage_cmd(limit, with_xrefs, apk_path):
 @click.argument("method_name")
 @click.argument("descriptor")
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
-def analysis_method_xrefs_detail_cmd(class_name, method_name, descriptor, apk_path):
+def analysis_method_xrefs_detail_cmd(
+    class_name, method_name, descriptor, apk_path
+):
     """Get full method-level xref lists (from/to/read/write/new_instance/const_class)"""
     result = _try_daemon_call(
         "analysis_method_xrefs_detail",
@@ -5416,7 +6155,11 @@ def analysis_strings_overwritten_cmd(apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.analysis_strings_overwritten())
@@ -5424,7 +6167,9 @@ def analysis_strings_overwritten_cmd(apk_path):
 
 @analysis.command(name="class-fields")
 @click.argument("class_name")
-@click.option("--limit", default=None, type=int, help="Max number of fields to return")
+@click.option(
+    "--limit", default=None, type=int, help="Max number of fields to return"
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def analysis_class_fields_cmd(class_name, limit, apk_path):
     """List all fields of a class with xref read/write counts"""
@@ -5437,7 +6182,11 @@ def analysis_class_fields_cmd(class_name, limit, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.analysis_class_fields(class_name, limit))
@@ -5445,7 +6194,12 @@ def analysis_class_fields_cmd(class_name, limit, apk_path):
 
 @analysis.command(name="class-fields-xref")
 @click.argument("class_name")
-@click.option("--xref-limit", default=20, type=int, help="Max read/write refs to expand per field (default 20)")
+@click.option(
+    "--xref-limit",
+    default=20,
+    type=int,
+    help="Max read/write refs to expand per field (default 20)",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def analysis_class_fields_xref_cmd(class_name, xref_limit, apk_path):
     """List all fields of a class with full read/write xref sources (which methods)"""
@@ -5459,7 +6213,11 @@ def analysis_class_fields_xref_cmd(class_name, xref_limit, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.analysis_class_fields_xref(class_name, xref_limit))
@@ -5467,7 +6225,12 @@ def analysis_class_fields_xref_cmd(class_name, xref_limit, apk_path):
 
 @analysis.command(name="string-info")
 @click.argument("value")
-@click.option("--xref-limit", default=None, type=int, help="Max number of xref_from refs to return")
+@click.option(
+    "--xref-limit",
+    default=None,
+    type=int,
+    help="Max number of xref_from refs to return",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def analysis_string_info_cmd(value, xref_limit, apk_path):
     """Get single string analysis (orig_value/current_value/is_overwritten + xrefs)"""
@@ -5480,7 +6243,11 @@ def analysis_string_info_cmd(value, xref_limit, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.analysis_string_info(value, xref_limit))
@@ -5490,14 +6257,28 @@ def analysis_string_info_cmd(value, xref_limit, apk_path):
 # 第十七轮：方法全貌聚合
 # ----------------------------------------------------------------
 
+
 @analysis.command(name="method-summary")
 @click.argument("class_name")
 @click.argument("method_name")
-@click.option("--descriptor", default=None, help="Method descriptor (optional; first match if omitted)")
-@click.option("--no-source", is_flag=True, help="Exclude decompiled Java source")
-@click.option("--xref-limit", default=10, type=int, help="Max refs per xref category (0 = all)")
+@click.option(
+    "--descriptor",
+    default=None,
+    help="Method descriptor (optional; first match if omitted)",
+)
+@click.option(
+    "--no-source", is_flag=True, help="Exclude decompiled Java source"
+)
+@click.option(
+    "--xref-limit",
+    default=10,
+    type=int,
+    help="Max refs per xref category (0 = all)",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
-def analysis_method_summary_cmd(class_name, method_name, descriptor, no_source, xref_limit, apk_path):
+def analysis_method_summary_cmd(
+    class_name, method_name, descriptor, no_source, xref_limit, apk_path
+):
     """Aggregate method overview (info + 6 xref summaries + CFG/exception counts + source)"""
     params = {
         "class_name": class_name,
@@ -5513,24 +6294,56 @@ def analysis_method_summary_cmd(class_name, method_name, descriptor, no_source, 
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
-    _output_json(skills.analysis_method_summary(
-        class_name, method_name, descriptor, not no_source,
-        xref_limit if xref_limit != 0 else None,
-    ))
+    _output_json(
+        skills.analysis_method_summary(
+            class_name,
+            method_name,
+            descriptor,
+            not no_source,
+            xref_limit if xref_limit != 0 else None,
+        )
+    )
 
 
 @analysis.command(name="method-reachable")
 @click.argument("class_name")
 @click.argument("method_name")
-@click.option("--descriptor", default=None, help="Method descriptor (optional; first match if omitted)")
-@click.option("--max-depth", default=3, type=int, help="Max recursion depth (default 3)")
-@click.option("--include-external", is_flag=True, help="Also recurse into external/API methods (may explode; use small depth)")
-@click.option("--max-nodes", default=5000, type=int, help="Node cap to prevent explosion (default 5000)")
+@click.option(
+    "--descriptor",
+    default=None,
+    help="Method descriptor (optional; first match if omitted)",
+)
+@click.option(
+    "--max-depth", default=3, type=int, help="Max recursion depth (default 3)"
+)
+@click.option(
+    "--include-external",
+    is_flag=True,
+    help="Also recurse into external/API methods (may explode; use small depth)",
+)
+@click.option(
+    "--max-nodes",
+    default=5000,
+    type=int,
+    help="Node cap to prevent explosion (default 5000)",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
-def analysis_method_reachable_cmd(class_name, method_name, descriptor, max_depth, include_external, max_nodes, apk_path):
+def analysis_method_reachable_cmd(
+    class_name,
+    method_name,
+    descriptor,
+    max_depth,
+    include_external,
+    max_nodes,
+    apk_path,
+):
     """Reachability analysis: methods reachable from a given method (recursive xref_to expansion)"""
     params = {
         "class_name": class_name,
@@ -5547,23 +6360,60 @@ def analysis_method_reachable_cmd(class_name, method_name, descriptor, max_depth
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
-    _output_json(skills.analysis_method_reachable(
-        class_name, method_name, descriptor, max_depth, include_external, max_nodes,
-    ))
+    _output_json(
+        skills.analysis_method_reachable(
+            class_name,
+            method_name,
+            descriptor,
+            max_depth,
+            include_external,
+            max_nodes,
+        )
+    )
 
 
 @analysis.command(name="method-callers")
 @click.argument("class_name")
 @click.argument("method_name")
-@click.option("--descriptor", default=None, help="Method descriptor (optional; first match if omitted)")
-@click.option("--max-depth", default=3, type=int, help="Max reverse recursion depth (default 3)")
-@click.option("--include-external", is_flag=True, help="Also recurse into external/API methods (rarely useful upstream)")
-@click.option("--max-nodes", default=5000, type=int, help="Node cap to prevent explosion (default 5000)")
+@click.option(
+    "--descriptor",
+    default=None,
+    help="Method descriptor (optional; first match if omitted)",
+)
+@click.option(
+    "--max-depth",
+    default=3,
+    type=int,
+    help="Max reverse recursion depth (default 3)",
+)
+@click.option(
+    "--include-external",
+    is_flag=True,
+    help="Also recurse into external/API methods (rarely useful upstream)",
+)
+@click.option(
+    "--max-nodes",
+    default=5000,
+    type=int,
+    help="Node cap to prevent explosion (default 5000)",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
-def analysis_method_callers_cmd(class_name, method_name, descriptor, max_depth, include_external, max_nodes, apk_path):
+def analysis_method_callers_cmd(
+    class_name,
+    method_name,
+    descriptor,
+    max_depth,
+    include_external,
+    max_nodes,
+    apk_path,
+):
     """Reverse reachability: callers that can reach a given method (recursive xref_from expansion)"""
     params = {
         "class_name": class_name,
@@ -5580,16 +6430,32 @@ def analysis_method_callers_cmd(class_name, method_name, descriptor, max_depth, 
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
-    _output_json(skills.analysis_method_callers(
-        class_name, method_name, descriptor, max_depth, include_external, max_nodes,
-    ))
+    _output_json(
+        skills.analysis_method_callers(
+            class_name,
+            method_name,
+            descriptor,
+            max_depth,
+            include_external,
+            max_nodes,
+        )
+    )
 
 
 @analysis.command(name="native-methods")
-@click.option("--limit", default=200, type=int, help="Max native methods to return (default 200)")
+@click.option(
+    "--limit",
+    default=200,
+    type=int,
+    help="Max native methods to return (default 200)",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def analysis_native_methods_cmd(limit, apk_path):
     """Enumerate all native (JNI) methods with declaring class and callers"""
@@ -5600,61 +6466,101 @@ def analysis_native_methods_cmd(limit, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.analysis_native_methods(limit))
 
 
 @analysis.command(name="crypto-usage")
-@click.option("--limit", "per_type_limit", default=100, type=int, help="Max samples per category (default 100)")
+@click.option(
+    "--limit",
+    "per_type_limit",
+    default=100,
+    type=int,
+    help="Max samples per category (default 100)",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def analysis_crypto_usage_cmd(per_type_limit, apk_path):
     """Aggregate crypto API usage, resolve algorithm strings, flag weak crypto (ECB/DES/MD5/SHA1/RC4)"""
-    result = _try_daemon_call("analysis_crypto_usage", {"per_type_limit": per_type_limit})
+    result = _try_daemon_call(
+        "analysis_crypto_usage", {"per_type_limit": per_type_limit}
+    )
     if result is not None:
         _output_json(result)
         return
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.analysis_crypto_usage(per_type_limit))
 
 
 @analysis.command(name="reflection-targets")
-@click.option("--limit", "per_type_limit", default=100, type=int, help="Max samples per category (default 100)")
+@click.option(
+    "--limit",
+    "per_type_limit",
+    default=100,
+    type=int,
+    help="Max samples per category (default 100)",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def analysis_reflection_targets_cmd(per_type_limit, apk_path):
     """Resolve reflection call targets (Class.forName/getMethod string args) for deobfuscation"""
-    result = _try_daemon_call("analysis_reflection_targets", {"per_type_limit": per_type_limit})
+    result = _try_daemon_call(
+        "analysis_reflection_targets", {"per_type_limit": per_type_limit}
+    )
     if result is not None:
         _output_json(result)
         return
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.analysis_reflection_targets(per_type_limit))
 
 
 @analysis.command(name="url-endpoints")
-@click.option("--limit", "per_type_limit", default=200, type=int, help="Max samples per category (default 200)")
+@click.option(
+    "--limit",
+    "per_type_limit",
+    default=200,
+    type=int,
+    help="Max samples per category (default 200)",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def analysis_url_endpoints_cmd(per_type_limit, apk_path):
     """Extract URL/host/IP network endpoints from the string pool with referencing methods"""
-    result = _try_daemon_call("analysis_url_endpoints", {"per_type_limit": per_type_limit})
+    result = _try_daemon_call(
+        "analysis_url_endpoints", {"per_type_limit": per_type_limit}
+    )
     if result is not None:
         _output_json(result)
         return
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.analysis_url_endpoints(per_type_limit))
@@ -5665,12 +6571,35 @@ def analysis_url_endpoints_cmd(per_type_limit, apk_path):
 @click.argument("src_method")
 @click.argument("dst_class")
 @click.argument("dst_method")
-@click.option("--src-descriptor", default=None, help="Source method descriptor (optional)")
-@click.option("--dst-descriptor", default=None, help="Sink method descriptor (optional)")
-@click.option("--max-depth", default=8, type=int, help="Max search depth (default 8)")
-@click.option("--max-nodes", default=20000, type=int, help="Max nodes visited (default 20000)")
+@click.option(
+    "--src-descriptor",
+    default=None,
+    help="Source method descriptor (optional)",
+)
+@click.option(
+    "--dst-descriptor", default=None, help="Sink method descriptor (optional)"
+)
+@click.option(
+    "--max-depth", default=8, type=int, help="Max search depth (default 8)"
+)
+@click.option(
+    "--max-nodes",
+    default=20000,
+    type=int,
+    help="Max nodes visited (default 20000)",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
-def analysis_taint_path_cmd(src_class, src_method, dst_class, dst_method, src_descriptor, dst_descriptor, max_depth, max_nodes, apk_path):
+def analysis_taint_path_cmd(
+    src_class,
+    src_method,
+    dst_class,
+    dst_method,
+    src_descriptor,
+    dst_descriptor,
+    max_depth,
+    max_nodes,
+    apk_path,
+):
     """Find a forward call path from a source method to a sink method (source->sink chain)"""
     params = {
         "src_class": src_class,
@@ -5689,100 +6618,172 @@ def analysis_taint_path_cmd(src_class, src_method, dst_class, dst_method, src_de
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
-    _output_json(skills.analysis_taint_path(
-        src_class, src_method, dst_class, dst_method,
-        src_descriptor, dst_descriptor, max_depth, max_nodes,
-    ))
+    _output_json(
+        skills.analysis_taint_path(
+            src_class,
+            src_method,
+            dst_class,
+            dst_method,
+            src_descriptor,
+            dst_descriptor,
+            max_depth,
+            max_nodes,
+        )
+    )
 
 
 @analysis.command(name="webview-security")
-@click.option("--limit", "per_type_limit", default=100, type=int, help="Max samples per category (default 100)")
+@click.option(
+    "--limit",
+    "per_type_limit",
+    default=100,
+    type=int,
+    help="Max samples per category (default 100)",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def analysis_webview_security_cmd(per_type_limit, apk_path):
     """Audit WebView security configuration (JS bridge/file access/JS/debug risky settings + findings)"""
-    result = _try_daemon_call("analysis_webview_security", {"per_type_limit": per_type_limit})
+    result = _try_daemon_call(
+        "analysis_webview_security", {"per_type_limit": per_type_limit}
+    )
     if result is not None:
         _output_json(result)
         return
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.analysis_webview_security(per_type_limit))
 
 
 @analysis.command(name="ssl-safety")
-@click.option("--limit", "per_type_limit", default=100, type=int, help="Max samples per category (default 100)")
+@click.option(
+    "--limit",
+    "per_type_limit",
+    default=100,
+    type=int,
+    help="Max samples per category (default 100)",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def analysis_ssl_safety_cmd(per_type_limit, apk_path):
     """Detect SSL/TLS validation bypass (insecure TrustManager/HostnameVerifier + bypass calls, MITM audit)"""
-    result = _try_daemon_call("analysis_ssl_safety", {"per_type_limit": per_type_limit})
+    result = _try_daemon_call(
+        "analysis_ssl_safety", {"per_type_limit": per_type_limit}
+    )
     if result is not None:
         _output_json(result)
         return
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.analysis_ssl_safety(per_type_limit))
 
 
 @analysis.command(name="insecure-storage")
-@click.option("--limit", "per_type_limit", default=100, type=int, help="Max samples per category (default 100)")
+@click.option(
+    "--limit",
+    "per_type_limit",
+    default=100,
+    type=int,
+    help="Max samples per category (default 100)",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def analysis_insecure_storage_cmd(per_type_limit, apk_path):
     """Audit insecure data storage (external storage/world-readable modes/plaintext prefs+db, OWASP M9)"""
-    result = _try_daemon_call("analysis_insecure_storage", {"per_type_limit": per_type_limit})
+    result = _try_daemon_call(
+        "analysis_insecure_storage", {"per_type_limit": per_type_limit}
+    )
     if result is not None:
         _output_json(result)
         return
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.analysis_insecure_storage(per_type_limit))
 
 
 @analysis.command(name="sql-injection")
-@click.option("--limit", "per_type_limit", default=100, type=int, help="Max samples per category (default 100)")
+@click.option(
+    "--limit",
+    "per_type_limit",
+    default=100,
+    type=int,
+    help="Max samples per category (default 100)",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def analysis_sql_injection_cmd(per_type_limit, apk_path):
     """Audit SQL injection surface (rawQuery/execSQL/query execution points, OWASP M7)"""
-    result = _try_daemon_call("analysis_sql_injection", {"per_type_limit": per_type_limit})
+    result = _try_daemon_call(
+        "analysis_sql_injection", {"per_type_limit": per_type_limit}
+    )
     if result is not None:
         _output_json(result)
         return
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.analysis_sql_injection(per_type_limit))
 
 
 @analysis.command(name="pending-intent")
-@click.option("--limit", "per_type_limit", default=100, type=int, help="Max samples per category (default 100)")
+@click.option(
+    "--limit",
+    "per_type_limit",
+    default=100,
+    type=int,
+    help="Max samples per category (default 100)",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def analysis_pending_intent_cmd(per_type_limit, apk_path):
     """Audit PendingIntent mutability (missing FLAG_IMMUTABLE + Intent redirection surface)"""
-    result = _try_daemon_call("analysis_pending_intent", {"per_type_limit": per_type_limit})
+    result = _try_daemon_call(
+        "analysis_pending_intent", {"per_type_limit": per_type_limit}
+    )
     if result is not None:
         _output_json(result)
         return
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.analysis_pending_intent(per_type_limit))
@@ -5797,14 +6798,24 @@ def _analysis_audit_cli(method_name, per_type_limit, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(getattr(skills, method_name)(per_type_limit))
 
 
 @analysis.command(name="privacy-sinks")
-@click.option("--limit", "per_type_limit", default=100, type=int, help="Max samples per category (default 100)")
+@click.option(
+    "--limit",
+    "per_type_limit",
+    default=100,
+    type=int,
+    help="Max samples per category (default 100)",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def analysis_privacy_sinks_cmd(per_type_limit, apk_path):
     """Audit privacy data collection (device IDs/location/contacts/accounts/clipboard/camera-mic, OWASP M6)"""
@@ -5812,7 +6823,13 @@ def analysis_privacy_sinks_cmd(per_type_limit, apk_path):
 
 
 @analysis.command(name="telephony-sms")
-@click.option("--limit", "per_type_limit", default=100, type=int, help="Max samples per category (default 100)")
+@click.option(
+    "--limit",
+    "per_type_limit",
+    default=100,
+    type=int,
+    help="Max samples per category (default 100)",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def analysis_telephony_sms_cmd(per_type_limit, apk_path):
     """Audit telephony/SMS abuse (send/read SMS, dial, SMS interception, call monitoring)"""
@@ -5820,7 +6837,13 @@ def analysis_telephony_sms_cmd(per_type_limit, apk_path):
 
 
 @analysis.command(name="dynamic-code")
-@click.option("--limit", "per_type_limit", default=100, type=int, help="Max samples per category (default 100)")
+@click.option(
+    "--limit",
+    "per_type_limit",
+    default=100,
+    type=int,
+    help="Max samples per category (default 100)",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def analysis_dynamic_code_cmd(per_type_limit, apk_path):
     """Audit dynamic code loading (DexClassLoader/native libs/reflection, unpacking/malicious payload)"""
@@ -5828,7 +6851,13 @@ def analysis_dynamic_code_cmd(per_type_limit, apk_path):
 
 
 @analysis.command(name="persistence")
-@click.option("--limit", "per_type_limit", default=100, type=int, help="Max samples per category (default 100)")
+@click.option(
+    "--limit",
+    "per_type_limit",
+    default=100,
+    type=int,
+    help="Max samples per category (default 100)",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def analysis_persistence_cmd(per_type_limit, apk_path):
     """Audit persistence/background residency (device admin/accessibility/scheduled jobs/foreground service)"""
@@ -5836,7 +6865,13 @@ def analysis_persistence_cmd(per_type_limit, apk_path):
 
 
 @analysis.command(name="weak-random")
-@click.option("--limit", "per_type_limit", default=100, type=int, help="Max samples per category (default 100)")
+@click.option(
+    "--limit",
+    "per_type_limit",
+    default=100,
+    type=int,
+    help="Max samples per category (default 100)",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def analysis_weak_random_cmd(per_type_limit, apk_path):
     """Audit insecure randomness (java.util.Random/Math.random/fixed seed vs SecureRandom, OWASP M10)"""
@@ -5844,7 +6879,13 @@ def analysis_weak_random_cmd(per_type_limit, apk_path):
 
 
 @analysis.command(name="broadcast-safety")
-@click.option("--limit", "per_type_limit", default=100, type=int, help="Max samples per category (default 100)")
+@click.option(
+    "--limit",
+    "per_type_limit",
+    default=100,
+    type=int,
+    help="Max samples per category (default 100)",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def analysis_broadcast_safety_cmd(per_type_limit, apk_path):
     """Audit broadcast send/receive safety (unprotected broadcasts/dynamic receivers/sticky broadcasts)"""
@@ -5852,7 +6893,13 @@ def analysis_broadcast_safety_cmd(per_type_limit, apk_path):
 
 
 @analysis.command(name="provider-safety")
-@click.option("--limit", "per_type_limit", default=100, type=int, help="Max samples per category (default 100)")
+@click.option(
+    "--limit",
+    "per_type_limit",
+    default=100,
+    type=int,
+    help="Max samples per category (default 100)",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def analysis_provider_safety_cmd(per_type_limit, apk_path):
     """Audit ContentProvider safety (openFile path traversal/URI permission grants/cross-app access)"""
@@ -5860,7 +6907,13 @@ def analysis_provider_safety_cmd(per_type_limit, apk_path):
 
 
 @analysis.command(name="anti-analysis")
-@click.option("--limit", "per_type_limit", default=100, type=int, help="Max samples per category (default 100)")
+@click.option(
+    "--limit",
+    "per_type_limit",
+    default=100,
+    type=int,
+    help="Max samples per category (default 100)",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def analysis_anti_analysis_cmd(per_type_limit, apk_path):
     """Detect anti-analysis/hardening (root/emulator/debugger/Frida/Xposed detection, string+API dual scan)"""
@@ -5868,7 +6921,13 @@ def analysis_anti_analysis_cmd(per_type_limit, apk_path):
 
 
 @analysis.command(name="network-security")
-@click.option("--limit", "per_type_limit", default=100, type=int, help="Max samples per category (default 100)")
+@click.option(
+    "--limit",
+    "per_type_limit",
+    default=100,
+    type=int,
+    help="Max samples per category (default 100)",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def analysis_network_security_cmd(per_type_limit, apk_path):
     """Audit network security config (cleartext URLs/cert pinning/SSL context/HTTP clients)"""
@@ -5886,7 +6945,11 @@ def analysis_obfuscation_metrics_cmd(apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.analysis_obfuscation_metrics())
@@ -5895,10 +6958,21 @@ def analysis_obfuscation_metrics_cmd(apk_path):
 @analysis.command(name="method-block-instructions")
 @click.argument("class_name")
 @click.argument("method_name")
-@click.option("--descriptor", default=None, help="Method descriptor (optional; first match if omitted)")
-@click.option("--ins-limit", default=None, type=int, help="Max instructions per block (0 = all)")
+@click.option(
+    "--descriptor",
+    default=None,
+    help="Method descriptor (optional; first match if omitted)",
+)
+@click.option(
+    "--ins-limit",
+    default=None,
+    type=int,
+    help="Max instructions per block (0 = all)",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
-def analysis_method_block_instructions_cmd(class_name, method_name, descriptor, ins_limit, apk_path):
+def analysis_method_block_instructions_cmd(
+    class_name, method_name, descriptor, ins_limit, apk_path
+):
     """Disassemble method instructions organized by basic block (CFG node-level view)"""
     params = {
         "class_name": class_name,
@@ -5913,20 +6987,35 @@ def analysis_method_block_instructions_cmd(class_name, method_name, descriptor, 
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
-    _output_json(skills.analysis_method_block_instructions(
-        class_name, method_name, descriptor, ins_limit if ins_limit != 0 else None,
-    ))
+    _output_json(
+        skills.analysis_method_block_instructions(
+            class_name,
+            method_name,
+            descriptor,
+            ins_limit if ins_limit != 0 else None,
+        )
+    )
 
 
 @analysis.command(name="method-switch-payloads")
 @click.argument("class_name")
 @click.argument("method_name")
-@click.option("--descriptor", default=None, help="Method descriptor (optional; first match if omitted)")
+@click.option(
+    "--descriptor",
+    default=None,
+    help="Method descriptor (optional; first match if omitted)",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
-def analysis_method_switch_payloads_cmd(class_name, method_name, descriptor, apk_path):
+def analysis_method_switch_payloads_cmd(
+    class_name, method_name, descriptor, apk_path
+):
     """Decode switch branch tables (case->target) and fill-array-data payloads in a method"""
     params = {
         "class_name": class_name,
@@ -5940,21 +7029,34 @@ def analysis_method_switch_payloads_cmd(class_name, method_name, descriptor, apk
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
-    _output_json(skills.analysis_method_switch_payloads(
-        class_name, method_name, descriptor,
-    ))
+    _output_json(
+        skills.analysis_method_switch_payloads(
+            class_name,
+            method_name,
+            descriptor,
+        )
+    )
 
 
 # ----------------------------------------------------------------
 # 第六轮：调用图与 API 权限映射
 # ----------------------------------------------------------------
 
+
 @analysis.command(name="call-graph")
-@click.option("--limit", default=None, type=int, help="Max number of edges to return")
-@click.option("--external", is_flag=True, help="Include external method nodes/edges")
+@click.option(
+    "--limit", default=None, type=int, help="Max number of edges to return"
+)
+@click.option(
+    "--external", is_flag=True, help="Include external method nodes/edges"
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def analysis_call_graph_cmd(limit, external, apk_path):
     """Get the full call graph (nodes + edges)"""
@@ -5967,22 +7069,49 @@ def analysis_call_graph_cmd(limit, external, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.analysis_call_graph(limit, external))
 
 
 @analysis.command(name="call-graph-filtered")
-@click.option("--classname", default=None, help="Class name regex filter (e.g. Lcom/example/Foo;)")
+@click.option(
+    "--classname",
+    default=None,
+    help="Class name regex filter (e.g. Lcom/example/Foo;)",
+)
 @click.option("--methodname", default=None, help="Method name regex filter")
 @click.option("--descriptor", default=None, help="Descriptor regex filter")
-@click.option("--accessflags", default=None, help="Access flags regex filter (e.g. public.*static)")
-@click.option("--no-isolated", is_flag=True, help="Remove isolated nodes (no edges)")
-@click.option("--external", is_flag=True, help="Include external method nodes/edges")
-@click.option("--limit", default=None, type=int, help="Max number of edges to return")
+@click.option(
+    "--accessflags",
+    default=None,
+    help="Access flags regex filter (e.g. public.*static)",
+)
+@click.option(
+    "--no-isolated", is_flag=True, help="Remove isolated nodes (no edges)"
+)
+@click.option(
+    "--external", is_flag=True, help="Include external method nodes/edges"
+)
+@click.option(
+    "--limit", default=None, type=int, help="Max number of edges to return"
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
-def analysis_call_graph_filtered_cmd(classname, methodname, descriptor, accessflags, no_isolated, external, limit, apk_path):
+def analysis_call_graph_filtered_cmd(
+    classname,
+    methodname,
+    descriptor,
+    accessflags,
+    no_isolated,
+    external,
+    limit,
+    apk_path,
+):
     """Get a filtered sub call-graph (by class/method/descriptor/accessflags)"""
     result = _try_daemon_call(
         "analysis_call_graph_filtered",
@@ -6002,18 +7131,32 @@ def analysis_call_graph_filtered_cmd(classname, methodname, descriptor, accessfl
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(
         skills.analysis_call_graph_filtered(
-            classname, methodname, descriptor, accessflags, no_isolated, external, limit
+            classname,
+            methodname,
+            descriptor,
+            accessflags,
+            no_isolated,
+            external,
+            limit,
         )
     )
 
 
 @analysis.command(name="permissions")
-@click.option("--apilevel", default=None, help="API level for permission mapping (default: APK effective target)")
+@click.option(
+    "--apilevel",
+    default=None,
+    help="API level for permission mapping (default: APK effective target)",
+)
 @click.option("--limit", default=None, type=int, help="Max number of results")
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def analysis_permissions_cmd(apilevel, limit, apk_path):
@@ -6027,7 +7170,11 @@ def analysis_permissions_cmd(apilevel, limit, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.analysis_permissions(apilevel, limit))
@@ -6036,6 +7183,7 @@ def analysis_permissions_cmd(apilevel, limit, apk_path):
 # ================================================================
 # Decompiler 命令组
 # ================================================================
+
 
 @entry_point.group(help="Decompilation commands")
 def decompile():
@@ -6048,9 +7196,7 @@ def decompile():
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def decompile_class_cmd(class_name, apk_path):
     """Decompile a specific class"""
-    result = _try_daemon_call(
-        "decompile_class", {"class_name": class_name}
-    )
+    result = _try_daemon_call("decompile_class", {"class_name": class_name})
     if result is not None:
         _output_json(result)
         return
@@ -6058,7 +7204,11 @@ def decompile_class_cmd(class_name, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.decompile_class(class_name))
@@ -6081,7 +7231,11 @@ def decompile_method_cmd(class_name, method_name, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.decompile_method(class_name, method_name))
@@ -6104,7 +7258,11 @@ def decompile_method_ast_cmd(class_name, method_name, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.decompile_method_ast(class_name, method_name))
@@ -6113,7 +7271,9 @@ def decompile_method_ast_cmd(class_name, method_name, apk_path):
 @decompile.command(name="method-tokens")
 @click.argument("class_name")
 @click.argument("method_name")
-@click.option("--limit", default=None, type=int, help="Max number of tokens to return")
+@click.option(
+    "--limit", default=None, type=int, help="Max number of tokens to return"
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def decompile_method_tokens_cmd(class_name, method_name, limit, apk_path):
     """Decompile a method and return token stream (type, value) pairs"""
@@ -6128,22 +7288,42 @@ def decompile_method_tokens_cmd(class_name, method_name, limit, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
-    _output_json(skills.decompile_method_tokens(class_name, method_name, limit))
+    _output_json(
+        skills.decompile_method_tokens(class_name, method_name, limit)
+    )
 
 
 @decompile.command(name="class-ast")
 @click.argument("class_name")
-@click.option("--fields-limit", default=None, type=int, help="Max number of field ASTs to return (default: all)")
-@click.option("--methods-limit", default=None, type=int, help="Max number of method ASTs to return (default: all)")
+@click.option(
+    "--fields-limit",
+    default=None,
+    type=int,
+    help="Max number of field ASTs to return (default: all)",
+)
+@click.option(
+    "--methods-limit",
+    default=None,
+    type=int,
+    help="Max number of method ASTs to return (default: all)",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def decompile_class_ast_cmd(class_name, fields_limit, methods_limit, apk_path):
     """Decompile a class and return class-level AST (all methods + fields)"""
     result = _try_daemon_call(
         "decompile_class_ast",
-        {"class_name": class_name, "fields_limit": fields_limit, "methods_limit": methods_limit},
+        {
+            "class_name": class_name,
+            "fields_limit": fields_limit,
+            "methods_limit": methods_limit,
+        },
     )
     if result is not None:
         _output_json(result)
@@ -6152,15 +7332,26 @@ def decompile_class_ast_cmd(class_name, fields_limit, methods_limit, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
-    _output_json(skills.decompile_class_ast(class_name, fields_limit, methods_limit))
+    _output_json(
+        skills.decompile_class_ast(class_name, fields_limit, methods_limit)
+    )
 
 
 @decompile.command(name="class-tokens")
 @click.argument("class_name")
-@click.option("--limit", default=None, type=int, help="Max number of top-level tokens to return (default: all)")
+@click.option(
+    "--limit",
+    default=None,
+    type=int,
+    help="Max number of top-level tokens to return (default: all)",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def decompile_class_tokens_cmd(class_name, limit, apk_path):
     """Decompile a class and return class-level token stream (lexical tokens)"""
@@ -6175,7 +7366,11 @@ def decompile_class_tokens_cmd(class_name, limit, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.decompile_class_tokens(class_name, limit))
@@ -6184,6 +7379,7 @@ def decompile_class_tokens_cmd(class_name, limit, apk_path):
 # ================================================================
 # Pentest 命令组
 # ================================================================
+
 
 @entry_point.group(help="Dynamic analysis / pentest commands")
 def pentest():
@@ -6226,6 +7422,7 @@ def pentest_dump_cmd(package_name, modules):
 # Resources 命令组
 # ================================================================
 
+
 @entry_point.group(help="Android resource parsing commands")
 def resources():
     """资源解析命令组"""
@@ -6244,7 +7441,11 @@ def resources_packages_cmd(apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.resource_packages())
@@ -6255,9 +7456,7 @@ def resources_packages_cmd(apk_path):
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def resources_locales_cmd(package_name, apk_path):
     """List supported locales for a resource package"""
-    result = _try_daemon_call(
-        "resource_locales", {"package": package_name}
-    )
+    result = _try_daemon_call("resource_locales", {"package": package_name})
     if result is not None:
         _output_json(result)
         return
@@ -6265,7 +7464,11 @@ def resources_locales_cmd(package_name, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.resource_locales(package_name))
@@ -6276,9 +7479,7 @@ def resources_locales_cmd(package_name, apk_path):
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def resources_types_cmd(package_name, apk_path):
     """List resource types for a resource package"""
-    result = _try_daemon_call(
-        "resource_types", {"package": package_name}
-    )
+    result = _try_daemon_call("resource_types", {"package": package_name})
     if result is not None:
         _output_json(result)
         return
@@ -6286,7 +7487,11 @@ def resources_types_cmd(package_name, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.resource_types(package_name))
@@ -6297,9 +7502,7 @@ def resources_types_cmd(package_name, apk_path):
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def resources_configs_cmd(resource_id, apk_path):
     """Get all configurations for a resource ID"""
-    result = _try_daemon_call(
-        "resource_configs", {"resource_id": resource_id}
-    )
+    result = _try_daemon_call("resource_configs", {"resource_id": resource_id})
     if result is not None:
         _output_json(result)
         return
@@ -6307,7 +7510,11 @@ def resources_configs_cmd(resource_id, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.resource_configs(resource_id))
@@ -6325,7 +7532,11 @@ def resources_strings_cmd(apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.resource_strings())
@@ -6333,7 +7544,11 @@ def resources_strings_cmd(apk_path):
 
 @resources.command(name="bool")
 @click.argument("package_name")
-@click.option("--locale", default=None, help="Locale (e.g. zh, en). Default is the default locale")
+@click.option(
+    "--locale",
+    default=None,
+    help="Locale (e.g. zh, en). Default is the default locale",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def resources_bool_cmd(package_name, locale, apk_path):
     """Get boolean resources for a package"""
@@ -6348,7 +7563,11 @@ def resources_bool_cmd(package_name, locale, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.resource_bool(package_name, loc))
@@ -6356,7 +7575,11 @@ def resources_bool_cmd(package_name, locale, apk_path):
 
 @resources.command(name="color")
 @click.argument("package_name")
-@click.option("--locale", default=None, help="Locale (e.g. zh, en). Default is the default locale")
+@click.option(
+    "--locale",
+    default=None,
+    help="Locale (e.g. zh, en). Default is the default locale",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def resources_color_cmd(package_name, locale, apk_path):
     """Get color resources for a package"""
@@ -6371,7 +7594,11 @@ def resources_color_cmd(package_name, locale, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.resource_color(package_name, loc))
@@ -6379,7 +7606,11 @@ def resources_color_cmd(package_name, locale, apk_path):
 
 @resources.command(name="dimen")
 @click.argument("package_name")
-@click.option("--locale", default=None, help="Locale (e.g. zh, en). Default is the default locale")
+@click.option(
+    "--locale",
+    default=None,
+    help="Locale (e.g. zh, en). Default is the default locale",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def resources_dimen_cmd(package_name, locale, apk_path):
     """Get dimension resources for a package"""
@@ -6394,7 +7625,11 @@ def resources_dimen_cmd(package_name, locale, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.resource_dimen(package_name, loc))
@@ -6402,7 +7637,11 @@ def resources_dimen_cmd(package_name, locale, apk_path):
 
 @resources.command(name="integer")
 @click.argument("package_name")
-@click.option("--locale", default=None, help="Locale (e.g. zh, en). Default is the default locale")
+@click.option(
+    "--locale",
+    default=None,
+    help="Locale (e.g. zh, en). Default is the default locale",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def resources_integer_cmd(package_name, locale, apk_path):
     """Get integer resources for a package"""
@@ -6417,7 +7656,11 @@ def resources_integer_cmd(package_name, locale, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.resource_integer(package_name, loc))
@@ -6425,12 +7668,27 @@ def resources_integer_cmd(package_name, locale, apk_path):
 
 @resources.command(name="id")
 @click.argument("package_name")
-@click.option("--rid", "resource_id", default=None, type=int, help="Resource ID (decimal) for ID->name lookup")
-@click.option("--type", "resource_type", default=None, help="Resource type (string/color/layout) for name->ID lookup")
-@click.option("--key", default=None, help="Resource key name for name->ID lookup")
+@click.option(
+    "--rid",
+    "resource_id",
+    default=None,
+    type=int,
+    help="Resource ID (decimal) for ID->name lookup",
+)
+@click.option(
+    "--type",
+    "resource_type",
+    default=None,
+    help="Resource type (string/color/layout) for name->ID lookup",
+)
+@click.option(
+    "--key", default=None, help="Resource key name for name->ID lookup"
+)
 @click.option("--locale", default=None, help="Locale (optional)")
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
-def resources_id_cmd(package_name, resource_id, resource_type, key, locale, apk_path):
+def resources_id_cmd(
+    package_name, resource_id, resource_type, key, locale, apk_path
+):
     """Bidirectional resource ID lookup (ID<->name)"""
     loc = locale if locale else "\x00\x00"
     result = _try_daemon_call(
@@ -6450,7 +7708,11 @@ def resources_id_cmd(package_name, resource_id, resource_type, key, locale, apk_
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(
@@ -6461,7 +7723,9 @@ def resources_id_cmd(package_name, resource_id, resource_type, key, locale, apk_
 @resources.command(name="string-resources")
 @click.argument("package_name")
 @click.option("--locale", default=None, help="Locale (optional, e.g. zh/en)")
-@click.option("--raw", is_flag=True, help="Return raw XML text instead of parsed list")
+@click.option(
+    "--raw", is_flag=True, help="Return raw XML text instead of parsed list"
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def resources_string_resources_cmd(package_name, locale, raw, apk_path):
     """Get string resources (strings.xml) for a package+locale"""
@@ -6477,14 +7741,20 @@ def resources_string_resources_cmd(package_name, locale, raw, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.resource_string_resources(package_name, loc, raw))
 
 
 @resources.command(name="strings-all")
-@click.option("--raw", is_flag=True, help="Return raw XML text instead of parsed list")
+@click.option(
+    "--raw", is_flag=True, help="Return raw XML text instead of parsed list"
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def resources_strings_all_cmd(raw, apk_path):
     """Get all string resources (full strings.xml across packages)"""
@@ -6496,7 +7766,11 @@ def resources_strings_all_cmd(raw, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.resource_strings_all(raw))
@@ -6505,7 +7779,9 @@ def resources_strings_all_cmd(raw, apk_path):
 @resources.command(name="public")
 @click.argument("package_name")
 @click.option("--locale", default=None, help="Locale (optional)")
-@click.option("--raw", is_flag=True, help="Return raw XML text instead of parsed list")
+@click.option(
+    "--raw", is_flag=True, help="Return raw XML text instead of parsed list"
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def resources_public_cmd(package_name, locale, raw, apk_path):
     """Get public.xml (full type/name/id resource mapping)"""
@@ -6521,7 +7797,11 @@ def resources_public_cmd(package_name, locale, raw, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.resource_public(package_name, loc, raw))
@@ -6530,7 +7810,9 @@ def resources_public_cmd(package_name, locale, raw, apk_path):
 @resources.command(name="id-resources")
 @click.argument("package_name")
 @click.option("--locale", default=None, help="Locale (optional)")
-@click.option("--raw", is_flag=True, help="Return raw XML text instead of parsed list")
+@click.option(
+    "--raw", is_flag=True, help="Return raw XML text instead of parsed list"
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def resources_id_resources_cmd(package_name, locale, raw, apk_path):
     """Get ids.xml (id-type resource list)"""
@@ -6546,7 +7828,11 @@ def resources_id_resources_cmd(package_name, locale, raw, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.resource_id_resources(package_name, loc, raw))
@@ -6571,7 +7857,11 @@ def resources_get_string_cmd(package_name, name, locale, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.resource_get_string(package_name, name, loc))
@@ -6594,7 +7884,11 @@ def resources_xml_name_cmd(resource_id, package, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.resource_xml_name(rid, package))
@@ -6602,7 +7896,12 @@ def resources_xml_name_cmd(resource_id, package, apk_path):
 
 @resources.command(name="type-configs")
 @click.argument("package_name")
-@click.option("--type", "resource_type", default=None, help="Resource type filter (e.g. string/layout); all if omitted")
+@click.option(
+    "--type",
+    "resource_type",
+    default=None,
+    help="Resource type filter (e.g. string/layout); all if omitted",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def resources_type_configs_cmd(package_name, resource_type, apk_path):
     """List config variants for a resource type (all locales/densities)"""
@@ -6617,20 +7916,24 @@ def resources_type_configs_cmd(package_name, resource_type, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.resource_type_configs(package_name, resource_type))
 
 
 @resources.command(name="resolved-strings")
-@click.option("--locale", default=None, help="Locale filter (e.g. zh/en); all if omitted")
+@click.option(
+    "--locale", default=None, help="Locale filter (e.g. zh/en); all if omitted"
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def resources_resolved_strings_cmd(locale, apk_path):
     """Get all resolved string resources (package->locale->rid->value)"""
-    result = _try_daemon_call(
-        "resource_resolved_strings", {"locale": locale}
-    )
+    result = _try_daemon_call("resource_resolved_strings", {"locale": locale})
     if result is not None:
         _output_json(result)
         return
@@ -6638,7 +7941,11 @@ def resources_resolved_strings_cmd(locale, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.resource_resolved_strings(locale))
@@ -6646,13 +7953,18 @@ def resources_resolved_strings_cmd(locale, apk_path):
 
 @resources.command(name="res-configs")
 @click.argument("resource_id")
-@click.option("--no-fallback", is_flag=True, help="Do not fall back to default config when exact match missing")
+@click.option(
+    "--no-fallback",
+    is_flag=True,
+    help="Do not fall back to default config when exact match missing",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def resources_res_configs_cmd(resource_id, no_fallback, apk_path):
     """List config variants (locale/density, raw entry) for a specific resource ID"""
     rid = _parse_resource_id(resource_id)
     result = _try_daemon_call(
-        "resource_res_configs", {"resource_id": rid, "fallback": not no_fallback}
+        "resource_res_configs",
+        {"resource_id": rid, "fallback": not no_fallback},
     )
     if result is not None:
         _output_json(result)
@@ -6661,7 +7973,11 @@ def resources_res_configs_cmd(resource_id, no_fallback, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.resource_res_configs(rid, not no_fallback))
@@ -6669,7 +7985,9 @@ def resources_res_configs_cmd(resource_id, no_fallback, apk_path):
 
 @resources.command(name="value")
 @click.argument("resource_id")
-@click.option("--package", default=None, help="Resource package name (optional)")
+@click.option(
+    "--package", default=None, help="Resource package name (optional)"
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def resources_value_cmd(resource_id, package, apk_path):
     """Resolve a resource ID to its typed value (string/bool/color/dimen/integer/style/id)"""
@@ -6683,7 +8001,11 @@ def resources_value_cmd(resource_id, package, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.resource_value(resource_id, package))
@@ -6700,10 +8022,10 @@ def _parse_resource_id(raw):
         raise click.BadParameter(f"Invalid resource ID: {raw}")
 
 
-
 # ================================================================
 # Visualize 命令组
 # ================================================================
+
 
 @entry_point.group(help="Method visualization / CFG export commands")
 def visualize():
@@ -6728,7 +8050,11 @@ def visualize_method_dot_cmd(class_name, method_name, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.visualize_method_dot(class_name, method_name))
@@ -6738,13 +8064,25 @@ def visualize_method_dot_cmd(class_name, method_name, apk_path):
 @click.argument("class_name")
 @click.argument("method_name")
 @click.option("-o", "--output", required=True, help="Output image file path")
-@click.option("-f", "--format", "fmt", type=click.Choice(["png", "jpg"]), default="png", help="Image format (default: png)")
+@click.option(
+    "-f",
+    "--format",
+    "fmt",
+    type=click.Choice(["png", "jpg"]),
+    default="png",
+    help="Image format (default: png)",
+)
 @click.option("--apk-path", envvar="ANDROGUARD_APK_PATH", help="APK file path")
 def visualize_method_image_cmd(class_name, method_name, output, fmt, apk_path):
     """Export method CFG as image (PNG/JPG)"""
     result = _try_daemon_call(
         "visualize_method_image",
-        {"class_name": class_name, "method_name": method_name, "output": output, "fmt": fmt},
+        {
+            "class_name": class_name,
+            "method_name": method_name,
+            "output": output,
+            "fmt": fmt,
+        },
     )
     if result is not None:
         _output_json(result)
@@ -6753,10 +8091,16 @@ def visualize_method_image_cmd(class_name, method_name, output, fmt, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
-    _output_json(skills.visualize_method_image(class_name, method_name, output, fmt))
+    _output_json(
+        skills.visualize_method_image(class_name, method_name, output, fmt)
+    )
 
 
 @visualize.command(name="method-json")
@@ -6776,7 +8120,11 @@ def visualize_method_json_cmd(class_name, method_name, apk_path):
     skills = _get_skills()
     if not skills.is_loaded:
         if not apk_path:
-            _output_json({"error": "No APK loaded. Use 'load' command first or set --apk-path"})
+            _output_json(
+                {
+                    "error": "No APK loaded. Use 'load' command first or set --apk-path"
+                }
+            )
             return
         skills.load_apk(apk_path)
     _output_json(skills.visualize_method_json(class_name, method_name))
@@ -6785,6 +8133,7 @@ def visualize_method_json_cmd(class_name, method_name, apk_path):
 # ================================================================
 # 工具能力命令组（androguard.util / androconf，不依赖已加载 APK）
 # ================================================================
+
 
 @entry_point.group(help="Utility commands (file detection, AOSP permissions)")
 def util():
@@ -6817,7 +8166,9 @@ def util_permissions_cmd(apilevel):
 @click.argument("apilevel")
 def util_permission_mappings_cmd(apilevel):
     """Load method-signature -> permission mappings for a given API level"""
-    result = _try_daemon_call("util_permission_mappings", {"apilevel": apilevel})
+    result = _try_daemon_call(
+        "util_permission_mappings", {"apilevel": apilevel}
+    )
     if result is not None:
         _output_json(result)
         return
@@ -6836,8 +8187,12 @@ def util_api_levels_cmd():
 
 @util.command(name="format")
 @click.argument("value")
-@click.option("--to", default="java", type=click.Choice(["java", "dalvik", "python"]),
-              help="Target format (java/dalvik/python, default java)")
+@click.option(
+    "--to",
+    default="java",
+    type=click.Choice(["java", "dalvik", "python"]),
+    help="Target format (java/dalvik/python, default java)",
+)
 def util_format_cmd(value, to):
     """Convert class name/descriptor between Dalvik/Java/Python formats"""
     result = _try_daemon_call("util_format", {"value": value, "to": to})
@@ -6851,7 +8206,10 @@ def util_format_cmd(value, to):
 # Session 会话命令组（多 APK/DEX 关联分析）
 # ================================================================
 
-@entry_point.group(help="Session commands (multi-APK/DEX correlation analysis)")
+
+@entry_point.group(
+    help="Session commands (multi-APK/DEX correlation analysis)"
+)
 def session():
     """Session commands"""
 
@@ -6887,7 +8245,11 @@ def session_add_apk_cmd(apk_path):
         return
     skills = _get_skills()
     if not skills.has_session:
-        _output_json({"error": "No Session. Use 'session create' first (daemon mode recommended for persistence)"})
+        _output_json(
+            {
+                "error": "No Session. Use 'session create' first (daemon mode recommended for persistence)"
+            }
+        )
         return
     _output_json(skills.session_add_apk(apk_path))
 
@@ -6902,7 +8264,11 @@ def session_add_dex_cmd(dex_path):
         return
     skills = _get_skills()
     if not skills.has_session:
-        _output_json({"error": "No Session. Use 'session create' first (daemon mode recommended for persistence)"})
+        _output_json(
+            {
+                "error": "No Session. Use 'session create' first (daemon mode recommended for persistence)"
+            }
+        )
         return
     _output_json(skills.session_add_dex(dex_path))
 
@@ -6954,7 +8320,9 @@ def session_strings_cmd(limit):
 
 
 @session.command(name="classes")
-@click.option("--limit", default=None, type=int, help="Max DEX groups to return")
+@click.option(
+    "--limit", default=None, type=int, help="Max DEX groups to return"
+)
 def session_classes_cmd(limit):
     """List all classes in the Session (grouped by DEX)"""
     result = _try_daemon_call("session_classes", {"limit": limit})
@@ -6971,6 +8339,7 @@ def session_classes_cmd(limit):
 # ================================================================
 # DEX 独立加载
 # ================================================================
+
 
 @entry_point.command(name="load-dex")
 @click.argument("dex_path", type=click.Path(exists=True))

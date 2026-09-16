@@ -59,9 +59,10 @@ def _resolve_method_analysis(
         try:
             for m in ca.get_methods():
                 try:
-                    if m.name == method_name and _normalize_descriptor(
-                        m.descriptor
-                    ) == target:
+                    if (
+                        m.name == method_name
+                        and _normalize_descriptor(m.descriptor) == target
+                    ):
                         return m
                 except Exception:
                     continue
@@ -88,7 +89,10 @@ def analysis_xrefs_from(analysis_obj, class_name: str) -> dict:
     # defaultdict 外层迭代序在 3.7+ 确定（插入序），但 value 是 set，set 迭代
     # 序非确定（依赖哈希）——同一 class 下多条 method_refs 顺序每次不同，
     # 导致 xrefs 列表非确定（agent 对接需确定性）。扁平化后排序固定。
-    for ref_class_analysis, method_refs in class_analysis.get_xref_from().items():
+    for (
+        ref_class_analysis,
+        method_refs,
+    ) in class_analysis.get_xref_from().items():
         for ref_type, ref_method, offset in method_refs:
             xrefs.append(
                 {
@@ -99,10 +103,20 @@ def analysis_xrefs_from(analysis_obj, class_name: str) -> dict:
                     "offset": offset,
                 }
             )
-    xrefs.sort(key=lambda r: (r["from_class"], r["from_method"],
-                              r["from_descriptor"], r["offset"]))
+    xrefs.sort(
+        key=lambda r: (
+            r["from_class"],
+            r["from_method"],
+            r["from_descriptor"],
+            r["offset"],
+        )
+    )
 
-    return {"class": class_name, "xref_from_count": len(xrefs), "xref_from": xrefs}
+    return {
+        "class": class_name,
+        "xref_from_count": len(xrefs),
+        "xref_from": xrefs,
+    }
 
 
 def analysis_xrefs_to(analysis_obj, class_name: str) -> dict:
@@ -120,7 +134,10 @@ def analysis_xrefs_to(analysis_obj, class_name: str) -> dict:
     xrefs = []
     # get_xref_to() 返回 defaultdict（同 xref_from，value 是 set 非确定），
     # 扁平化后排序固定顺序。
-    for ref_class_analysis, method_refs in class_analysis.get_xref_to().items():
+    for (
+        ref_class_analysis,
+        method_refs,
+    ) in class_analysis.get_xref_to().items():
         for ref_type, ref_method, offset in method_refs:
             xrefs.append(
                 {
@@ -131,13 +148,21 @@ def analysis_xrefs_to(analysis_obj, class_name: str) -> dict:
                     "offset": offset,
                 }
             )
-    xrefs.sort(key=lambda r: (r["to_class"], r["to_method"],
-                              r["to_descriptor"], r["offset"]))
+    xrefs.sort(
+        key=lambda r: (
+            r["to_class"],
+            r["to_method"],
+            r["to_descriptor"],
+            r["offset"],
+        )
+    )
 
     return {"class": class_name, "xref_to_count": len(xrefs), "xref_to": xrefs}
 
 
-def analysis_method_xrefs(analysis_obj, class_name: str, method_name: str) -> dict:
+def analysis_method_xrefs(
+    analysis_obj, class_name: str, method_name: str
+) -> dict:
     """
     获取指定方法的交叉引用。
 
@@ -180,7 +205,11 @@ def analysis_method_xrefs(analysis_obj, class_name: str, method_name: str) -> di
     # XrefFrom - 谁调用了此方法
     # MethodAnalysis.get_xref_from() 返回 set of (ClassAnalysis, MethodAnalysis, offset)
     xref_from = []
-    for ref_class_analysis, ref_method, offset in method_analysis.get_xref_from():
+    for (
+        ref_class_analysis,
+        ref_method,
+        offset,
+    ) in method_analysis.get_xref_from():
         xref_from.append(
             {
                 "from_class": ref_class_analysis.name,
@@ -191,7 +220,12 @@ def analysis_method_xrefs(analysis_obj, class_name: str, method_name: str) -> di
         )
     # get_xref_from() 返回 set，迭代顺序依赖哈希非确定（agent 对接需确定性比对）
     xref_from.sort(
-        key=lambda r: (r["from_class"], r["from_method"], r["from_descriptor"], r["offset"])
+        key=lambda r: (
+            r["from_class"],
+            r["from_method"],
+            r["from_descriptor"],
+            r["offset"],
+        )
     )
     result["xref_from_count"] = len(xref_from)
     result["xref_from"] = xref_from
@@ -199,7 +233,11 @@ def analysis_method_xrefs(analysis_obj, class_name: str, method_name: str) -> di
     # XrefTo - 此方法调用了谁
     # MethodAnalysis.get_xref_to() 返回 set of (ClassAnalysis, MethodAnalysis, offset)
     xref_to = []
-    for ref_class_analysis, ref_method, offset in method_analysis.get_xref_to():
+    for (
+        ref_class_analysis,
+        ref_method,
+        offset,
+    ) in method_analysis.get_xref_to():
         xref_to.append(
             {
                 "to_class": ref_class_analysis.name,
@@ -210,7 +248,12 @@ def analysis_method_xrefs(analysis_obj, class_name: str, method_name: str) -> di
         )
     # 同 xref_from：set 迭代非确定，排序固定输出顺序
     xref_to.sort(
-        key=lambda r: (r["to_class"], r["to_method"], r["to_descriptor"], r["offset"])
+        key=lambda r: (
+            r["to_class"],
+            r["to_method"],
+            r["to_descriptor"],
+            r["offset"],
+        )
     )
     result["xref_to_count"] = len(xref_to)
     result["xref_to"] = xref_to
@@ -286,7 +329,10 @@ def analysis_find_strings(analysis_obj, pattern: str) -> dict:
             # set 迭代顺序非确定（依赖哈希），导致 used_in 列表顺序每次不同
             # （agent 对接需确定性输出）。排序固定顺序。
             origins = []
-            for ref_class_analysis, ref_method in string_analysis.get_xref_from():
+            for (
+                ref_class_analysis,
+                ref_method,
+            ) in string_analysis.get_xref_from():
                 origins.append(
                     {
                         "class": ref_class_analysis.name,
@@ -315,6 +361,7 @@ def analysis_callgraph(
     :return: 调用图导出结果
     """
     import networkx as nx
+
     from androguard.core.bytecode import FormatClassToJava
 
     # 获取入口点
@@ -399,10 +446,12 @@ def analysis_internal_classes(analysis_obj, filter_regex: str = None) -> dict:
         name = class_analysis.name
         if pattern and not pattern.search(name):
             continue
-        classes.append({
-            "name": name,
-            "is_android_api": class_analysis.is_android_api(),
-        })
+        classes.append(
+            {
+                "name": name,
+                "is_android_api": class_analysis.is_android_api(),
+            }
+        )
 
     return {"total": len(classes), "classes": classes}
 
@@ -421,10 +470,12 @@ def analysis_external_classes(analysis_obj, filter_regex: str = None) -> dict:
         name = class_analysis.name
         if pattern and not pattern.search(name):
             continue
-        classes.append({
-            "name": name,
-            "is_android_api": class_analysis.is_android_api(),
-        })
+        classes.append(
+            {
+                "name": name,
+                "is_android_api": class_analysis.is_android_api(),
+            }
+        )
 
     return {"total": len(classes), "classes": classes}
 
@@ -442,11 +493,13 @@ def analysis_internal_methods(analysis_obj, filter_regex: str = None) -> dict:
     for method_analysis in analysis_obj.get_internal_methods():
         if pattern and not pattern.search(method_analysis.name):
             continue
-        methods.append({
-            "class": method_analysis.class_name,
-            "method": method_analysis.name,
-            "descriptor": method_analysis.descriptor,
-        })
+        methods.append(
+            {
+                "class": method_analysis.class_name,
+                "method": method_analysis.name,
+                "descriptor": method_analysis.descriptor,
+            }
+        )
 
     return {"total": len(methods), "methods": methods}
 
@@ -464,16 +517,20 @@ def analysis_external_methods(analysis_obj, filter_regex: str = None) -> dict:
     for method_analysis in analysis_obj.get_external_methods():
         if pattern and not pattern.search(method_analysis.name):
             continue
-        methods.append({
-            "class": method_analysis.class_name,
-            "method": method_analysis.name,
-            "descriptor": method_analysis.descriptor,
-        })
+        methods.append(
+            {
+                "class": method_analysis.class_name,
+                "method": method_analysis.name,
+                "descriptor": method_analysis.descriptor,
+            }
+        )
 
     return {"total": len(methods), "methods": methods}
 
 
-def analysis_field_xrefs(analysis_obj, class_name: str, field_name: str) -> dict:
+def analysis_field_xrefs(
+    analysis_obj, class_name: str, field_name: str
+) -> dict:
     """
     获取指定字段的交叉引用。
 
@@ -485,7 +542,11 @@ def analysis_field_xrefs(analysis_obj, class_name: str, field_name: str) -> dict
     # 通过 ClassAnalysis 查找字段
     class_analysis = analysis_obj.get_class_analysis(class_name)
     if class_analysis is None:
-        return {"class": class_name, "field": field_name, "error": "Class not found"}
+        return {
+            "class": class_name,
+            "field": field_name,
+            "error": "Class not found",
+        }
 
     # 查找字段分析 — get_field_analysis() 需要 EncodedField 对象，不是字段名字符串
     # 因此通过遍历 get_fields() 来匹配字段名
@@ -496,7 +557,11 @@ def analysis_field_xrefs(analysis_obj, class_name: str, field_name: str) -> dict
             break
 
     if field_analysis is None:
-        return {"class": class_name, "field": field_name, "error": "Field not found in class"}
+        return {
+            "class": class_name,
+            "field": field_name,
+            "error": "Field not found in class",
+        }
 
     # 获取底层字段对象
     field_obj = field_analysis.get_field()
@@ -515,11 +580,13 @@ def analysis_field_xrefs(analysis_obj, class_name: str, field_name: str) -> dict
     # FieldAnalysis.get_xref_read() 返回 set of (ClassAnalysis, MethodAnalysis)
     xref_read = []
     for ref_class, ref_method in field_analysis.get_xref_read():
-        xref_read.append({
-            "class": ref_class.name,
-            "method": ref_method.name,
-            "descriptor": ref_method.descriptor,
-        })
+        xref_read.append(
+            {
+                "class": ref_class.name,
+                "method": ref_method.name,
+                "descriptor": ref_method.descriptor,
+            }
+        )
     result["xref_read_count"] = len(xref_read)
     result["xref_read"] = xref_read
 
@@ -527,11 +594,13 @@ def analysis_field_xrefs(analysis_obj, class_name: str, field_name: str) -> dict
     # FieldAnalysis.get_xref_write() 返回 set of (ClassAnalysis, MethodAnalysis)
     xref_write = []
     for ref_class, ref_method in field_analysis.get_xref_write():
-        xref_write.append({
-            "class": ref_class.name,
-            "method": ref_method.name,
-            "descriptor": ref_method.descriptor,
-        })
+        xref_write.append(
+            {
+                "class": ref_class.name,
+                "method": ref_method.name,
+                "descriptor": ref_method.descriptor,
+            }
+        )
     result["xref_write_count"] = len(xref_write)
     result["xref_write"] = xref_write
 
@@ -556,7 +625,11 @@ def analysis_field_xrefs_detail(
     """
     class_analysis = analysis_obj.get_class_analysis(class_name)
     if class_analysis is None:
-        return {"class": class_name, "field": field_name, "error": "Class not found"}
+        return {
+            "class": class_name,
+            "field": field_name,
+            "error": "Class not found",
+        }
 
     field_analysis = None
     for fa in class_analysis.get_fields():
@@ -565,7 +638,11 @@ def analysis_field_xrefs_detail(
             break
 
     if field_analysis is None:
-        return {"class": class_name, "field": field_name, "error": "Field not found in class"}
+        return {
+            "class": class_name,
+            "field": field_name,
+            "error": "Field not found in class",
+        }
 
     field_obj = field_analysis.get_field()
     result = {"class": class_name, "field": field_name}
@@ -577,13 +654,17 @@ def analysis_field_xrefs_detail(
     # get_xref_read(with_offset=True) 返回 list of (ClassAnalysis, MethodAnalysis, offset)
     xref_read = []
     try:
-        for ref_class, ref_method, offset in field_analysis.get_xref_read(with_offset=True):
-            xref_read.append({
-                "class": ref_class.name,
-                "method": ref_method.name,
-                "descriptor": ref_method.descriptor,
-                "offset": offset,
-            })
+        for ref_class, ref_method, offset in field_analysis.get_xref_read(
+            with_offset=True
+        ):
+            xref_read.append(
+                {
+                    "class": ref_class.name,
+                    "method": ref_method.name,
+                    "descriptor": ref_method.descriptor,
+                    "offset": offset,
+                }
+            )
     except Exception:
         pass
     result["xref_read"] = {"count": len(xref_read), "refs": xref_read}
@@ -592,13 +673,17 @@ def analysis_field_xrefs_detail(
     # get_xref_write(with_offset=True) 返回 list of (ClassAnalysis, MethodAnalysis, offset)
     xref_write = []
     try:
-        for ref_class, ref_method, offset in field_analysis.get_xref_write(with_offset=True):
-            xref_write.append({
-                "class": ref_class.name,
-                "method": ref_method.name,
-                "descriptor": ref_method.descriptor,
-                "offset": offset,
-            })
+        for ref_class, ref_method, offset in field_analysis.get_xref_write(
+            with_offset=True
+        ):
+            xref_write.append(
+                {
+                    "class": ref_class.name,
+                    "method": ref_method.name,
+                    "descriptor": ref_method.descriptor,
+                    "offset": offset,
+                }
+            )
     except Exception:
         pass
     result["xref_write"] = {"count": len(xref_write), "refs": xref_write}
@@ -623,7 +708,9 @@ def analysis_find_fields(analysis_obj, pattern: str) -> dict:
             if field_obj is not None:
                 field_info["class"] = field_obj.get_class_name()
                 field_info["descriptor"] = field_obj.get_descriptor()
-                field_info["access_flags"] = field_obj.get_access_flags_string()
+                field_info["access_flags"] = (
+                    field_obj.get_access_flags_string()
+                )
             fields.append(field_info)
 
     return {"pattern": pattern, "total": len(fields), "fields": fields}
@@ -864,18 +951,22 @@ def analysis_find_fields_advanced(
             if with_xrefs:
                 xref_read = []
                 for ref_class, ref_method in fa.get_xref_read():
-                    xref_read.append({
-                        "class": ref_class.name,
-                        "method": ref_method.name,
-                        "descriptor": ref_method.descriptor,
-                    })
+                    xref_read.append(
+                        {
+                            "class": ref_class.name,
+                            "method": ref_method.name,
+                            "descriptor": ref_method.descriptor,
+                        }
+                    )
                 xref_write = []
                 for ref_class, ref_method in fa.get_xref_write():
-                    xref_write.append({
-                        "class": ref_class.name,
-                        "method": ref_method.name,
-                        "descriptor": ref_method.descriptor,
-                    })
+                    xref_write.append(
+                        {
+                            "class": ref_class.name,
+                            "method": ref_method.name,
+                            "descriptor": ref_method.descriptor,
+                        }
+                    )
                 info["xref_read"] = xref_read
                 info["xref_write"] = xref_write
             fields.append(info)
@@ -919,7 +1010,10 @@ def analysis_field_analysis(
         ):
             field_obj = fa.get_field()
             # find_fields 可能匹配到多个类的同名字段，确认类名匹配
-            if field_obj is not None and field_obj.get_class_name() != class_name:
+            if (
+                field_obj is not None
+                and field_obj.get_class_name() != class_name
+            ):
                 continue
             result = {
                 "class": class_name,
@@ -931,21 +1025,25 @@ def analysis_field_analysis(
 
             xref_read = []
             for ref_class, ref_method in fa.get_xref_read():
-                xref_read.append({
-                    "class": ref_class.name,
-                    "method": ref_method.name,
-                    "descriptor": ref_method.descriptor,
-                })
+                xref_read.append(
+                    {
+                        "class": ref_class.name,
+                        "method": ref_method.name,
+                        "descriptor": ref_method.descriptor,
+                    }
+                )
             result["xref_read_count"] = len(xref_read)
             result["xref_read"] = xref_read
 
             xref_write = []
             for ref_class, ref_method in fa.get_xref_write():
-                xref_write.append({
-                    "class": ref_class.name,
-                    "method": ref_method.name,
-                    "descriptor": ref_method.descriptor,
-                })
+                xref_write.append(
+                    {
+                        "class": ref_class.name,
+                        "method": ref_method.name,
+                        "descriptor": ref_method.descriptor,
+                    }
+                )
             result["xref_write_count"] = len(xref_write)
             result["xref_write"] = xref_write
             return result
@@ -975,21 +1073,25 @@ def analysis_api_usage_grouped(
     try:
         apis = []
         for ma in analysis_obj.get_android_api_usage():
-            apis.append({
-                "class": ma.class_name,
-                "method": ma.name,
-                "descriptor": ma.descriptor,
-                "is_external": ma.is_external(),
-            })
+            apis.append(
+                {
+                    "class": ma.class_name,
+                    "method": ma.name,
+                    "descriptor": ma.descriptor,
+                    "is_external": ma.is_external(),
+                }
+            )
         total = len(apis)
         if group_by_class:
             groups = {}
             for api in apis:
                 cls = api["class"]
-                groups.setdefault(cls, []).append({
-                    "method": api["method"],
-                    "descriptor": api["descriptor"],
-                })
+                groups.setdefault(cls, []).append(
+                    {
+                        "method": api["method"],
+                        "descriptor": api["descriptor"],
+                    }
+                )
             result = {
                 "total": total,
                 "class_count": len(groups),
@@ -1058,12 +1160,14 @@ def analysis_class_xref_new_instance(analysis_obj, class_name: str) -> dict:
         # get_xref_new_instance 返回 list of (MethodAnalysis, offset)
         refs = []
         for ref_method, offset in ca.get_xref_new_instance():
-            refs.append({
-                "class": ref_method.class_name,
-                "method": ref_method.name,
-                "descriptor": ref_method.descriptor,
-                "offset": offset,
-            })
+            refs.append(
+                {
+                    "class": ref_method.class_name,
+                    "method": ref_method.name,
+                    "descriptor": ref_method.descriptor,
+                    "offset": offset,
+                }
+            )
         return {
             "class": class_name,
             "total": len(refs),
@@ -1088,12 +1192,14 @@ def analysis_class_xref_const_class(analysis_obj, class_name: str) -> dict:
         # get_xref_const_class 返回 list of (MethodAnalysis, offset)
         refs = []
         for ref_method, offset in ca.get_xref_const_class():
-            refs.append({
-                "class": ref_method.class_name,
-                "method": ref_method.name,
-                "descriptor": ref_method.descriptor,
-                "offset": offset,
-            })
+            refs.append(
+                {
+                    "class": ref_method.class_name,
+                    "method": ref_method.name,
+                    "descriptor": ref_method.descriptor,
+                    "offset": offset,
+                }
+            )
         return {
             "class": class_name,
             "total": len(refs),
@@ -1211,11 +1317,17 @@ def analysis_method_basic_blocks(
                 for child in bb.childs:
                     if isinstance(child, tuple) and len(child) >= 3:
                         target_bb = child[2]
-                        childs.append({
-                            "start": child[0],
-                            "end": child[1],
-                            "name": target_bb.get_name() if hasattr(target_bb, "get_name") else str(target_bb),
-                        })
+                        childs.append(
+                            {
+                                "start": child[0],
+                                "end": child[1],
+                                "name": (
+                                    target_bb.get_name()
+                                    if hasattr(target_bb, "get_name")
+                                    else str(target_bb)
+                                ),
+                            }
+                        )
                     else:
                         childs.append(str(child))
                 bb_info["childs"] = childs
@@ -1227,11 +1339,17 @@ def analysis_method_basic_blocks(
                 for father in bb.fathers:
                     if isinstance(father, tuple) and len(father) >= 3:
                         target_bb = father[2]
-                        fathers.append({
-                            "start": father[0],
-                            "end": father[1],
-                            "name": target_bb.get_name() if hasattr(target_bb, "get_name") else str(target_bb),
-                        })
+                        fathers.append(
+                            {
+                                "start": father[0],
+                                "end": father[1],
+                                "name": (
+                                    target_bb.get_name()
+                                    if hasattr(target_bb, "get_name")
+                                    else str(target_bb)
+                                ),
+                            }
+                        )
                     else:
                         fathers.append(str(father))
                 bb_info["fathers"] = fathers
@@ -1298,19 +1416,23 @@ def analysis_method_exceptions(
             handlers = []
             for item in data.get("list", []):
                 if isinstance(item, dict):
-                    handlers.append({
-                        "exception_class": item.get("name"),
-                        "idx": item.get("idx"),
-                        "catch_block": item.get("basic_block"),
-                    })
+                    handlers.append(
+                        {
+                            "exception_class": item.get("name"),
+                            "idx": item.get("idx"),
+                            "catch_block": item.get("basic_block"),
+                        }
+                    )
                 else:
                     handlers.append({"raw": str(item)})
-            exceptions.append({
-                "basic_block": bb.get_name(),
-                "start": data.get("start"),
-                "end": data.get("end"),
-                "handlers": handlers,
-            })
+            exceptions.append(
+                {
+                    "basic_block": bb.get_name(),
+                    "start": data.get("start"),
+                    "end": data.get("end"),
+                    "handlers": handlers,
+                }
+            )
         return {
             "class": ma.class_name,
             "method": ma.name,
@@ -1441,12 +1563,14 @@ def analysis_method_xrefs_detail(
         xref_from = []
         try:
             for ref_class, ref_method, offset in ma.get_xref_from():
-                xref_from.append({
-                    "class": ref_class.name,
-                    "method": ref_method.name,
-                    "descriptor": ref_method.descriptor,
-                    "offset": offset,
-                })
+                xref_from.append(
+                    {
+                        "class": ref_class.name,
+                        "method": ref_method.name,
+                        "descriptor": ref_method.descriptor,
+                        "offset": offset,
+                    }
+                )
         except Exception:
             pass
         result["xref_from"] = {"count": len(xref_from), "refs": xref_from}
@@ -1456,12 +1580,14 @@ def analysis_method_xrefs_detail(
         xref_to = []
         try:
             for ref_class, ref_method, offset in ma.get_xref_to():
-                xref_to.append({
-                    "class": ref_class.name,
-                    "method": ref_method.name,
-                    "descriptor": ref_method.descriptor,
-                    "offset": offset,
-                })
+                xref_to.append(
+                    {
+                        "class": ref_class.name,
+                        "method": ref_method.name,
+                        "descriptor": ref_method.descriptor,
+                        "offset": offset,
+                    }
+                )
         except Exception:
             pass
         result["xref_to"] = {"count": len(xref_to), "refs": xref_to}
@@ -1471,11 +1597,13 @@ def analysis_method_xrefs_detail(
         xref_read = []
         try:
             for ref_class, field_analysis, offset in ma.get_xref_read():
-                xref_read.append({
-                    "class": ref_class.name,
-                    "field": field_analysis.name,
-                    "offset": offset,
-                })
+                xref_read.append(
+                    {
+                        "class": ref_class.name,
+                        "field": field_analysis.name,
+                        "offset": offset,
+                    }
+                )
         except Exception:
             pass
         result["xref_read"] = {"count": len(xref_read), "refs": xref_read}
@@ -1485,11 +1613,13 @@ def analysis_method_xrefs_detail(
         xref_write = []
         try:
             for ref_class, field_analysis, offset in ma.get_xref_write():
-                xref_write.append({
-                    "class": ref_class.name,
-                    "field": field_analysis.name,
-                    "offset": offset,
-                })
+                xref_write.append(
+                    {
+                        "class": ref_class.name,
+                        "field": field_analysis.name,
+                        "offset": offset,
+                    }
+                )
         except Exception:
             pass
         result["xref_write"] = {"count": len(xref_write), "refs": xref_write}
@@ -1499,26 +1629,36 @@ def analysis_method_xrefs_detail(
         xref_new = []
         try:
             for ref_class, offset in ma.get_xref_new_instance():
-                xref_new.append({
-                    "class": ref_class.name,
-                    "offset": offset,
-                })
+                xref_new.append(
+                    {
+                        "class": ref_class.name,
+                        "offset": offset,
+                    }
+                )
         except Exception:
             pass
-        result["xref_new_instance"] = {"count": len(xref_new), "refs": xref_new}
+        result["xref_new_instance"] = {
+            "count": len(xref_new),
+            "refs": xref_new,
+        }
 
         # XrefConstClass - 此方法引用了哪些类字面量（const-class 指令）
         # get_xref_const_class() 返回 list of (ClassAnalysis, offset)
         xref_const = []
         try:
             for ref_class, offset in ma.get_xref_const_class():
-                xref_const.append({
-                    "class": ref_class.name,
-                    "offset": offset,
-                })
+                xref_const.append(
+                    {
+                        "class": ref_class.name,
+                        "offset": offset,
+                    }
+                )
         except Exception:
             pass
-        result["xref_const_class"] = {"count": len(xref_const), "refs": xref_const}
+        result["xref_const_class"] = {
+            "count": len(xref_const),
+            "refs": xref_const,
+        }
 
         return result
     except Exception as e:
@@ -1542,10 +1682,12 @@ def analysis_strings_overwritten(analysis_obj) -> dict:
         overwritten = []
         for value, sa in sa_dict.items():
             if sa.is_overwritten():
-                overwritten.append({
-                    "current_value": sa.get_value(),
-                    "original_value": sa.get_orig_value(),
-                })
+                overwritten.append(
+                    {
+                        "current_value": sa.get_value(),
+                        "original_value": sa.get_orig_value(),
+                    }
+                )
         return {
             "total_strings": len(sa_dict),
             "overwritten_count": len(overwritten),
@@ -1580,42 +1722,59 @@ def analysis_call_graph(
         for n, data in cg.nodes(data=True):
             if not external and data.get("external"):
                 continue
-            nodes.append({
-                "classname": data.get("classname"),
-                "methodname": data.get("methodname"),
-                "descriptor": data.get("descriptor"),
-                "accessflags": data.get("accessflags"),
-                "external": data.get("external", False),
-                "entrypoint": data.get("entrypoint", False),
-            })
+            nodes.append(
+                {
+                    "classname": data.get("classname"),
+                    "methodname": data.get("methodname"),
+                    "descriptor": data.get("descriptor"),
+                    "accessflags": data.get("accessflags"),
+                    "external": data.get("external", False),
+                    "entrypoint": data.get("entrypoint", False),
+                }
+            )
         edges = []
         for u, v in cg.edges():
             u_data = cg.nodes[u]
             v_data = cg.nodes[v]
-            if not external and (u_data.get("external") or v_data.get("external")):
+            if not external and (
+                u_data.get("external") or v_data.get("external")
+            ):
                 continue
-            edges.append({
-                "from": {
-                    "classname": u_data.get("classname"),
-                    "methodname": u_data.get("methodname"),
-                },
-                "to": {
-                    "classname": v_data.get("classname"),
-                    "methodname": v_data.get("methodname"),
-                },
-            })
+            edges.append(
+                {
+                    "from": {
+                        "classname": u_data.get("classname"),
+                        "methodname": u_data.get("methodname"),
+                    },
+                    "to": {
+                        "classname": v_data.get("classname"),
+                        "methodname": v_data.get("methodname"),
+                    },
+                }
+            )
             if limit and len(edges) >= limit:
                 break
         # networkx 图的 nodes/edges 迭代序取决于 create_xref 的 set 驱动构建，
         # 非确定 → 输出列表顺序每次不同。排序固定（agent 对接需确定性）。
-        nodes.sort(key=lambda n: (
-            n.get("classname") or "", n.get("methodname") or "",
-            n.get("descriptor") or "",
-        ))
-        edges.sort(key=lambda e: (
-            (e["from"].get("classname") or "", e["from"].get("methodname") or ""),
-            (e["to"].get("classname") or "", e["to"].get("methodname") or ""),
-        ))
+        nodes.sort(
+            key=lambda n: (
+                n.get("classname") or "",
+                n.get("methodname") or "",
+                n.get("descriptor") or "",
+            )
+        )
+        edges.sort(
+            key=lambda e: (
+                (
+                    e["from"].get("classname") or "",
+                    e["from"].get("methodname") or "",
+                ),
+                (
+                    e["to"].get("classname") or "",
+                    e["to"].get("methodname") or "",
+                ),
+            )
+        )
         return {
             "total_nodes": cg.number_of_nodes(),
             "total_edges": cg.number_of_edges(),
@@ -1675,41 +1834,58 @@ def analysis_call_graph_filtered(
         for n, data in cg.nodes(data=True):
             if not external and data.get("external"):
                 continue
-            nodes.append({
-                "classname": data.get("classname"),
-                "methodname": data.get("methodname"),
-                "descriptor": data.get("descriptor"),
-                "accessflags": data.get("accessflags"),
-                "external": data.get("external", False),
-                "entrypoint": data.get("entrypoint", False),
-            })
+            nodes.append(
+                {
+                    "classname": data.get("classname"),
+                    "methodname": data.get("methodname"),
+                    "descriptor": data.get("descriptor"),
+                    "accessflags": data.get("accessflags"),
+                    "external": data.get("external", False),
+                    "entrypoint": data.get("entrypoint", False),
+                }
+            )
         edges = []
         for u, v in cg.edges():
             u_data = cg.nodes[u]
             v_data = cg.nodes[v]
-            if not external and (u_data.get("external") or v_data.get("external")):
+            if not external and (
+                u_data.get("external") or v_data.get("external")
+            ):
                 continue
-            edges.append({
-                "from": {
-                    "classname": u_data.get("classname"),
-                    "methodname": u_data.get("methodname"),
-                },
-                "to": {
-                    "classname": v_data.get("classname"),
-                    "methodname": v_data.get("methodname"),
-                },
-            })
+            edges.append(
+                {
+                    "from": {
+                        "classname": u_data.get("classname"),
+                        "methodname": u_data.get("methodname"),
+                    },
+                    "to": {
+                        "classname": v_data.get("classname"),
+                        "methodname": v_data.get("methodname"),
+                    },
+                }
+            )
             if limit and len(edges) >= limit:
                 break
         # 同 call-graph：networkx 节点/边迭代序非确定，排序固定输出
-        nodes.sort(key=lambda n: (
-            n.get("classname") or "", n.get("methodname") or "",
-            n.get("descriptor") or "",
-        ))
-        edges.sort(key=lambda e: (
-            (e["from"].get("classname") or "", e["from"].get("methodname") or ""),
-            (e["to"].get("classname") or "", e["to"].get("methodname") or ""),
-        ))
+        nodes.sort(
+            key=lambda n: (
+                n.get("classname") or "",
+                n.get("methodname") or "",
+                n.get("descriptor") or "",
+            )
+        )
+        edges.sort(
+            key=lambda e: (
+                (
+                    e["from"].get("classname") or "",
+                    e["from"].get("methodname") or "",
+                ),
+                (
+                    e["to"].get("classname") or "",
+                    e["to"].get("methodname") or "",
+                ),
+            )
+        )
         return {
             "filter": {
                 "classname": classname,
@@ -1730,7 +1906,9 @@ def analysis_call_graph_filtered(
         return {"error": str(e)}
 
 
-def analysis_permissions(analysis_obj, apilevel=None, limit: int = None) -> dict:
+def analysis_permissions(
+    analysis_obj, apilevel=None, limit: int = None
+) -> dict:
     """
     基于 API level 的方法→权限映射分析（get_permissions）。
 
@@ -1745,15 +1923,29 @@ def analysis_permissions(analysis_obj, apilevel=None, limit: int = None) -> dict
     try:
         results = []
         for ma, perms in analysis_obj.get_permissions(apilevel):
-            results.append({
-                "method": {
-                    "class_name": ma.get_class_name() if hasattr(ma, "get_class_name") else None,
-                    "name": ma.name if hasattr(ma, "name") else None,
-                    "descriptor": ma.descriptor if hasattr(ma, "descriptor") else None,
-                    "is_external": ma.is_external() if hasattr(ma, "is_external") else None,
-                },
-                "permissions": list(perms),
-            })
+            results.append(
+                {
+                    "method": {
+                        "class_name": (
+                            ma.get_class_name()
+                            if hasattr(ma, "get_class_name")
+                            else None
+                        ),
+                        "name": ma.name if hasattr(ma, "name") else None,
+                        "descriptor": (
+                            ma.descriptor
+                            if hasattr(ma, "descriptor")
+                            else None
+                        ),
+                        "is_external": (
+                            ma.is_external()
+                            if hasattr(ma, "is_external")
+                            else None
+                        ),
+                    },
+                    "permissions": list(perms),
+                }
+            )
         total = len(results)
         if limit:
             results = results[:limit]
@@ -1926,34 +2118,48 @@ def analysis_method_summary(
         # 3. 6 类 xref 统计 + 摘要引用
         xref_stats = {}
         xref_sources = [
-            ("xref_from", ma.get_xref_from, ("class", "method", "descriptor", "offset")),
-            ("xref_to", ma.get_xref_to, ("class", "method", "descriptor", "offset")),
+            (
+                "xref_from",
+                ma.get_xref_from,
+                ("class", "method", "descriptor", "offset"),
+            ),
+            (
+                "xref_to",
+                ma.get_xref_to,
+                ("class", "method", "descriptor", "offset"),
+            ),
         ]
         for key, getter, fields in xref_sources:
             refs = []
             try:
                 for ref_class, ref_method, offset in getter():
-                    refs.append({
-                        "class": ref_class.name,
-                        "method": ref_method.name,
-                        "descriptor": ref_method.descriptor,
-                        "offset": offset,
-                    })
+                    refs.append(
+                        {
+                            "class": ref_class.name,
+                            "method": ref_method.name,
+                            "descriptor": ref_method.descriptor,
+                            "offset": offset,
+                        }
+                    )
             except Exception:
                 pass
             xref_stats[key] = _summarize_refs(refs, xref_limit, fields)
 
         # read/write: (ClassAnalysis, FieldAnalysis, offset)
-        for key, getter in [("xref_read", ma.get_xref_read),
-                             ("xref_write", ma.get_xref_write)]:
+        for key, getter in [
+            ("xref_read", ma.get_xref_read),
+            ("xref_write", ma.get_xref_write),
+        ]:
             refs = []
             try:
                 for ref_class, field_analysis, offset in getter():
-                    refs.append({
-                        "class": ref_class.name,
-                        "field": field_analysis.name,
-                        "offset": offset,
-                    })
+                    refs.append(
+                        {
+                            "class": ref_class.name,
+                            "field": field_analysis.name,
+                            "offset": offset,
+                        }
+                    )
             except Exception:
                 pass
             xref_stats[key] = _summarize_refs(
@@ -1961,15 +2167,19 @@ def analysis_method_summary(
             )
 
         # new_instance/const_class: (ClassAnalysis, offset)
-        for key, getter in [("xref_new_instance", ma.get_xref_new_instance),
-                             ("xref_const_class", ma.get_xref_const_class)]:
+        for key, getter in [
+            ("xref_new_instance", ma.get_xref_new_instance),
+            ("xref_const_class", ma.get_xref_const_class),
+        ]:
             refs = []
             try:
                 for ref_class, offset in getter():
-                    refs.append({
-                        "class": ref_class.name,
-                        "offset": offset,
-                    })
+                    refs.append(
+                        {
+                            "class": ref_class.name,
+                            "offset": offset,
+                        }
+                    )
             except Exception:
                 pass
             xref_stats[key] = _summarize_refs(
@@ -1984,7 +2194,7 @@ def analysis_method_summary(
             summary["basic_blocks_count"] = bb_count
             # 异常处理块数
             exc_count = 0
-            for bb in (bbs or []):
+            for bb in bbs or []:
                 try:
                     ea = bb.get_exception_analysis()
                     if ea is not None:
@@ -1999,6 +2209,7 @@ def analysis_method_summary(
         if include_source:
             try:
                 from androguard.skills import decompiler_skills
+
                 decomp = decompiler_skills.decompile_method(
                     dex_list, analysis_obj, class_name, method_name
                 )
@@ -2009,7 +2220,9 @@ def analysis_method_summary(
                     summary["source"] = decomp.get("source", "")
             except Exception as e:
                 summary["source"] = ""
-                summary["source_error"] = f"Decompilation failed: {str(e)[:80]}"
+                summary["source_error"] = (
+                    f"Decompilation failed: {str(e)[:80]}"
+                )
         return summary
     except Exception as e:
         return {
@@ -2028,9 +2241,12 @@ def _summarize_refs(refs, limit, fields) -> dict:
     """
     try:
         # 构造稳定排序键：用 fields 中存在的字段值组成 tuple
-        refs = sorted(refs, key=lambda r: tuple(
-            (r.get(f) if r.get(f) is not None else "") for f in fields
-        ))
+        refs = sorted(
+            refs,
+            key=lambda r: tuple(
+                (r.get(f) if r.get(f) is not None else "") for f in fields
+            ),
+        )
     except Exception:
         pass
     total = len(refs)
@@ -2188,7 +2404,10 @@ def analysis_string_info(
         sa_dict = analysis_obj.get_strings_analysis()
         sa = sa_dict.get(value)
         if sa is None:
-            return {"value": value, "error": "String not found in DEX string pool"}
+            return {
+                "value": value,
+                "error": "String not found in DEX string pool",
+            }
         result = {"value": value}
         try:
             result["is_overwritten"] = sa.is_overwritten()
@@ -2210,25 +2429,33 @@ def analysis_string_info(
         refs = []
         try:
             for ref_class, ref_method in sa.get_xref_from(with_offset=True):
-                refs.append({
-                    "class": ref_class.name,
-                    "method": ref_method.name,
-                    "descriptor": ref_method.descriptor,
-                })
+                refs.append(
+                    {
+                        "class": ref_class.name,
+                        "method": ref_method.name,
+                        "descriptor": ref_method.descriptor,
+                    }
+                )
         except Exception:
             # 降级：不带 offset
             try:
                 for ref_class, ref_method in sa.get_xref_from():
-                    refs.append({
-                        "class": ref_class.name,
-                        "method": ref_method.name,
-                        "descriptor": ref_method.descriptor,
-                    })
+                    refs.append(
+                        {
+                            "class": ref_class.name,
+                            "method": ref_method.name,
+                            "descriptor": ref_method.descriptor,
+                        }
+                    )
             except Exception:
                 pass
         total = len(refs)
         sliced = refs[:xref_limit] if xref_limit else refs
-        result["xref_from"] = {"count": total, "returned": len(sliced), "refs": sliced}
+        result["xref_from"] = {
+            "count": total,
+            "returned": len(sliced),
+            "refs": sliced,
+        }
         return result
     except Exception as e:
         return {"value": value, "error": str(e)}
@@ -2321,7 +2548,11 @@ def analysis_security_hotspots(analysis_obj, limit: int = 50) -> dict:
                     for cat, pat in patterns.items():
                         if pat.search(full):
                             hotspots[cat].append(
-                                {"from": from_sig, "calls": full, "offset": off}
+                                {
+                                    "from": from_sig,
+                                    "calls": full,
+                                    "offset": off,
+                                }
                             )
                             break  # 一个调用只归一类
             except Exception:
@@ -2338,12 +2569,16 @@ def analysis_security_hotspots(analysis_obj, limit: int = 50) -> dict:
                 "count": len(items),
                 "samples": items[:limit] if limit else items,
             }
-        native_methods.sort(key=lambda m: (m["class"], m["method"], m["descriptor"]))
+        native_methods.sort(
+            key=lambda m: (m["class"], m["method"], m["descriptor"])
+        )
 
         return {
             "scanned_methods": scanned,
             "native_methods_count": len(native_methods),
-            "native_methods": native_methods[:limit] if limit else native_methods,
+            "native_methods": (
+                native_methods[:limit] if limit else native_methods
+            ),
             "categories": result_categories,
         }
     except Exception as e:
@@ -2396,7 +2631,9 @@ def analysis_class_fields_xref(
                         except Exception:
                             pass
                         try:
-                            item["access_flags"] = ref_ma.get_access_flags_string()
+                            item["access_flags"] = (
+                                ref_ma.get_access_flags_string()
+                            )
                         except Exception:
                             pass
                         out.append(item)
@@ -2407,11 +2644,13 @@ def analysis_class_fields_xref(
                 if xref_limit and len(out) >= xref_limit:
                     break
             # get_xref_read/write 返回 set，迭代序非确定 → 切片前排序固定输出
-            out.sort(key=lambda r: (
-                r.get("class", "") if isinstance(r, dict) else str(r),
-                r.get("method", "") if isinstance(r, dict) else "",
-                r.get("descriptor", "") if isinstance(r, dict) else "",
-            ))
+            out.sort(
+                key=lambda r: (
+                    r.get("class", "") if isinstance(r, dict) else str(r),
+                    r.get("method", "") if isinstance(r, dict) else "",
+                    r.get("descriptor", "") if isinstance(r, dict) else "",
+                )
+            )
             return out
 
         fields_out = []
@@ -2441,7 +2680,9 @@ def analysis_class_fields_xref(
                 item["xref_write_error"] = str(e)[:60]
             fields_out.append(item)
         # get_fields() 可能返回 set，字段序非确定 → 排序固定输出
-        fields_out.sort(key=lambda it: (it.get("name", ""), it.get("descriptor", "")))
+        fields_out.sort(
+            key=lambda it: (it.get("name", ""), it.get("descriptor", ""))
+        )
         return {
             "class": class_name,
             "is_external": ca.is_external(),
@@ -2471,12 +2712,17 @@ def analysis_hardcoded_secrets(
     """
     try:
         import re
+
         from androguard.core.dex import EncodedArrayItem
 
         # 敏感模式：值或字段名匹配
         value_patterns = {
-            "private_key": re.compile(r"-----BEGIN (?:RSA |EC |DSA |OPENSSH )?PRIVATE KEY-----"),
-            "jwt": re.compile(r"eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}"),
+            "private_key": re.compile(
+                r"-----BEGIN (?:RSA |EC |DSA |OPENSSH )?PRIVATE KEY-----"
+            ),
+            "jwt": re.compile(
+                r"eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}"
+            ),
             "url": re.compile(r"https?://[^\s\"'<>]+"),
             "google_api_key": re.compile(r"AIza[0-9A-Za-z_\-]{35}"),
             "aws_key": re.compile(r"AKIA[0-9A-Z]{16}"),
@@ -2484,10 +2730,15 @@ def analysis_hardcoded_secrets(
         }
         # 字段名敏感模式
         name_patterns = {
-            "api_key_field": re.compile(r"(?i)(api[_-]?key|secret|token|password|passwd|pwd|auth|credential)"),
+            "api_key_field": re.compile(
+                r"(?i)(api[_-]?key|secret|token|password|passwd|pwd|auth|credential)"
+            ),
         }
 
-        categories = {k: [] for k in list(value_patterns.keys()) + list(name_patterns.keys())}
+        categories = {
+            k: []
+            for k in list(value_patterns.keys()) + list(name_patterns.keys())
+        }
         scanned_classes = 0
         scanned_values = 0
 
@@ -2536,12 +2787,14 @@ def analysis_hardcoded_secrets(
                     # 值匹配
                     for cat, pat in value_patterns.items():
                         if pat.search(v):
-                            categories[cat].append({
-                                "class": cname,
-                                "field": fname,
-                                "value": v[:200],
-                                "value_len": len(v),
-                            })
+                            categories[cat].append(
+                                {
+                                    "class": cname,
+                                    "field": fname,
+                                    "value": v[:200],
+                                    "value_len": len(v),
+                                }
+                            )
                             matched = True
                             break
                     if matched:
@@ -2550,12 +2803,14 @@ def analysis_hardcoded_secrets(
                     if fname:
                         for cat, pat in name_patterns.items():
                             if pat.search(fname):
-                                categories[cat].append({
-                                    "class": cname,
-                                    "field": fname,
-                                    "value": v[:200],
-                                    "value_len": len(v),
-                                })
+                                categories[cat].append(
+                                    {
+                                        "class": cname,
+                                        "field": fname,
+                                        "value": v[:200],
+                                        "value_len": len(v),
+                                    }
+                                )
                                 break
 
         # 截断
@@ -2632,12 +2887,16 @@ def analysis_method_reachable(
                     ma = m
                     break
             if ma is None:
-                return {"error": f"Method not found: {class_name}->{method_name}"}
+                return {
+                    "error": f"Method not found: {class_name}->{method_name}"
+                }
     except Exception as e:
         return {"error": str(e)}
 
     if ma is None:
-        return {"error": f"Method not found: {class_name}->{method_name}({descriptor})"}
+        return {
+            "error": f"Method not found: {class_name}->{method_name}({descriptor})"
+        }
 
     def _key(m):
         return f"{m.get_class_name()}->{m.name}{m.descriptor}"
@@ -2672,7 +2931,9 @@ def analysis_method_reachable(
             continue
         # get_xref_to() 返回 set，迭代序非确定 → 入队顺序非确定 → BFS 遍历序
         # 非确定 → nodes/edges 列表顺序每次不同。按 key 排序固定遍历顺序。
-        neighbors = sorted(xref_to, key=lambda t: f"{t[0].name}->{t[1].name}{t[1].descriptor}")
+        neighbors = sorted(
+            xref_to, key=lambda t: f"{t[0].name}->{t[1].name}{t[1].descriptor}"
+        )
         for _ca, nxt, _off in neighbors:
             k = _key(nxt)
             if k == start_key:
@@ -2694,7 +2955,9 @@ def analysis_method_reachable(
 
     # BFS 节点序虽已按层排序入队，但同层多入口仍可能因上层 set 顺序残留差异；
     # 对 nodes/edges 做最终稳定排序，保证输出确定（agent 对接需确定性比对）。
-    nodes.sort(key=lambda n: (n["depth"], n["class"], n["method"], n["descriptor"]))
+    nodes.sort(
+        key=lambda n: (n["depth"], n["class"], n["method"], n["descriptor"])
+    )
     edges.sort(key=lambda e: (e["depth"], e["from"], e["to"]))
 
     return {
@@ -2790,10 +3053,17 @@ def analysis_method_block_instructions(
             try:
                 if isinstance(r, tuple) and len(r) >= 3:
                     bb = r[2]
-                    names.append({
-                        "start": r[0], "end": r[1],
-                        "name": bb.get_name() if hasattr(bb, "get_name") else str(bb),
-                    })
+                    names.append(
+                        {
+                            "start": r[0],
+                            "end": r[1],
+                            "name": (
+                                bb.get_name()
+                                if hasattr(bb, "get_name")
+                                else str(bb)
+                            ),
+                        }
+                    )
                 else:
                     names.append(str(r))
             except Exception:
@@ -2808,7 +3078,9 @@ def analysis_method_block_instructions(
         except Exception:
             ins_list = []
         total_ins += len(ins_list)
-        sliced = ins_list[:ins_limit_per_block] if ins_limit_per_block else ins_list
+        sliced = (
+            ins_list[:ins_limit_per_block] if ins_limit_per_block else ins_list
+        )
         block = {
             "name": bb.get_name(),
             "start": bb.get_start(),
@@ -2878,7 +3150,7 @@ def analysis_method_switch_payloads(
     :param descriptor: 方法描述符（可选，重载时指定）
     :return: switch/array payload 结构化解码结果
     """
-    from androguard.core.dex import PackedSwitch, SparseSwitch, FillArrayData
+    from androguard.core.dex import FillArrayData, PackedSwitch, SparseSwitch
 
     ma = _resolve_method_analysis(
         analysis_obj, class_name, method_name, descriptor
@@ -3041,12 +3313,16 @@ def analysis_method_callers(
                     ma = m
                     break
             if ma is None:
-                return {"error": f"Method not found: {class_name}->{method_name}"}
+                return {
+                    "error": f"Method not found: {class_name}->{method_name}"
+                }
     except Exception as e:
         return {"error": str(e)}
 
     if ma is None:
-        return {"error": f"Method not found: {class_name}->{method_name}({descriptor})"}
+        return {
+            "error": f"Method not found: {class_name}->{method_name}({descriptor})"
+        }
 
     def _key(m):
         return f"{m.get_class_name()}->{m.name}{m.descriptor}"
@@ -3064,8 +3340,10 @@ def analysis_method_callers(
     visited = set()
     nodes = []
     edges = []
-    entry_points = []          # 链源头：被完整展开却无内部调用方的节点
-    truncated_frontier = []    # 因 max_depth 未继续上溯的边界节点（可能还有更上层调用方）
+    entry_points = []  # 链源头：被完整展开却无内部调用方的节点
+    truncated_frontier = (
+        []
+    )  # 因 max_depth 未继续上溯的边界节点（可能还有更上层调用方）
     queue = [(ma, 0)]
     start_key = _key(ma)
     visited.add(start_key)
@@ -3310,7 +3588,12 @@ def apk_attack_surface(
                         sink_counts[cat] += 1
                         if len(sinks[cat]) < per_sink_limit:
                             sinks[cat].append(
-                                {"from": from_sig, "calls": full, "offset": off, "depth": depth}
+                                {
+                                    "from": from_sig,
+                                    "calls": full,
+                                    "offset": off,
+                                    "depth": depth,
+                                }
                             )
                         break
                 # 继续展开内部被调方
@@ -3342,7 +3625,11 @@ def apk_attack_surface(
 
     tag_getters = [
         ("activity", "activities", lambda: apk_obj.get_activities()),
-        ("activity-alias", "activity_aliases", lambda: apk_obj.get_activity_aliases()),
+        (
+            "activity-alias",
+            "activity_aliases",
+            lambda: apk_obj.get_activity_aliases(),
+        ),
         ("service", "services", lambda: apk_obj.get_services()),
         ("receiver", "receivers", lambda: apk_obj.get_receivers()),
         ("provider", "providers", lambda: apk_obj.get_providers()),
@@ -3390,15 +3677,28 @@ def apk_attack_surface(
             surface_categories[cat] += 1
 
     # 高危组件：暴露 + 可达 command_exec/dynamic_load/reflection/webview 任一
-    critical_cats = {"command_exec", "dynamic_load", "reflection", "webview", "sql"}
+    critical_cats = {
+        "command_exec",
+        "dynamic_load",
+        "reflection",
+        "webview",
+        "sql",
+    }
     critical = [
         {
             "type": c["type"],
             "name": c["name"],
-            "critical_sinks": [x for x in c.get("reachable_sink_categories", []) if x in critical_cats],
+            "critical_sinks": [
+                x
+                for x in c.get("reachable_sink_categories", [])
+                if x in critical_cats
+            ],
         }
         for c in components
-        if c.get("exposed") and any(x in critical_cats for x in c.get("reachable_sink_categories", []))
+        if c.get("exposed")
+        and any(
+            x in critical_cats for x in c.get("reachable_sink_categories", [])
+        )
     ]
 
     return {
@@ -3417,6 +3717,7 @@ def apk_attack_surface(
 # ================================================================
 # 第三十二轮：分析型/聚合型能力批量封装
 # ================================================================
+
 
 def _iter_method_invoke_args(ma):
     """
@@ -3594,38 +3895,78 @@ def analysis_crypto_usage(analysis_obj, per_type_limit: int = 100) -> dict:
                 for sub, cat in crypto_targets.items():
                     if sub in target:
                         algo = args[0] if args else None
-                        entry = {"from": from_sig, "target": target, "algorithm": algo, "offset": off}
+                        entry = {
+                            "from": from_sig,
+                            "target": target,
+                            "algorithm": algo,
+                            "offset": off,
+                        }
                         usages[cat].append(entry)
                         if algo:
                             algorithms[algo] = algorithms.get(algo, 0) + 1
                             if weak_algo.search(algo):
                                 weak_findings.append(
-                                    {"from": from_sig, "algorithm": algo, "category": cat, "reason": "weak_or_ecb"}
+                                    {
+                                        "from": from_sig,
+                                        "algorithm": algo,
+                                        "category": cat,
+                                        "reason": "weak_or_ecb",
+                                    }
                                 )
                         break
                 for sub, cat in material_targets.items():
                     if sub in target:
-                        material[cat].append({"from": from_sig, "target": target, "offset": off})
+                        material[cat].append(
+                            {"from": from_sig, "target": target, "offset": off}
+                        )
                         break
         except Exception:
             continue
 
     usage_summary = {
-        k: {"count": len(v),
-            "samples": sorted(v[:per_type_limit], key=lambda e: (e["from"], e.get("target",""), e.get("offset",0)))}
-        for k, v in usages.items() if v
+        k: {
+            "count": len(v),
+            "samples": sorted(
+                v[:per_type_limit],
+                key=lambda e: (
+                    e["from"],
+                    e.get("target", ""),
+                    e.get("offset", 0),
+                ),
+            ),
+        }
+        for k, v in usages.items()
+        if v
     }
     material_summary = {
-        k: {"count": len(v),
-            "samples": sorted(v[:per_type_limit], key=lambda e: (e["from"], e.get("target",""), e.get("offset",0)))}
-        for k, v in material.items() if v
+        k: {
+            "count": len(v),
+            "samples": sorted(
+                v[:per_type_limit],
+                key=lambda e: (
+                    e["from"],
+                    e.get("target", ""),
+                    e.get("offset", 0),
+                ),
+            ),
+        }
+        for k, v in material.items()
+        if v
     }
     # usages/material 来自 get_methods() set 迭代，切片前先排好（上面 samples 已 sort）；
     # weak_findings 同源 set 迭代，切片前排序
-    weak_findings.sort(key=lambda f: (f["from"], f.get("algorithm",""), f.get("category","")))
+    weak_findings.sort(
+        key=lambda f: (
+            f["from"],
+            f.get("algorithm", ""),
+            f.get("category", ""),
+        )
+    )
     # usage_summary/material_summary 是 dict（key 来自 set），按 key 重建固定 JSON 顺序
     usage_summary = {k: usage_summary[k] for k in sorted(usage_summary.keys())}
-    material_summary = {k: material_summary[k] for k in sorted(material_summary.keys())}
+    material_summary = {
+        k: material_summary[k] for k in sorted(material_summary.keys())
+    }
 
     return {
         "algorithms": dict(sorted(algorithms.items(), key=lambda x: -x[1])),
@@ -3636,7 +3977,9 @@ def analysis_crypto_usage(analysis_obj, per_type_limit: int = 100) -> dict:
     }
 
 
-def analysis_reflection_targets(analysis_obj, per_type_limit: int = 100) -> dict:
+def analysis_reflection_targets(
+    analysis_obj, per_type_limit: int = 100
+) -> dict:
     """
     反射调用点 + **反射目标字符串还原**（反混淆）。
 
@@ -3677,26 +4020,45 @@ def analysis_reflection_targets(analysis_obj, per_type_limit: int = 100) -> dict
                     if sub in target:
                         resolved = args[0] if args else None
                         hits[cat].append(
-                            {"from": from_sig, "target": target, "resolved": resolved, "offset": off}
+                            {
+                                "from": from_sig,
+                                "target": target,
+                                "resolved": resolved,
+                                "offset": off,
+                            }
                         )
                         if resolved:
-                            resolved_names[resolved] = resolved_names.get(resolved, 0) + 1
+                            resolved_names[resolved] = (
+                                resolved_names.get(resolved, 0) + 1
+                            )
                         break
         except Exception:
             continue
 
     total = sum(len(v) for v in hits.values())
     categories = {
-        k: {"count": len(v),
-            "samples": sorted(v[:per_type_limit], key=lambda e: (e["from"], e.get("target",""), e.get("offset",0)))}
-        for k, v in hits.items() if v
+        k: {
+            "count": len(v),
+            "samples": sorted(
+                v[:per_type_limit],
+                key=lambda e: (
+                    e["from"],
+                    e.get("target", ""),
+                    e.get("offset", 0),
+                ),
+            ),
+        }
+        for k, v in hits.items()
+        if v
     }
     # hits 来自 get_methods() set 迭代，categories 是 dict（key 来自 set）→ 按 key 重建
     categories = {k: categories[k] for k in sorted(categories.keys())}
 
     return {
         "total_reflection_calls": total,
-        "resolved_target_names": dict(sorted(resolved_names.items(), key=lambda x: -x[1])),
+        "resolved_target_names": dict(
+            sorted(resolved_names.items(), key=lambda x: -x[1])
+        ),
         "categories": categories,
     }
 
@@ -3721,7 +4083,9 @@ def analysis_url_endpoints(analysis_obj, per_type_limit: int = 200) -> dict:
         "http_url": _re.compile(r"http://[^\s\"'<>]+"),
         "ws_url": _re.compile(r"wss?://[^\s\"'<>]+"),
         "ftp_url": _re.compile(r"ftps?://[^\s\"'<>]+"),
-        "ip_addr": _re.compile(r"\b(?:(?:25[0-5]|2[0-4]\d|1?\d?\d)\.){3}(?:25[0-5]|2[0-4]\d|1?\d?\d)\b"),
+        "ip_addr": _re.compile(
+            r"\b(?:(?:25[0-5]|2[0-4]\d|1?\d?\d)\.){3}(?:25[0-5]|2[0-4]\d|1?\d?\d)\b"
+        ),
     }
 
     buckets = {k: [] for k in patterns}
@@ -3755,8 +4119,12 @@ def analysis_url_endpoints(analysis_obj, per_type_limit: int = 200) -> dict:
                 pass
             # get_xref_from() 返回 set，迭代序非确定 → 排序固定 used_in 顺序
             origins.sort(key=lambda o: (o["class"], o["method"]))
-            entry = {"value": matched, "full_string": value if value != matched else None,
-                     "used_in": origins[:10], "used_in_count": len(origins)}
+            entry = {
+                "value": matched,
+                "full_string": value if value != matched else None,
+                "used_in": origins[:10],
+                "used_in_count": len(origins),
+            }
             buckets[cat].append(entry)
             h = _host_of(matched)
             if h:
@@ -3767,9 +4135,17 @@ def analysis_url_endpoints(analysis_obj, per_type_limit: int = 200) -> dict:
     # summary 是 dict（key 来自 patterns 但 if v 过滤后顺序依赖 buckets），按 key 重建
     for cat in buckets:
         buckets[cat].sort(
-            key=lambda e: (e.get("value", ""), e.get("full_string") or "", e.get("used_in_count", 0))
+            key=lambda e: (
+                e.get("value", ""),
+                e.get("full_string") or "",
+                e.get("used_in_count", 0),
+            )
         )
-    summary = {k: {"count": len(v), "samples": v[:per_type_limit]} for k, v in buckets.items() if v}
+    summary = {
+        k: {"count": len(v), "samples": v[:per_type_limit]}
+        for k, v in buckets.items()
+        if v
+    }
     summary = {k: summary[k] for k in sorted(summary.keys())}
     total = sum(len(v) for v in buckets.values())
 
@@ -3841,6 +4217,7 @@ def analysis_taint_path(
 
     # 前向 BFS，parent 记录到达每个节点的上一跳
     from collections import deque
+
     parent = {src_key: None}
     node_obj = {src_key: src}
     depth = {src_key: 0}
@@ -3905,8 +4282,16 @@ def analysis_taint_path(
     path.reverse()
 
     return {
-        "source": {"class": src_class, "method": src_method, "descriptor": src_descriptor},
-        "sink": {"class": dst_class, "method": dst_method, "descriptor": dst_descriptor},
+        "source": {
+            "class": src_class,
+            "method": src_method,
+            "descriptor": src_descriptor,
+        },
+        "sink": {
+            "class": dst_class,
+            "method": dst_method,
+            "descriptor": dst_descriptor,
+        },
         "found": True,
         "path_length": len(path),
         "visited_nodes": visited_count,
@@ -3991,7 +4376,11 @@ def analysis_webview_security(analysis_obj, per_type_limit: int = 100) -> dict:
                 continue
             for ref_class, ref_method, off in xrefs:
                 full = f"{ref_class.name}->{ref_method.name}{ref_method.descriptor}"
-                if "webkit" in full.lower() or "WebView" in full or "WebSettings" in full:
+                if (
+                    "webkit" in full.lower()
+                    or "WebView" in full
+                    or "WebSettings" in full
+                ):
                     webview_using_methods.add(from_sig)
                 for cat, (pat, _high, _desc) in checks.items():
                     if pat.search(full):
@@ -4094,7 +4483,12 @@ def analysis_ssl_safety(analysis_obj, per_type_limit: int = 100) -> dict:
                 "insecure": (not has_throw),
             }
         except Exception:
-            return {"instruction_count": -1, "has_throw": False, "returns_true": False, "insecure": False}
+            return {
+                "instruction_count": -1,
+                "has_throw": False,
+                "returns_true": False,
+                "insecure": False,
+            }
 
     trust_methods = {"checkServerTrusted", "checkClientTrusted"}
     try:
@@ -4125,8 +4519,10 @@ def analysis_ssl_safety(analysis_obj, per_type_limit: int = 100) -> dict:
                         }
                     )
             # (1b) HostnameVerifier.verify 返回 true
-            elif mn == "verify" and ma.descriptor.endswith(")Z") and (
-                "String" in ma.descriptor
+            elif (
+                mn == "verify"
+                and ma.descriptor.endswith(")Z")
+                and ("String" in ma.descriptor)
             ):
                 info = _method_is_trivially_true_or_empty(ma)
                 if info.get("returns_true") and not info.get("has_throw"):
@@ -4155,11 +4551,21 @@ def analysis_ssl_safety(analysis_obj, per_type_limit: int = 100) -> dict:
         return {
             "scanned_methods": scanned,
             "insecure_trustmanager_count": len(insecure_trustmanagers),
-            "insecure_hostname_verifier_count": len(insecure_hostname_verifiers),
+            "insecure_hostname_verifier_count": len(
+                insecure_hostname_verifiers
+            ),
             "bypass_call_count": len(bypass_findings),
-            "mitm_vulnerable": bool(insecure_trustmanagers or insecure_hostname_verifiers),
-            "insecure_trustmanagers": insecure_trustmanagers[:n] if n else insecure_trustmanagers,
-            "insecure_hostname_verifiers": insecure_hostname_verifiers[:n] if n else insecure_hostname_verifiers,
+            "mitm_vulnerable": bool(
+                insecure_trustmanagers or insecure_hostname_verifiers
+            ),
+            "insecure_trustmanagers": (
+                insecure_trustmanagers[:n] if n else insecure_trustmanagers
+            ),
+            "insecure_hostname_verifiers": (
+                insecure_hostname_verifiers[:n]
+                if n
+                else insecure_hostname_verifiers
+            ),
             "bypass_calls": bypass_findings[:n] if n else bypass_findings,
         }
     except Exception as e:
@@ -4218,9 +4624,7 @@ def analysis_insecure_storage(analysis_obj, per_type_limit: int = 100) -> dict:
             "内部存储（应用私有沙箱，相对安全，仅明文备份风险）",
         ),
         "world_mode_constant": (
-            re.compile(
-                r"->setReadable\(|->setWritable\(|->createTempFile\("
-            ),
+            re.compile(r"->setReadable\(|->setWritable\(|->createTempFile\("),
             False,
             "文件权限设置/临时文件（核验是否设为全局可读写）",
         ),
@@ -4274,7 +4678,8 @@ def analysis_insecure_storage(analysis_obj, per_type_limit: int = 100) -> dict:
 
         return {
             "scanned_methods": scanned,
-            "uses_external_storage": categories["external_storage"]["count"] > 0,
+            "uses_external_storage": categories["external_storage"]["count"]
+            > 0,
             "finding_count": len(findings),
             "findings": findings,
             "categories": categories,
@@ -4425,7 +4830,9 @@ def analysis_pending_intent(analysis_obj, per_type_limit: int = 100) -> dict:
             "Intent 转发/回传（若转发外部传入的 Intent→重定向/权限提升）",
         ),
         "intent_component": (
-            re.compile(r"Landroid/content/Intent;->(setComponent|setClassName|setPackage)\("),
+            re.compile(
+                r"Landroid/content/Intent;->(setComponent|setClassName|setPackage)\("
+            ),
             False,
             "Intent 目标显式设定（显式 Intent 相对安全，隐式则风险高）",
         ),
@@ -4479,7 +4886,8 @@ def analysis_pending_intent(analysis_obj, per_type_limit: int = 100) -> dict:
 
         return {
             "scanned_methods": scanned,
-            "uses_pending_intent": categories["pending_intent_create"]["count"] > 0,
+            "uses_pending_intent": categories["pending_intent_create"]["count"]
+            > 0,
             "finding_count": len(findings),
             "findings": findings,
             "categories": categories,
@@ -4493,8 +4901,14 @@ def analysis_pending_intent(analysis_obj, per_type_limit: int = 100) -> dict:
 # 共享 xref_to 语义归类骨架 + 10 专项审计 + 1 综合报告闭环
 # ============================================================================
 
-def _xref_semantic_audit(analysis_obj, checks: dict, per_type_limit: int = 100,
-                         auto_finding: bool = True, finding_severity: str = "high") -> dict:
+
+def _xref_semantic_audit(
+    analysis_obj,
+    checks: dict,
+    per_type_limit: int = 100,
+    auto_finding: bool = True,
+    finding_severity: str = "high",
+) -> dict:
     """
     通用 xref_to 语义审计骨架：遍历全量内部方法 get_xref_to()，按 checks 归类被调 API，
     高危类别（high_risk=True）自动生成 findings。是第三十三/三十四轮所有漏洞类审计命令
@@ -4518,7 +4932,9 @@ def _xref_semantic_audit(analysis_obj, checks: dict, per_type_limit: int = 100,
         except Exception:
             continue
         for ref_class, ref_method, off in xrefs:
-            full = f"{ref_class.name}->{ref_method.name}{ref_method.descriptor}"
+            full = (
+                f"{ref_class.name}->{ref_method.name}{ref_method.descriptor}"
+            )
             for cat, (pat, _h, _d) in checks.items():
                 if pat.search(full):
                     results[cat].append(
@@ -4562,80 +4978,151 @@ def _xref_semantic_audit(analysis_obj, checks: dict, per_type_limit: int = 100,
 def analysis_privacy_sinks(analysis_obj, per_type_limit: int = 100) -> dict:
     """隐私数据收集审计（OWASP M6）——设备标识/位置/联系人/账户/已装应用/剪贴板/录音摄像。"""
     import re
+
     checks = {
-        "device_id": (re.compile(
-            r"->getDeviceId\(|->getImei\(|->getMeid\(|->getSubscriberId\(|"
-            r"->getSimSerialNumber\(|->getLine1Number\(|->getSerial\(|->getAndroidId\("),
-            True, "设备唯一标识读取（IMEI/IMSI/序列号/电话号，可追踪用户）"),
-        "location": (re.compile(
-            r"->getLastKnownLocation\(|->requestLocationUpdates\(|->getLatitude\(|"
-            r"->getLongitude\(|->requestSingleUpdate\(|LocationManager;->"),
-            True, "位置信息读取（精确地理位置，隐私敏感）"),
-        "contacts": (re.compile(
-            r"ContactsContract|->getContentResolver\(\).*contacts|CommonDataKinds"),
-            True, "联系人读取（通讯录数据）"),
-        "accounts": (re.compile(
-            r"AccountManager;->(getAccounts|getAccountsByType|getAuthToken|getPassword)"),
-            False, "账户信息读取（AccountManager，可枚举登录账户）"),
-        "installed_apps": (re.compile(
-            r"->getInstalledPackages\(|->getInstalledApplications\(|->queryIntentActivities\("),
-            False, "已安装应用枚举（用户画像/竞品侦察）"),
-        "clipboard": (re.compile(
-            r"ClipboardManager;->(getPrimaryClip|getText|hasPrimaryClip)"),
-            False, "剪贴板读取（可窃取复制的密码/验证码）"),
-        "capture": (re.compile(
-            r"MediaRecorder;->|Landroid/hardware/Camera;->(open|takePicture)|"
-            r"AudioRecord;-><init>|->startRecording\("),
-            True, "录音/拍照（麦克风/摄像头采集，隐私高危）"),
+        "device_id": (
+            re.compile(
+                r"->getDeviceId\(|->getImei\(|->getMeid\(|->getSubscriberId\(|"
+                r"->getSimSerialNumber\(|->getLine1Number\(|->getSerial\(|->getAndroidId\("
+            ),
+            True,
+            "设备唯一标识读取（IMEI/IMSI/序列号/电话号，可追踪用户）",
+        ),
+        "location": (
+            re.compile(
+                r"->getLastKnownLocation\(|->requestLocationUpdates\(|->getLatitude\(|"
+                r"->getLongitude\(|->requestSingleUpdate\(|LocationManager;->"
+            ),
+            True,
+            "位置信息读取（精确地理位置，隐私敏感）",
+        ),
+        "contacts": (
+            re.compile(
+                r"ContactsContract|->getContentResolver\(\).*contacts|CommonDataKinds"
+            ),
+            True,
+            "联系人读取（通讯录数据）",
+        ),
+        "accounts": (
+            re.compile(
+                r"AccountManager;->(getAccounts|getAccountsByType|getAuthToken|getPassword)"
+            ),
+            False,
+            "账户信息读取（AccountManager，可枚举登录账户）",
+        ),
+        "installed_apps": (
+            re.compile(
+                r"->getInstalledPackages\(|->getInstalledApplications\(|->queryIntentActivities\("
+            ),
+            False,
+            "已安装应用枚举（用户画像/竞品侦察）",
+        ),
+        "clipboard": (
+            re.compile(
+                r"ClipboardManager;->(getPrimaryClip|getText|hasPrimaryClip)"
+            ),
+            False,
+            "剪贴板读取（可窃取复制的密码/验证码）",
+        ),
+        "capture": (
+            re.compile(
+                r"MediaRecorder;->|Landroid/hardware/Camera;->(open|takePicture)|"
+                r"AudioRecord;-><init>|->startRecording\("
+            ),
+            True,
+            "录音/拍照（麦克风/摄像头采集，隐私高危）",
+        ),
     }
     r = _xref_semantic_audit(analysis_obj, checks, per_type_limit)
-    r["privacy_category_hit"] = sum(1 for c in r["categories"].values() if c["count"] > 0)
+    r["privacy_category_hit"] = sum(
+        1 for c in r["categories"].values() if c["count"] > 0
+    )
     return r
 
 
 def analysis_telephony_sms(analysis_obj, per_type_limit: int = 100) -> dict:
     """电话短信滥用审计——发短信/读短信/拨号/短信拦截/通话状态监听（恶意扣费/拦截马特征）。"""
     import re
+
     checks = {
-        "send_sms": (re.compile(
-            r"SmsManager;->(sendTextMessage|sendMultipartTextMessage|sendDataMessage)"),
-            True, "发送短信（可静默扣费/发送高级短信，恶意软件高频行为）"),
-        "read_sms": (re.compile(
-            r"content://sms|Telephony\$Sms|Telephony;.*Sms|->getMessageBody\(|"
-            r"SmsMessage;->createFromPdu"),
-            True, "读取/解析短信（窃取验证码/银行短信，短信拦截马特征）"),
-        "make_call": (re.compile(
-            r"Intent;->.*ACTION_CALL|TelecomManager;->placeCall|->ACTION_DIAL"),
-            False, "拨打电话（可拨打付费号码）"),
-        "intercept": (re.compile(
-            r"->abortBroadcast\(|BroadcastReceiver;->abortBroadcast"),
-            True, "中止广播（配合短信 receiver 拦截短信不让系统显示）"),
-        "phone_state": (re.compile(
-            r"PhoneStateListener|->getCallState\(|->listen\(|TelephonyManager;->getNetworkOperator"),
-            False, "电话状态监听（通话监听/运营商信息）"),
+        "send_sms": (
+            re.compile(
+                r"SmsManager;->(sendTextMessage|sendMultipartTextMessage|sendDataMessage)"
+            ),
+            True,
+            "发送短信（可静默扣费/发送高级短信，恶意软件高频行为）",
+        ),
+        "read_sms": (
+            re.compile(
+                r"content://sms|Telephony\$Sms|Telephony;.*Sms|->getMessageBody\(|"
+                r"SmsMessage;->createFromPdu"
+            ),
+            True,
+            "读取/解析短信（窃取验证码/银行短信，短信拦截马特征）",
+        ),
+        "make_call": (
+            re.compile(
+                r"Intent;->.*ACTION_CALL|TelecomManager;->placeCall|->ACTION_DIAL"
+            ),
+            False,
+            "拨打电话（可拨打付费号码）",
+        ),
+        "intercept": (
+            re.compile(
+                r"->abortBroadcast\(|BroadcastReceiver;->abortBroadcast"
+            ),
+            True,
+            "中止广播（配合短信 receiver 拦截短信不让系统显示）",
+        ),
+        "phone_state": (
+            re.compile(
+                r"PhoneStateListener|->getCallState\(|->listen\(|TelephonyManager;->getNetworkOperator"
+            ),
+            False,
+            "电话状态监听（通话监听/运营商信息）",
+        ),
     }
     r = _xref_semantic_audit(analysis_obj, checks, per_type_limit)
-    r["telephony_category_hit"] = sum(1 for c in r["categories"].values() if c["count"] > 0)
+    r["telephony_category_hit"] = sum(
+        1 for c in r["categories"].values() if c["count"] > 0
+    )
     return r
 
 
 def analysis_dynamic_code(analysis_obj, per_type_limit: int = 100) -> dict:
     """动态代码加载审计——DexClassLoader/native 库加载/运行时 defineClass（加固脱壳/恶意 payload 加载）。"""
     import re
+
     checks = {
-        "dex_loader": (re.compile(
-            r"DexClassLoader;->|PathClassLoader;->|InMemoryDexClassLoader;->|"
-            r"BaseDexClassLoader;->|DexFile;->(loadDex|loadClass)"),
-            True, "动态 DEX 加载（运行时加载额外代码，脱壳/热更新/恶意 payload）"),
-        "native_load": (re.compile(
-            r"Runtime;->(load|loadLibrary)\(|Ljava/lang/System;->(load|loadLibrary)\("),
-            False, "native 库加载（System.load 可加载任意路径 .so）"),
-        "define_class": (re.compile(
-            r"ClassLoader;->(defineClass|loadClass)\(|->getClassLoader\("),
-            False, "ClassLoader 操作（自定义类加载，可绕过完整性校验）"),
-        "reflection_load": (re.compile(
-            r"Ljava/lang/Class;->forName\(|->getDeclaredMethod\(|Method;->invoke\("),
-            False, "反射加载（配合动态加载调用隐藏代码，见 reflection-targets）"),
+        "dex_loader": (
+            re.compile(
+                r"DexClassLoader;->|PathClassLoader;->|InMemoryDexClassLoader;->|"
+                r"BaseDexClassLoader;->|DexFile;->(loadDex|loadClass)"
+            ),
+            True,
+            "动态 DEX 加载（运行时加载额外代码，脱壳/热更新/恶意 payload）",
+        ),
+        "native_load": (
+            re.compile(
+                r"Runtime;->(load|loadLibrary)\(|Ljava/lang/System;->(load|loadLibrary)\("
+            ),
+            False,
+            "native 库加载（System.load 可加载任意路径 .so）",
+        ),
+        "define_class": (
+            re.compile(
+                r"ClassLoader;->(defineClass|loadClass)\(|->getClassLoader\("
+            ),
+            False,
+            "ClassLoader 操作（自定义类加载，可绕过完整性校验）",
+        ),
+        "reflection_load": (
+            re.compile(
+                r"Ljava/lang/Class;->forName\(|->getDeclaredMethod\(|Method;->invoke\("
+            ),
+            False,
+            "反射加载（配合动态加载调用隐藏代码，见 reflection-targets）",
+        ),
     }
     r = _xref_semantic_audit(analysis_obj, checks, per_type_limit)
     r["uses_dynamic_loading"] = r["categories"]["dex_loader"]["count"] > 0
@@ -4645,45 +5132,79 @@ def analysis_dynamic_code(analysis_obj, per_type_limit: int = 100) -> dict:
 def analysis_persistence(analysis_obj, per_type_limit: int = 100) -> dict:
     """持久化/后台驻留审计——定时任务/闹钟/前台服务/设备管理员/无障碍（恶意驻留/提权特征）。"""
     import re
+
     checks = {
-        "device_admin": (re.compile(
-            r"DevicePolicyManager;->|DeviceAdminReceiver|->lockNow\(|->wipeData\(|"
-            r"->resetPassword\("),
-            True, "设备管理员（锁屏/清除数据/强制策略，勒索软件特征，难卸载）"),
-        "accessibility": (re.compile(
-            r"AccessibilityService|->performGlobalAction\(|AccessibilityNodeInfo;->|"
-            r"->getRootInActiveWindow\("),
-            True, "无障碍服务（可读取屏幕/模拟点击，覆盖攻击/自动化恶意操作）"),
-        "job_alarm": (re.compile(
-            r"JobScheduler;->schedule|AlarmManager;->(set|setRepeating|setExact|setInexactRepeating)|"
-            r"WorkManager;->enqueue"),
-            False, "定时任务/闹钟（后台周期唤醒，驻留机制）"),
-        "foreground_service": (re.compile(
-            r"->startForeground\(|->startForegroundService\(|Service;->startForeground"),
-            False, "前台服务（保活，长期后台运行）"),
-        "notification_listener": (re.compile(
-            r"NotificationListenerService|->getActiveNotifications\("),
-            True, "通知监听（读取所有应用通知，窃取验证码/消息）"),
+        "device_admin": (
+            re.compile(
+                r"DevicePolicyManager;->|DeviceAdminReceiver|->lockNow\(|->wipeData\(|"
+                r"->resetPassword\("
+            ),
+            True,
+            "设备管理员（锁屏/清除数据/强制策略，勒索软件特征，难卸载）",
+        ),
+        "accessibility": (
+            re.compile(
+                r"AccessibilityService|->performGlobalAction\(|AccessibilityNodeInfo;->|"
+                r"->getRootInActiveWindow\("
+            ),
+            True,
+            "无障碍服务（可读取屏幕/模拟点击，覆盖攻击/自动化恶意操作）",
+        ),
+        "job_alarm": (
+            re.compile(
+                r"JobScheduler;->schedule|AlarmManager;->(set|setRepeating|setExact|setInexactRepeating)|"
+                r"WorkManager;->enqueue"
+            ),
+            False,
+            "定时任务/闹钟（后台周期唤醒，驻留机制）",
+        ),
+        "foreground_service": (
+            re.compile(
+                r"->startForeground\(|->startForegroundService\(|Service;->startForeground"
+            ),
+            False,
+            "前台服务（保活，长期后台运行）",
+        ),
+        "notification_listener": (
+            re.compile(
+                r"NotificationListenerService|->getActiveNotifications\("
+            ),
+            True,
+            "通知监听（读取所有应用通知，窃取验证码/消息）",
+        ),
     }
     r = _xref_semantic_audit(analysis_obj, checks, per_type_limit)
-    r["persistence_category_hit"] = sum(1 for c in r["categories"].values() if c["count"] > 0)
+    r["persistence_category_hit"] = sum(
+        1 for c in r["categories"].values() if c["count"] > 0
+    )
     return r
 
 
 def analysis_weak_random(analysis_obj, per_type_limit: int = 100) -> dict:
     """不安全随机数审计（OWASP M10）——java.util.Random/Math.random 用于安全场景 vs SecureRandom。"""
     import re
+
     checks = {
-        "insecure_random": (re.compile(
-            r"Ljava/util/Random;->(<init>|nextInt|nextLong|nextBytes|nextDouble|nextFloat)|"
-            r"Ljava/lang/Math;->random\("),
-            True, "不安全随机（java.util.Random/Math.random 可预测，勿用于密钥/token/IV/盐）"),
-        "fixed_seed": (re.compile(
-            r"->setSeed\(|Random;-><init>\(J\)"),
-            True, "固定随机种子（setSeed 使随机数可预测复现）"),
-        "secure_random": (re.compile(
-            r"SecureRandom;->(<init>|nextBytes|nextInt|generateSeed)"),
-            False, "安全随机（SecureRandom，正确用法，对比参考）"),
+        "insecure_random": (
+            re.compile(
+                r"Ljava/util/Random;->(<init>|nextInt|nextLong|nextBytes|nextDouble|nextFloat)|"
+                r"Ljava/lang/Math;->random\("
+            ),
+            True,
+            "不安全随机（java.util.Random/Math.random 可预测，勿用于密钥/token/IV/盐）",
+        ),
+        "fixed_seed": (
+            re.compile(r"->setSeed\(|Random;-><init>\(J\)"),
+            True,
+            "固定随机种子（setSeed 使随机数可预测复现）",
+        ),
+        "secure_random": (
+            re.compile(
+                r"SecureRandom;->(<init>|nextBytes|nextInt|generateSeed)"
+            ),
+            False,
+            "安全随机（SecureRandom，正确用法，对比参考）",
+        ),
     }
     r = _xref_semantic_audit(analysis_obj, checks, per_type_limit)
     r["uses_insecure_random"] = r["categories"]["insecure_random"]["count"] > 0
@@ -4693,19 +5214,34 @@ def analysis_weak_random(analysis_obj, per_type_limit: int = 100) -> dict:
 def analysis_broadcast_safety(analysis_obj, per_type_limit: int = 100) -> dict:
     """广播收发安全审计——无权限广播/动态 receiver 注册/粘性广播（组件间通信劫持面）。"""
     import re
+
     checks = {
-        "send_broadcast": (re.compile(
-            r"->sendBroadcast\(|->sendOrderedBroadcast\(|->sendBroadcastAsUser\("),
-            False, "发送广播（无 receiverPermission 参数则任意应用可接收→敏感数据泄露）"),
-        "sticky_broadcast": (re.compile(
-            r"->sendStickyBroadcast\(|->sendStickyOrderedBroadcast\("),
-            True, "粘性广播（已废弃，无法限制接收者，数据持久暴露）"),
-        "register_dynamic": (re.compile(
-            r"->registerReceiver\("),
-            False, "动态注册 receiver（无 permission 参数则任意应用可触发→组件劫持）"),
-        "local_broadcast": (re.compile(
-            r"LocalBroadcastManager;->(sendBroadcast|registerReceiver)"),
-            False, "本地广播（进程内，安全用法，对比参考）"),
+        "send_broadcast": (
+            re.compile(
+                r"->sendBroadcast\(|->sendOrderedBroadcast\(|->sendBroadcastAsUser\("
+            ),
+            False,
+            "发送广播（无 receiverPermission 参数则任意应用可接收→敏感数据泄露）",
+        ),
+        "sticky_broadcast": (
+            re.compile(
+                r"->sendStickyBroadcast\(|->sendStickyOrderedBroadcast\("
+            ),
+            True,
+            "粘性广播（已废弃，无法限制接收者，数据持久暴露）",
+        ),
+        "register_dynamic": (
+            re.compile(r"->registerReceiver\("),
+            False,
+            "动态注册 receiver（无 permission 参数则任意应用可触发→组件劫持）",
+        ),
+        "local_broadcast": (
+            re.compile(
+                r"LocalBroadcastManager;->(sendBroadcast|registerReceiver)"
+            ),
+            False,
+            "本地广播（进程内，安全用法，对比参考）",
+        ),
     }
     r = _xref_semantic_audit(analysis_obj, checks, per_type_limit)
     return r
@@ -4714,19 +5250,34 @@ def analysis_broadcast_safety(analysis_obj, per_type_limit: int = 100) -> dict:
 def analysis_provider_safety(analysis_obj, per_type_limit: int = 100) -> dict:
     """ContentProvider 安全审计——openFile 路径穿越/URI 权限授予/跨应用数据访问。"""
     import re
+
     checks = {
-        "open_file": (re.compile(
-            r"ContentProvider;->openFile\(|->openAssetFile\(|ParcelFileDescriptor;->open\("),
-            True, "Provider openFile（若拼接 URI path 未校验→路径穿越读任意文件）"),
-        "grant_uri": (re.compile(
-            r"->grantUriPermission\(|FLAG_GRANT_READ_URI_PERMISSION|FLAG_GRANT_WRITE_URI_PERMISSION"),
-            False, "URI 权限授予（临时授予其他应用访问，需核验范围）"),
-        "resolver_access": (re.compile(
-            r"ContentResolver;->(query|insert|update|delete|openInputStream|openOutputStream)"),
-            False, "ContentResolver 访问（跨应用数据读写入口）"),
-        "provider_query": (re.compile(
-            r"ContentProvider;->(query|insert|update|delete)\("),
-            False, "Provider 查询实现（需核验 selection 注入 + 权限校验）"),
+        "open_file": (
+            re.compile(
+                r"ContentProvider;->openFile\(|->openAssetFile\(|ParcelFileDescriptor;->open\("
+            ),
+            True,
+            "Provider openFile（若拼接 URI path 未校验→路径穿越读任意文件）",
+        ),
+        "grant_uri": (
+            re.compile(
+                r"->grantUriPermission\(|FLAG_GRANT_READ_URI_PERMISSION|FLAG_GRANT_WRITE_URI_PERMISSION"
+            ),
+            False,
+            "URI 权限授予（临时授予其他应用访问，需核验范围）",
+        ),
+        "resolver_access": (
+            re.compile(
+                r"ContentResolver;->(query|insert|update|delete|openInputStream|openOutputStream)"
+            ),
+            False,
+            "ContentResolver 访问（跨应用数据读写入口）",
+        ),
+        "provider_query": (
+            re.compile(r"ContentProvider;->(query|insert|update|delete)\("),
+            False,
+            "Provider 查询实现（需核验 selection 注入 + 权限校验）",
+        ),
     }
     r = _xref_semantic_audit(analysis_obj, checks, per_type_limit)
     return r
@@ -4735,28 +5286,45 @@ def analysis_provider_safety(analysis_obj, per_type_limit: int = 100) -> dict:
 def analysis_anti_analysis(analysis_obj, per_type_limit: int = 100) -> dict:
     """反分析/加固对抗侦察——root/模拟器/调试器/Frida/Xposed 检测特征（字符串 + API 双路扫描）。"""
     import re
+
     # API 层检测（xref_to）
     api_checks = {
-        "debugger_api": (re.compile(
-            r"Debug;->(isDebuggerConnected|waitForDebugger)|->isDebuggerConnected\("),
-            True, "调试器检测 API（isDebuggerConnected，反调试）"),
+        "debugger_api": (
+            re.compile(
+                r"Debug;->(isDebuggerConnected|waitForDebugger)|->isDebuggerConnected\("
+            ),
+            True,
+            "调试器检测 API（isDebuggerConnected，反调试）",
+        ),
     }
     r = _xref_semantic_audit(analysis_obj, api_checks, per_type_limit)
 
     # 字符串特征层检测（get_strings）
     str_patterns = {
-        "root_detect": (re.compile(
-            r"/system/(bin|xbin)/su|/system/app/Superuser|busybox|magisk|"
-            r"test-keys|RootTools|/su/bin|which su", re.I),
-            "Root 检测特征串（su 路径/Magisk/Superuser/test-keys）"),
-        "emulator_detect": (re.compile(
-            r"ro\.kernel\.qemu|goldfish|ranchu|generic_x86|vbox|genymotion|"
-            r"android_x86|/dev/socket/qemud|nox|bluestacks", re.I),
-            "模拟器检测特征串（qemu/goldfish/genymotion/nox/bluestacks）"),
-        "frida_xposed": (re.compile(
-            r"frida|xposed|de\.robv\.android|/data/local/tmp/re\.frida|"
-            r"substrate|libfrida|EdXposed|LSPosed|riru", re.I),
-            "Frida/Xposed 检测特征串（hook 框架侦测）"),
+        "root_detect": (
+            re.compile(
+                r"/system/(bin|xbin)/su|/system/app/Superuser|busybox|magisk|"
+                r"test-keys|RootTools|/su/bin|which su",
+                re.I,
+            ),
+            "Root 检测特征串（su 路径/Magisk/Superuser/test-keys）",
+        ),
+        "emulator_detect": (
+            re.compile(
+                r"ro\.kernel\.qemu|goldfish|ranchu|generic_x86|vbox|genymotion|"
+                r"android_x86|/dev/socket/qemud|nox|bluestacks",
+                re.I,
+            ),
+            "模拟器检测特征串（qemu/goldfish/genymotion/nox/bluestacks）",
+        ),
+        "frida_xposed": (
+            re.compile(
+                r"frida|xposed|de\.robv\.android|/data/local/tmp/re\.frida|"
+                r"substrate|libfrida|EdXposed|LSPosed|riru",
+                re.I,
+            ),
+            "Frida/Xposed 检测特征串（hook 框架侦测）",
+        ),
     }
     str_results = {k: [] for k in str_patterns}
     strings_scanned = 0
@@ -4773,13 +5341,15 @@ def analysis_anti_analysis(analysis_obj, per_type_limit: int = 100) -> dict:
                         # get_xref_from() set 迭代序非确定 → 排序后切片固定 used_in
                         refs = sorted(
                             list(sa.get_xref_from())[:3],
-                            key=lambda t: f"{t[1].class_name}->{t[1].name}"
+                            key=lambda t: f"{t[1].class_name}->{t[1].name}",
                         )
                         for cm, mm, off in refs:
                             xf.append(f"{mm.class_name}->{mm.name}")
                     except Exception:
                         pass
-                    str_results[cat].append({"value": val[:120], "used_in": xf})
+                    str_results[cat].append(
+                        {"value": val[:120], "used_in": xf}
+                    )
                     break
     except Exception:
         pass
@@ -4795,8 +5365,9 @@ def analysis_anti_analysis(analysis_obj, per_type_limit: int = 100) -> dict:
             "meaning": desc,
             "samples": items[:per_type_limit] if per_type_limit else items,
         }
-    total_indicators = (r["categories"]["debugger_api"]["count"]
-                        + sum(c["count"] for c in string_categories.values()))
+    total_indicators = r["categories"]["debugger_api"]["count"] + sum(
+        c["count"] for c in string_categories.values()
+    )
     return {
         "scanned_methods": r["scanned_methods"],
         "strings_scanned": strings_scanned,
@@ -4810,19 +5381,32 @@ def analysis_anti_analysis(analysis_obj, per_type_limit: int = 100) -> dict:
 def analysis_network_security(analysis_obj, per_type_limit: int = 100) -> dict:
     """网络安全配置审计——明文 URL/证书固定/SSL 上下文/HTTP 客户端（通信安全总览，与 ssl-safety 互补）。"""
     import re
+
     # API 层
     api_checks = {
-        "cert_pinning": (re.compile(
-            r"CertificatePinner|->certificatePinner\(|->setSSLSocketFactory\(|"
-            r"X509TrustManager|network_security_config"),
-            False, "证书固定/TLS 配置（CertificatePinner=有固定，缺失则可被 MITM）"),
-        "http_client": (re.compile(
-            r"HttpURLConnection;->|OkHttpClient;->|Landroid/net/http/|"
-            r"DefaultHttpClient;->|HttpsURLConnection;->"),
-            False, "HTTP 客户端使用（网络请求入口，核验是否 https + 固定）"),
-        "ssl_context": (re.compile(
-            r"SSLContext;->(getInstance|init)|->getSocketFactory\(|SSLSocketFactory;->"),
-            False, "SSL 上下文（自定义 SSLContext 需核验 TrustManager，见 ssl-safety）"),
+        "cert_pinning": (
+            re.compile(
+                r"CertificatePinner|->certificatePinner\(|->setSSLSocketFactory\(|"
+                r"X509TrustManager|network_security_config"
+            ),
+            False,
+            "证书固定/TLS 配置（CertificatePinner=有固定，缺失则可被 MITM）",
+        ),
+        "http_client": (
+            re.compile(
+                r"HttpURLConnection;->|OkHttpClient;->|Landroid/net/http/|"
+                r"DefaultHttpClient;->|HttpsURLConnection;->"
+            ),
+            False,
+            "HTTP 客户端使用（网络请求入口，核验是否 https + 固定）",
+        ),
+        "ssl_context": (
+            re.compile(
+                r"SSLContext;->(getInstance|init)|->getSocketFactory\(|SSLSocketFactory;->"
+            ),
+            False,
+            "SSL 上下文（自定义 SSLContext 需核验 TrustManager，见 ssl-safety）",
+        ),
     }
     r = _xref_semantic_audit(analysis_obj, api_checks, per_type_limit)
 
@@ -4857,7 +5441,9 @@ def analysis_network_security(analysis_obj, per_type_limit: int = 100) -> dict:
         "cleartext_url_count": len(cleartext),
         "https_url_count": https_count,
         "has_cert_pinning": r["categories"]["cert_pinning"]["count"] > 0,
-        "cleartext_urls": cleartext[:per_type_limit] if per_type_limit else cleartext,
+        "cleartext_urls": (
+            cleartext[:per_type_limit] if per_type_limit else cleartext
+        ),
         "api_categories": r["categories"],
     }
 
@@ -4865,7 +5451,8 @@ def analysis_network_security(analysis_obj, per_type_limit: int = 100) -> dict:
 def analysis_obfuscation_metrics(analysis_obj) -> dict:
     """混淆度量——类名长度分布/反射密度/字符串覆盖/DEX 特征，量化 APK 混淆/加固程度。"""
     import re
-    short_name = 0       # 单/双字符类名（ProGuard/R8 混淆特征）
+
+    short_name = 0  # 单/双字符类名（ProGuard/R8 混淆特征）
     total_internal = 0
     reflection_calls = 0
     total_method_calls = 0
@@ -4884,7 +5471,8 @@ def analysis_obfuscation_metrics(analysis_obj) -> dict:
 
     reflect_pat = re.compile(
         r"Ljava/lang/reflect/|Class;->forName\(|->getDeclaredMethod\(|"
-        r"->getDeclaredField\(|Method;->invoke\(|ClassLoader;->loadClass\(")
+        r"->getDeclaredField\(|Method;->invoke\(|ClassLoader;->loadClass\("
+    )
     for ma in analysis_obj.get_methods():
         if ma.is_external():
             continue
@@ -4909,10 +5497,23 @@ def analysis_obfuscation_metrics(analysis_obj) -> dict:
     except Exception:
         pass
 
-    short_ratio = round(short_name / total_internal, 4) if total_internal else 0.0
-    reflect_density = round(reflection_calls / total_method_calls, 6) if total_method_calls else 0.0
+    short_ratio = (
+        round(short_name / total_internal, 4) if total_internal else 0.0
+    )
+    reflect_density = (
+        round(reflection_calls / total_method_calls, 6)
+        if total_method_calls
+        else 0.0
+    )
     # 简单混淆评分（0-100）
-    score = min(100, int(short_ratio * 70 + min(reflect_density * 3000, 20) + min(overwritten / 10, 10)))
+    score = min(
+        100,
+        int(
+            short_ratio * 70
+            + min(reflect_density * 3000, 20)
+            + min(overwritten / 10, 10)
+        ),
+    )
     return {
         "internal_class_count": total_internal,
         "short_name_class_count": short_name,
@@ -4923,15 +5524,21 @@ def analysis_obfuscation_metrics(analysis_obj) -> dict:
         "overwritten_string_count": overwritten,
         "obfuscation_score": score,
         "assessment": (
-            "heavily_obfuscated" if score >= 60 else
-            "moderately_obfuscated" if score >= 30 else
-            "lightly_or_not_obfuscated"
+            "heavily_obfuscated"
+            if score >= 60
+            else (
+                "moderately_obfuscated"
+                if score >= 30
+                else "lightly_or_not_obfuscated"
+            )
         ),
         "name_length_histogram": dict(sorted(name_len_hist.items())),
     }
 
 
-def apk_security_report(apk_obj, analysis_obj, dex_list=None, per_type_limit: int = 20) -> dict:
+def apk_security_report(
+    apk_obj, analysis_obj, dex_list=None, per_type_limit: int = 20
+) -> dict:
     """
     一键全量安全报告——聚合调用所有专项审计命令，输出顶层风险总览 + 风险评分。
     是整个漏洞审计套件的闭环入口：一条命令得到 APK 的完整安全画像。
@@ -4974,25 +5581,48 @@ def apk_security_report(apk_obj, analysis_obj, dex_list=None, per_type_limit: in
         res = _safe(name, fn)
         if res is None:
             continue
-        fc = res.get("finding_count", res.get("total_anti_analysis_indicators", 0))
+        fc = res.get(
+            "finding_count", res.get("total_anti_analysis_indicators", 0)
+        )
         # ssl-safety 用 mitm_vulnerable
         mitm = res.get("mitm_vulnerable")
         summary = {"finding_count": fc}
-        for k in ("uses_webview", "mitm_vulnerable", "uses_external_storage", "uses_sql",
-                  "uses_pending_intent", "uses_dynamic_loading", "uses_insecure_random",
-                  "has_anti_analysis", "has_cert_pinning", "cleartext_url_count",
-                  "privacy_category_hit", "telephony_category_hit", "persistence_category_hit"):
+        for k in (
+            "uses_webview",
+            "mitm_vulnerable",
+            "uses_external_storage",
+            "uses_sql",
+            "uses_pending_intent",
+            "uses_dynamic_loading",
+            "uses_insecure_random",
+            "has_anti_analysis",
+            "has_cert_pinning",
+            "cleartext_url_count",
+            "privacy_category_hit",
+            "telephony_category_hit",
+            "persistence_category_hit",
+        ):
             if k in res:
                 summary[k] = res[k]
         report["domains"][name] = summary
         total_findings += fc if isinstance(fc, int) else 0
         # 收集高危 findings（前几条）
         for f in (res.get("findings") or [])[:3]:
-            report["high_risk_findings"].append({"domain": name, **{
-                kk: f.get(kk) for kk in ("category", "from", "calls", "reason")}})
+            report["high_risk_findings"].append(
+                {
+                    "domain": name,
+                    **{
+                        kk: f.get(kk)
+                        for kk in ("category", "from", "calls", "reason")
+                    },
+                }
+            )
 
     # 混淆度量
-    obf = _safe("obfuscation_metrics", lambda: analysis_obfuscation_metrics(analysis_obj))
+    obf = _safe(
+        "obfuscation_metrics",
+        lambda: analysis_obfuscation_metrics(analysis_obj),
+    )
     if obf:
         report["domains"]["obfuscation"] = {
             "score": obf.get("obfuscation_score"),
@@ -5000,30 +5630,47 @@ def apk_security_report(apk_obj, analysis_obj, dex_list=None, per_type_limit: in
             "short_name_ratio": obf.get("short_name_ratio"),
         }
     # 通用扫描
-    hs = _safe("security_hotspots", lambda: analysis_security_hotspots(analysis_obj, L))
+    hs = _safe(
+        "security_hotspots",
+        lambda: analysis_security_hotspots(analysis_obj, L),
+    )
     if hs:
         report["domains"]["security_hotspots"] = {
-            "total": hs.get("total_findings", hs.get("total", 0))}
+            "total": hs.get("total_findings", hs.get("total", 0))
+        }
     if dex_list is None:
         dex_list = getattr(analysis_obj, "vms", None) or []
-    sec = _safe("hardcoded_secrets",
-                lambda: analysis_hardcoded_secrets(analysis_obj, dex_list, L))
+    sec = _safe(
+        "hardcoded_secrets",
+        lambda: analysis_hardcoded_secrets(analysis_obj, dex_list, L),
+    )
     if sec:
         report["domains"]["hardcoded_secrets"] = {
-            "finding_count": sec.get("total_findings", sec.get("finding_count", 0))}
-    atk = _safe("attack_surface", lambda: apk_attack_surface(apk_obj, analysis_obj))
+            "finding_count": sec.get(
+                "total_findings", sec.get("finding_count", 0)
+            )
+        }
+    atk = _safe(
+        "attack_surface", lambda: apk_attack_surface(apk_obj, analysis_obj)
+    )
     if atk:
         report["domains"]["attack_surface"] = {
-            "exposed_component_count": atk.get("exposed_component_count",
-                                               atk.get("total_exposed", 0)),
-            "critical_component_count": len(atk.get("critical_components", []))}
+            "exposed_component_count": atk.get(
+                "exposed_component_count", atk.get("total_exposed", 0)
+            ),
+            "critical_component_count": len(
+                atk.get("critical_components", [])
+            ),
+        }
     # deeplinks（跨模块局部导入避免循环）
     try:
         from . import apk_skills as _aps
+
         dl = apk_skills_deeplinks = _aps.apk_deeplinks(apk_obj)
         report["domains"]["deeplinks"] = {
             "deeplink_count": dl.get("deeplink_count", 0),
-            "web_reachable_count": dl.get("web_reachable_count", 0)}
+            "web_reachable_count": dl.get("web_reachable_count", 0),
+        }
     except Exception as e:
         report["errors"].append(f"deeplinks: {str(e)}")
 
@@ -5049,18 +5696,24 @@ def apk_security_report(apk_obj, analysis_obj, dex_list=None, per_type_limit: in
     report["total_high_risk_findings"] = total_findings
     report["composite_risk_score"] = risk
     report["risk_level"] = (
-        "critical" if risk >= 60 else
-        "high" if risk >= 35 else
-        "medium" if risk >= 15 else "low"
+        "critical"
+        if risk >= 60
+        else "high" if risk >= 35 else "medium" if risk >= 15 else "low"
     )
-    report["high_risk_findings"] = report["high_risk_findings"][:per_type_limit]
+    report["high_risk_findings"] = report["high_risk_findings"][
+        :per_type_limit
+    ]
     return report
 
 
 def analysis_find_methods_advanced(
-    analysis_obj, classname: str = ".*", methodname: str = ".*",
-    descriptor: str = ".*", accessflags: str = ".*",
-    no_external: bool = False, limit: int = 500
+    analysis_obj,
+    classname: str = ".*",
+    methodname: str = ".*",
+    descriptor: str = ".*",
+    accessflags: str = ".*",
+    no_external: bool = False,
+    limit: int = 500,
 ) -> dict:
     """
     多维正则方法搜索——直接用 androguard 原生 `Analysis.find_methods`，支持类名×方法名×
@@ -5079,9 +5732,15 @@ def analysis_find_methods_advanced(
     """
     methods = []
     truncated = False
-    for i, ma in enumerate(analysis_obj.find_methods(
-            classname=classname, methodname=methodname, descriptor=descriptor,
-            accessflags=accessflags, no_external=no_external)):
+    for i, ma in enumerate(
+        analysis_obj.find_methods(
+            classname=classname,
+            methodname=methodname,
+            descriptor=descriptor,
+            accessflags=accessflags,
+            no_external=no_external,
+        )
+    ):
         if len(methods) >= limit:
             truncated = True
             break
@@ -5089,17 +5748,21 @@ def analysis_find_methods_advanced(
             flags = ma.get_access_flags_string()
         except Exception:
             flags = None
-        methods.append({
-            "class": ma.class_name,
-            "method": ma.name,
-            "descriptor": ma.descriptor,
-            "access_flags": flags,
-            "is_external": ma.is_external(),
-        })
+        methods.append(
+            {
+                "class": ma.class_name,
+                "method": ma.name,
+                "descriptor": ma.descriptor,
+                "access_flags": flags,
+                "is_external": ma.is_external(),
+            }
+        )
     return {
         "filters": {
-            "classname": classname, "methodname": methodname,
-            "descriptor": descriptor, "accessflags": accessflags,
+            "classname": classname,
+            "methodname": methodname,
+            "descriptor": descriptor,
+            "accessflags": accessflags,
             "no_external": no_external,
         },
         "total": len(methods),
@@ -5126,12 +5789,14 @@ def analysis_find_classes_advanced(
         if len(classes) >= limit:
             truncated = True
             break
-        classes.append({
-            "name": ca.name,
-            "is_external": ca.is_external(),
-            "is_android_api": ca.is_android_api(),
-            "method_count": ca.get_nb_methods(),
-        })
+        classes.append(
+            {
+                "name": ca.name,
+                "is_external": ca.is_external(),
+                "is_android_api": ca.is_android_api(),
+                "method_count": ca.get_nb_methods(),
+            }
+        )
     return {
         "filters": {"name": name, "no_external": no_external},
         "total": len(classes),

@@ -46,6 +46,7 @@ class EmptyBorder:
 
 class SpaceBorder:
     "Box drawing characters. (Spaces)"
+
     HORIZONTAL = ' '
     VERTICAL = ' '
 
@@ -64,6 +65,7 @@ class SpaceBorder:
 
 class AsciiBorder:
     "Box drawing characters. (ASCII)"
+
     HORIZONTAL = '-'
     VERTICAL = '|'
 
@@ -82,6 +84,7 @@ class AsciiBorder:
 
 class ThinBorder:
     "Box drawing characters. (Thin)"
+
     HORIZONTAL = '\u2500'
     VERTICAL = '\u2502'
 
@@ -100,6 +103,7 @@ class ThinBorder:
 
 class RoundedBorder(ThinBorder):
     "Box drawing characters. (Rounded)"
+
     TOP_LEFT = '\u256d'
     TOP_RIGHT = '\u256e'
     BOTTOM_LEFT = '\u2570'
@@ -108,6 +112,7 @@ class RoundedBorder(ThinBorder):
 
 class ThickBorder:
     "Box drawing characters. (Thick)"
+
     HORIZONTAL = '\u2501'
     VERTICAL = '\u2503'
 
@@ -126,6 +131,7 @@ class ThickBorder:
 
 class DoubleBorder:
     "Box drawing characters. (Thin)"
+
     HORIZONTAL = '\u2550'
     VERTICAL = '\u2551'
 

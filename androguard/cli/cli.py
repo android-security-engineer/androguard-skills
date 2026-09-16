@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """Androguard is a full Python tool to reverse Android Applications."""
+
 import json
 import sys
 
@@ -9,7 +10,6 @@ import click
 import networkx as nx
 from loguru import logger
 
-from androguard.session import Session
 import androguard.core.apk
 from androguard import util
 from androguard.cli.main import (
@@ -22,6 +22,7 @@ from androguard.cli.main import (
     androtrace_main,
     export_apps_to_format,
 )
+from androguard.session import Session
 
 
 @click.group(help=__doc__)
@@ -413,7 +414,7 @@ def sign(hash_, print_all_hashes, show, apk):
 )
 def apkid(apks: list[str]):
     """Prints the packageName/versionCode/versionName per APK as JSON.
-    
+
     :param apks: list of apk filepaths
     """
     from androguard.core.apk import get_apkid
@@ -440,7 +441,7 @@ def apkid(apks: list[str]):
 )
 def analyze(session: str, apk: str):
     """Open a IPython Shell and start reverse engineering.
-    
+
     :param session: session file to restore
     :param apk: apk filename to analyze, if session not set
     """
@@ -677,8 +678,8 @@ def cg(
 
     if show:
         try:
-            import PyQt5
             import matplotlib.pyplot as plt
+            import PyQt5
 
         except ImportError:
             print(

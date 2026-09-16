@@ -379,9 +379,7 @@ def method2dot(
             <FONT FACE="{font_face}" color="%s">%s</FONT> %s
         </TD>
     </TR>
-    """.format(
-        font_face=font_face
-    )
+    """.format(font_face=font_face)
 
     link_tpl = '<TR><TD PORT="{}"></TD></TR>\n'
 
@@ -577,7 +575,7 @@ def method2format(
     1) use `raw` argument and pass a dictionary containing the keys
     `name`, `nodes` and `edges`. This can be created using [method2dot][androguard.core.bytecode.method2dot].
 
-    
+
     2) give a [MethodAnalysis][androguard.core.analysis.analysis.MethodAnalysis].
 
     This function requires pydot!
