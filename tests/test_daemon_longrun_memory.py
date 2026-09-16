@@ -17,6 +17,7 @@ test_daemon_rpc.py 验证单次 load 正确；test_daemon_scale_concurrency.py �
 运行：``pytest tests/test_daemon_longrun_memory.py -v``
 独立：``python3 tests/test_daemon_longrun_memory.py``
 """
+
 import os
 import socket
 import sys
@@ -33,16 +34,14 @@ from test_daemon_rpc import _DaemonHandle, _rpc, TEST_PORT
 
 # 候选 APK：多个不同 APK，覆盖不同规模（小/中/大），让每次 load 真正解析新对象
 _ALL_APKS = [
-    "TestActivity.apk",                # 174KB
-    "com.politedroid_4.apk",           # 18KB
-    "com.teleca.jamendo_35.apk",       # 426KB
-    "hello-world.apk",                 # 1.7MB
+    "TestActivity.apk",  # 174KB
+    "com.politedroid_4.apk",  # 18KB
+    "com.teleca.jamendo_35.apk",  # 426KB
+    "hello-world.apk",  # 1.7MB
     "com.android.example.text.styling.apk",  # 1.5MB
-    "a2dp.Vol_137.apk",                # 826KB
+    "a2dp.Vol_137.apk",  # 826KB
 ]
-_APK_PATHS = [
-    os.path.join(HERE, "data", "APK", n) for n in _ALL_APKS
-]
+_APK_PATHS = [os.path.join(HERE, "data", "APK", n) for n in _ALL_APKS]
 _APK_PATHS = [p for p in _APK_PATHS if os.path.exists(p)]
 
 _NEED_APKS = pytest.mark.skipif(
@@ -84,15 +83,30 @@ def _get_rss_mb(pid):
 
 
 @_NEED_APKS
+@pytest.mark.skipif(
+    sys.platform != "linux",
+    reason="内存泄漏检测依赖 Linux /proc RSS 与 glibc malloc_trim，非 Linux 不可用",
+)
 def test_daemon_repeated_load_no_memory_leak():
     """连续 load 不同 APK：内存增长有界，旧对象被回收，unload 后 RSS 回落。"""
     with _DaemonHandle(TEST_PORT + 50) as d:
         pid = d.proc.pid
         # 暖机：先 load 一次让进程稳定
-        _rpc(d.port, {"jsonrpc": "2.0", "method": "load_apk",
-                      "params": {"apk_path": _APK_PATHS[0]}, "id": 0}, timeout=120)
-        _rpc(d.port, {"jsonrpc": "2.0", "method": "status", "params": {}, "id": 0},
-             timeout=10)
+        _rpc(
+            d.port,
+            {
+                "jsonrpc": "2.0",
+                "method": "load_apk",
+                "params": {"apk_path": _APK_PATHS[0]},
+                "id": 0,
+            },
+            timeout=120,
+        )
+        _rpc(
+            d.port,
+            {"jsonrpc": "2.0", "method": "status", "params": {}, "id": 0},
+            timeout=10,
+        )
         time.sleep(1)
 
         baseline_rss = _get_rss_mb(pid)
@@ -105,13 +119,17 @@ def test_daemon_repeated_load_no_memory_leak():
             for apk in _APK_PATHS:
                 resp = _rpc(
                     d.port,
-                    {"jsonrpc": "2.0", "method": "load_apk",
-                     "params": {"apk_path": apk}, "id": r * 100},
+                    {
+                        "jsonrpc": "2.0",
+                        "method": "load_apk",
+                        "params": {"apk_path": apk},
+                        "id": r * 100,
+                    },
                     timeout=120,
                 )
-                assert "result" in resp, (
-                    f"第 {r} 轮 load {os.path.basename(apk)} 失败: {resp}"
-                )
+                assert (
+                    "result" in resp
+                ), f"第 {r} 轮 load {os.path.basename(apk)} 失败: {resp}"
                 cur = _get_rss_mb(pid)
                 if cur and cur > peak_rss:
                     peak_rss = cur
@@ -145,12 +163,13 @@ def test_daemon_repeated_load_no_memory_leak():
         # 但 glibc 不主动归还 arena；unload 调 malloc_trim(0) 强制归还。
         before_unload = _get_rss_mb(pid)
         unload_resp = _rpc(
-            d.port, {"jsonrpc": "2.0", "method": "unload", "params": {}, "id": 99},
+            d.port,
+            {"jsonrpc": "2.0", "method": "unload", "params": {}, "id": 99},
             timeout=30,
         )
-        assert "result" in unload_resp, (
-            f"unload 应返回 result，实际: {unload_resp}"
-        )
+        assert (
+            "result" in unload_resp
+        ), f"unload 应返回 result，实际: {unload_resp}"
         assert unload_resp["result"]["status"] == "unloaded"
         time.sleep(1)
         after_unload = _get_rss_mb(pid)
@@ -162,9 +181,14 @@ def test_daemon_repeated_load_no_memory_leak():
             f" after={after_unload:.1f}MB）——malloc_trim 可能未生效或无大 APK 已加载"
         )
         # unload 后 apk_loaded 应为 False
-        st = _rpc(d.port, {"jsonrpc": "2.0", "method": "status", "params": {}, "id": 100},
-                  timeout=10)
-        assert st["result"]["apk_loaded"] is False, "unload 后 apk_loaded 应为 False"
+        st = _rpc(
+            d.port,
+            {"jsonrpc": "2.0", "method": "status", "params": {}, "id": 100},
+            timeout=10,
+        )
+        assert (
+            st["result"]["apk_loaded"] is False
+        ), "unload 后 apk_loaded 应为 False"
 
 
 @_NEED_APKS
@@ -173,36 +197,63 @@ def test_daemon_load_failure_does_not_corrupt_state():
     # 用一个损坏/不存在的路径触发 load 失败
     with _DaemonHandle(TEST_PORT + 51) as d:
         # 先 load 一个正常 APK
-        ok = _rpc(d.port, {"jsonrpc": "2.0", "method": "load_apk",
-                           "params": {"apk_path": _APK_PATHS[0]}, "id": 1}, timeout=120)
+        ok = _rpc(
+            d.port,
+            {
+                "jsonrpc": "2.0",
+                "method": "load_apk",
+                "params": {"apk_path": _APK_PATHS[0]},
+                "id": 1,
+            },
+            timeout=120,
+        )
         assert "result" in ok
 
         # load 一个不存在的路径——应返回 error（-32603），不崩进程
-        bad = _rpc(d.port, {"jsonrpc": "2.0", "method": "load_apk",
-                            "params": {"apk_path": "/nonexistent.apk"}, "id": 2},
-                   timeout=30)
-        assert "error" in bad, (
-            f"load 不存在路径应返回 JSON-RPC error，实际: {bad}"
+        bad = _rpc(
+            d.port,
+            {
+                "jsonrpc": "2.0",
+                "method": "load_apk",
+                "params": {"apk_path": "/nonexistent.apk"},
+                "id": 2,
+            },
+            timeout=30,
         )
+        assert (
+            "error" in bad
+        ), f"load 不存在路径应返回 JSON-RPC error，实际: {bad}"
         assert bad["error"]["code"] == -32603
 
         # daemon 仍存活
-        st = _rpc(d.port, {"jsonrpc": "2.0", "method": "status", "params": {}, "id": 3},
-                  timeout=10)
-        assert st["result"]["status"] == "running", "load 失败后 daemon 应仍存活"
+        st = _rpc(
+            d.port,
+            {"jsonrpc": "2.0", "method": "status", "params": {}, "id": 3},
+            timeout=10,
+        )
+        assert (
+            st["result"]["status"] == "running"
+        ), "load 失败后 daemon 应仍存活"
 
         # 关键：load 失败不应把之前已加载的 APK 清掉（旧对象仍可用）
         # 或至少 daemon 不残留半解析对象导致后续命令崩溃
-        info = _rpc(d.port, {"jsonrpc": "2.0", "method": "apk_info",
-                             "params": {}, "id": 4}, timeout=30)
-        # info 可能返回 result（旧 APK 仍在）或 error（被清）——关键是结构化不崩
-        assert "result" in info or "error" in info, (
-            f"load 失败后 apk_info 应返回结构化结果，实际: {info}"
+        info = _rpc(
+            d.port,
+            {"jsonrpc": "2.0", "method": "apk_info", "params": {}, "id": 4},
+            timeout=30,
         )
+        # info 可能返回 result（旧 APK 仍在）或 error（被清）——关键是结构化不崩
+        assert (
+            "result" in info or "error" in info
+        ), f"load 失败后 apk_info 应返回结构化结果，实际: {info}"
 
 
 if __name__ == "__main__":
-    fns = [v for k, v in sorted(globals().items()) if k.startswith("test_") and callable(v)]
+    fns = [
+        v
+        for k, v in sorted(globals().items())
+        if k.startswith("test_") and callable(v)
+    ]
     passed = failed = 0
     for fn in fns:
         try:

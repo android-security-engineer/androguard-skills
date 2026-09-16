@@ -38,7 +38,7 @@ class StringTest(unittest.TestCase):
         # # Surrogates
         self.assertEqual("🙏", mutf8.decode(b"\xed\xa0\xbd\xed\xb9\x8f"))
         self.assertEqual(
-            "\U00014f5c", mutf8.decode(b"\xed\xa1\x93\xed\xbd\x9c")
+            "\U00024f5c", mutf8.decode(b"\xed\xa1\x93\xed\xbd\x9c")
         )
         # # Lonely surrogates
         # self.assertEqual("\ud853", mutf8.decode(b"\xed\xa1\x93"))
@@ -67,7 +67,7 @@ class StringTest(unittest.TestCase):
             .decode('utf8'),
         )
         self.assertEqual(
-            "\U00014f5c",
+            "\U00024f5c",
             mutf8.decode(b"\xed\xa1\x93\xed\xbd\x9c")
             .encode('utf8', errors='backslashreplace')
             .decode('utf8'),
@@ -90,10 +90,10 @@ class StringTest(unittest.TestCase):
             mutf8.encode("hello world"),
         )
         self.assertEqual(
-            b"\xed\xa2\x93\xed\xbd\x9c", mutf8.encode("\U00024f5c")
+            b"\xed\xa1\x93\xed\xbd\x9c", mutf8.encode("\U00024f5c")
         )
         self.assertEqual(
-            b"\xed\xa1\xbd\xed\xb9\x8f", mutf8.encode("\U0001f64f")
+            b"\xed\xa0\xbd\xed\xb9\x8f", mutf8.encode("\U0001f64f")
         )
         # self.assertEqual(b"\xed\xa1\x93", mutf8.encode("\ud853"))
         # self.assertEqual(b, mutf8.encode("\U00024f5c\U0001f64f\ud83d\uacf0hello world\x00"))
